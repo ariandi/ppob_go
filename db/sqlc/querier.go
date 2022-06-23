@@ -10,16 +10,24 @@ import (
 
 type Querier interface {
 	CreateRole(ctx context.Context, arg CreateRoleParams) (Role, error)
+	CreateRoleUser(ctx context.Context, arg CreateRoleUserParams) (RoleUser, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteRole(ctx context.Context, id int64) error
+	DeleteRoleUser(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
 	GetRole(ctx context.Context, id int64) (Role, error)
+	GetRoleUserByID(ctx context.Context, id int64) (RoleUser, error)
+	GetRoleUserByRoleID(ctx context.Context, arg GetRoleUserByRoleIDParams) ([]RoleUser, error)
+	GetRoleUserByUserID(ctx context.Context, arg GetRoleUserByUserIDParams) ([]RoleUser, error)
 	GetUser(ctx context.Context, id int64) (User, error)
 	ListRole(ctx context.Context, arg ListRoleParams) ([]Role, error)
+	ListRoleUser(ctx context.Context, arg ListRoleUserParams) ([]RoleUser, error)
 	ListUser(ctx context.Context, arg ListUserParams) ([]User, error)
 	UpdateInactiveRole(ctx context.Context, arg UpdateInactiveRoleParams) (Role, error)
+	UpdateInactiveRoleUser(ctx context.Context, arg UpdateInactiveRoleUserParams) (RoleUser, error)
 	UpdateInactiveUser(ctx context.Context, arg UpdateInactiveUserParams) (User, error)
 	UpdateRole(ctx context.Context, arg UpdateRoleParams) (Role, error)
+	UpdateRoleUser(ctx context.Context, arg UpdateRoleUserParams) (RoleUser, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 

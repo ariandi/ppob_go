@@ -10,11 +10,16 @@ import (
 	"time"
 )
 
-func CreateRandomRole(t *testing.T) Role {
+func CreateRandomRole(t *testing.T, delete bool) Role {
 	var checkExistRole = false
 	var role1 Role
 	user1 := CreateRandomUser(t)
 	roleName := util.RandomRole()
+
+	// just for delete
+	if delete {
+		roleName = "delete"
+	}
 
 	roles := GetRoles(t)
 
@@ -54,11 +59,11 @@ func CreateRandomRole(t *testing.T) Role {
 }
 
 func TestCreateRole(t *testing.T) {
-	CreateRandomRole(t)
+	CreateRandomRole(t, false)
 }
 
 func TestGetRole(t *testing.T) {
-	role1 := CreateRandomRole(t)
+	role1 := CreateRandomRole(t, false)
 	role2, err := testQueries.GetRole(context.Background(), role1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, role2)
@@ -76,7 +81,7 @@ func TestGetRole(t *testing.T) {
 
 func TestUpdateRole(t *testing.T) {
 	user1 := CreateRandomUser(t)
-	role1 := CreateRandomRole(t)
+	role1 := CreateRandomRole(t, false)
 
 	arg := UpdateRoleParams{
 		ID:    role1.ID,
@@ -107,7 +112,7 @@ func TestUpdateRole(t *testing.T) {
 
 func TestUpdateDeleteRole(t *testing.T) {
 	user1 := CreateRandomUser(t)
-	role1 := CreateRandomRole(t)
+	role1 := CreateRandomRole(t, false)
 
 	var arg = UpdateInactiveRoleParams{
 		ID:        role1.ID,
@@ -131,7 +136,7 @@ func TestUpdateDeleteRole(t *testing.T) {
 }
 
 func TestDeleteRole(t *testing.T) {
-	role1 := CreateRandomRole(t)
+	role1 := CreateRandomRole(t, true)
 	err := testQueries.DeleteRole(context.Background(), role1.ID)
 
 	role2, err := testQueries.GetRole(context.Background(), role1.ID)
@@ -142,7 +147,7 @@ func TestDeleteRole(t *testing.T) {
 
 func TestListRoles(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		CreateRandomRole(t)
+		CreateRandomRole(t, false)
 	}
 
 	arg := ListRoleParams{
