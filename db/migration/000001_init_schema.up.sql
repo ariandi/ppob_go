@@ -297,10 +297,10 @@ ALTER TABLE "transactions"
     ADD FOREIGN KEY ("prod_id") REFERENCES "products" ("id");
 
 ALTER TABLE "transactions"
-    ADD FOREIGN KEY ("partner_id") REFERENCES "products" ("id");
+    ADD FOREIGN KEY ("partner_id") REFERENCES "partners" ("id");
 
 ALTER TABLE "transactions"
-    ADD FOREIGN KEY ("provider_id") REFERENCES "partners" ("id");
+    ADD FOREIGN KEY ("provider_id") REFERENCES "providers" ("id");
 
 ALTER TABLE "transactions"
     ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");

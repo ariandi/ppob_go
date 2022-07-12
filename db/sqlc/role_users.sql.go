@@ -93,7 +93,7 @@ func (q *Queries) GetRoleUserByRoleID(ctx context.Context, arg GetRoleUserByRole
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RoleUser
+	items := []RoleUser{}
 	for rows.Next() {
 		var i RoleUser
 		if err := rows.Scan(
@@ -140,7 +140,7 @@ func (q *Queries) GetRoleUserByUserID(ctx context.Context, arg GetRoleUserByUser
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RoleUser
+	items := []RoleUser{}
 	for rows.Next() {
 		var i RoleUser
 		if err := rows.Scan(
@@ -185,7 +185,7 @@ func (q *Queries) ListRoleUser(ctx context.Context, arg ListRoleUserParams) ([]R
 		return nil, err
 	}
 	defer rows.Close()
-	var items []RoleUser
+	items := []RoleUser{}
 	for rows.Next() {
 		var i RoleUser
 		if err := rows.Scan(
