@@ -36,6 +36,7 @@ type Querier interface {
 	GetTransaction(ctx context.Context, id int64) (Transaction, error)
 	GetTransactionByTxID(ctx context.Context, txID string) (Transaction, error)
 	GetUser(ctx context.Context, id int64) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 	ListCategory(ctx context.Context, arg ListCategoryParams) ([]Category, error)
 	ListPartner(ctx context.Context, arg ListPartnerParams) ([]Partner, error)
 	ListProduct(ctx context.Context, arg ListProductParams) ([]Product, error)

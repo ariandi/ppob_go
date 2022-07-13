@@ -1,6 +1,10 @@
 package dto
 
-import "database/sql"
+import (
+	"database/sql"
+	"github.com/google/uuid"
+	"time"
+)
 
 type CreateUserRequest struct {
 	Name           string `json:"name" binding:"required"`
@@ -11,7 +15,7 @@ type CreateUserRequest struct {
 	IdentityNumber string `json:"identity_number" binding:"required"`
 }
 
-type CreateUserResponse struct {
+type UserResponse struct {
 	ID             int64          `json:"id"`
 	Name           string         `json:"name"`
 	Email          string         `json:"email"`
@@ -39,4 +43,18 @@ type GetUserRequest struct {
 type ListUserRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+type LoginUserRequest struct {
+	Username string `json:"username" binding:"required,alphanum"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type LoginUserResponse struct {
+	SessionID             uuid.UUID    `json:"session_id"`
+	AccessToken           string       `json:"access_token"`
+	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
+	RefreshToken          string       `json:"refresh_token"`
+	RefreshTokenExpiresAt time.Time    `json:"refresh_token_expires_at"`
+	User                  UserResponse `json:"user"`
 }

@@ -4,14 +4,16 @@ import (
 	"database/sql"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
+	"github.com/ariandi/ppob_go/middleware"
+	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"net/http"
 )
 
-func newUserResponse(user db.User) dto.CreateUserResponse {
-	return dto.CreateUserResponse{
+func newUserResponse(user db.User) dto.UserResponse {
+	return dto.UserResponse{
 		ID:             user.ID,
 		Name:           user.Name,
 		Email:          user.Email,
@@ -29,11 +31,21 @@ func (server *Server) createUsers(c *gin.Context) {
 		return
 	}
 
+	authPayload := c.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 	arg := db.CreateUserParams{
 		Name:           req.Name,
 		Email:          req.Email,
 		Username:       req.Username,
-		CreatedBy:      sql.NullInt64{Int64: 1, Valid: true},
+		CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
 		Phone:          req.Phone,
 		Balance:        sql.NullString{String: "0.00", Valid: true},
 		IdentityNumber: req.IdentityNumber,
@@ -172,4 +184,70 @@ func (server *Server) updateUsers(c *gin.Context) {
 
 	resp := newUserResponse(users)
 	c.JSON(http.StatusOK, resp)
+}
+
+func (server *Server) loginUser(ctx *gin.Context) {
+	var req dto.LoginUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := server.store.GetUserByUsername(ctx, req.Username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = util.CheckPassword(req.Password, user.Password.String)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	accessToken, accessPayload, err := server.TokenMaker.CreateToken(
+		user.Username,
+		server.config.AccessTokenDuration,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	refreshToken, refreshPayload, err := server.TokenMaker.CreateToken(
+		user.Username,
+		server.config.AccessTokenDuration,
+	)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	//session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
+	//	ID:           refreshPayload.ID,
+	//	Username:     user.Username,
+	//	RefreshToken: refreshToken,
+	//	UserAgent:    ctx.Request.UserAgent(),
+	//	ClientIp:     ctx.ClientIP(),
+	//	IsBlocked:    false,
+	//	ExpiresAt:    refreshPayload.ExpiredAt,
+	//})
+	//if err != nil {
+	//	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	//	return
+	//}
+
+	rsp := dto.LoginUserResponse{
+		//SessionID:             session.ID,
+		AccessToken:           accessToken,
+		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
+		RefreshToken:          refreshToken,
+		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
+		User:                  newUserResponse(user),
+	}
+	ctx.JSON(http.StatusOK, rsp)
 }

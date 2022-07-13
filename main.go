@@ -9,9 +9,9 @@ import (
 	"log"
 )
 
-const dbDriver = "postgres"
-const dbSource = "postgresql://postgres:postgres@localhost:5432/ppob?sslmode=disable"
-const serverAddress = "0.0.0.0:8080"
+//const dbDriver = "postgres"
+//const dbSource = "postgresql://postgres:postgres@localhost:5432/ppob?sslmode=disable"
+//const serverAddress = "0.0.0.0:8080"
 
 func main() {
 	config, err := util.LoadConfig(".")
@@ -25,11 +25,11 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	//server, err := api.NewServer(config, store)
-	server := api.NewServer(store)
-	//if err != nil {
-	//	log.Fatal("cannot create server", err)
-	//}
+	server, err := api.NewServer(config, store)
+	//server := api.NewServer(store)
+	if err != nil {
+		log.Fatal("cannot create server", err)
+	}
 
 	err = server.Start(config.ServerAddress)
 	if err != nil {
