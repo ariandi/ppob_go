@@ -3,24 +3,27 @@ package api
 import (
 	"database/sql"
 	db "github.com/ariandi/ppob_go/db/sqlc"
+	"github.com/ariandi/ppob_go/dto"
+	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"net/http"
 )
 
-type createUserRequest struct {
-	Name           string `json:"name" binding:"required"`
-	Email          string `json:"email" binding:"required"`
-	Password       string `json:"password"`
-	Username       string `json:"username" binding:"required"`
-	CreatedBy      string `json:"created_by"`
-	Phone          string `json:"phone"`
-	Balance        string `json:"balance"`
-	IdentityNumber string `json:"identity_number" binding:"required"`
+func newUserResponse(user db.User) dto.CreateUserResponse {
+	return dto.CreateUserResponse{
+		ID:             user.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		Username:       user.Username,
+		Balance:        user.Balance,
+		Phone:          user.Phone,
+		IdentityNumber: user.IdentityNumber,
+	}
 }
 
 func (server *Server) createUsers(c *gin.Context) {
-	var req createUserRequest
+	var req dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -34,7 +37,15 @@ func (server *Server) createUsers(c *gin.Context) {
 		Phone:          req.Phone,
 		Balance:        sql.NullString{String: "0.00", Valid: true},
 		IdentityNumber: req.IdentityNumber,
-		Password:       sql.NullString{String: req.Password, Valid: true},
+	}
+
+	if req.Password != "" {
+		password, err := util.HashPassword(req.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
 	users, err := server.store.CreateUser(c, arg)
@@ -50,7 +61,8 @@ func (server *Server) createUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, users)
+	resp := newUserResponse(users)
+	c.JSON(http.StatusOK, resp)
 }
 
 type getUserRequest struct {

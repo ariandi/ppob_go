@@ -39,3 +39,5 @@ mock:
 .PHONY: network postgres createdb dropdb migrateup migratedown migrateup1 migratedown1 sqlc test server mock
 
 #docker run --rm -v "$(pwd):/src" -w /src kjconroy/sqlc generate
+#mockgen -destination=.\db\mock\store.go -package=mockdb github.com/ariandi/ppob_go/db/sqlc Store
+#mockgen -package mockdb -destination .\db\mock\store.go github.com/ariandi/ppob_go/db/sqlc Store
