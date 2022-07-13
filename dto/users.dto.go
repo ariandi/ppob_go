@@ -7,10 +7,8 @@ type CreateUserRequest struct {
 	Email          string `json:"email" binding:"required,email"`
 	Username       string `json:"username" binding:"required,alphanum"`
 	Password       string `json:"password" binding:"min=6"`
-	Balance        string `json:"balance"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number" binding:"required"`
-	CreatedBy      int64  `json:"created_by"`
 }
 
 type CreateUserResponse struct {
@@ -21,4 +19,24 @@ type CreateUserResponse struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+}
+
+type UpdateUserRequest struct {
+	ID             int64  `uri:"id" binding:"required,min=1"`
+	Name           string `json:"name" binding:"required"`
+	Email          string `json:"email" binding:"required,email"`
+	Username       string `json:"username" binding:"required,alphanum"`
+	Password       string `json:"password" binding:"min=6"`
+	Balance        string `json:"balance"`
+	Phone          string `json:"phone"`
+	IdentityNumber string `json:"identity_number" binding:"required"`
+}
+
+type GetUserRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
+}
+
+type ListUserRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }

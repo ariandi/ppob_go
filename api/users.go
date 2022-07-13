@@ -65,12 +65,8 @@ func (server *Server) createUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-type getUserRequest struct {
-	ID int64 `uri:"id" binding:"required,min=1"`
-}
-
 func (server *Server) getUser(ctx *gin.Context) {
-	var req getUserRequest
+	var req dto.GetUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -97,13 +93,8 @@ func (server *Server) getUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-type listUserRequest struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
-}
-
 func (server *Server) listUsers(c *gin.Context) {
-	var req listUserRequest
+	var req dto.ListUserRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -123,4 +114,62 @@ func (server *Server) listUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+func (server *Server) updateUsers(c *gin.Context) {
+	var req dto.UpdateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	arg := db.UpdateUserParams{
+		ID:                req.ID,
+		SetName:           false,
+		Name:              req.Name,
+		SetPhone:          false,
+		Phone:             req.Phone,
+		SetIdentityNumber: false,
+		IdentityNumber:    req.IdentityNumber,
+		SetPassword:       false,
+		UpdatedBy:         sql.NullInt64{Int64: 1, Valid: true},
+	}
+
+	if req.Name != "" {
+		arg.SetName = true
+	}
+
+	if req.Phone != "" {
+		arg.SetPhone = true
+	}
+
+	if req.IdentityNumber != "" {
+		arg.SetIdentityNumber = true
+	}
+
+	if req.Password != "" {
+		arg.SetPassword = true
+		password, err := util.HashPassword(req.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		arg.Password = sql.NullString{String: password, Valid: true}
+	}
+
+	users, err := server.store.UpdateUser(c, arg)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				c.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+		}
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	resp := newUserResponse(users)
+	c.JSON(http.StatusOK, resp)
 }

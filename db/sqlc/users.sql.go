@@ -187,28 +187,67 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE
     users
 SET
-    name = $2,
-    password = $3,
-    updated_by = $4,
+    name = CASE
+                   WHEN $1::bool
+                    THEN $2
+                   ELSE name
+            END,
+    phone = CASE
+                 WHEN $3::bool
+                    THEN $4
+                 ELSE phone
+            END,
+    identity_number = CASE
+                WHEN $5::bool
+                    THEN $6
+                ELSE identity_number
+            END,
+    password = CASE
+                WHEN $7::bool
+                    THEN $8
+                ELSE password
+            END,
+    balance = CASE
+               WHEN $9::bool
+                THEN $10
+               ELSE balance
+            END,
+    updated_by = $11,
     updated_at = now()
 WHERE
-    id = $1
+    id = $12
 RETURNING id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateUserParams struct {
-	ID        int64          `json:"id"`
-	Name      string         `json:"name"`
-	Password  sql.NullString `json:"password"`
-	UpdatedBy sql.NullInt64  `json:"updated_by"`
+	SetName           bool           `json:"set_name"`
+	Name              string         `json:"name"`
+	SetPhone          bool           `json:"set_phone"`
+	Phone             string         `json:"phone"`
+	SetIdentityNumber bool           `json:"set_identity_number"`
+	IdentityNumber    string         `json:"identity_number"`
+	SetPassword       bool           `json:"set_password"`
+	Password          sql.NullString `json:"password"`
+	SetBalance        bool           `json:"set_balance"`
+	Balance           sql.NullString `json:"balance"`
+	UpdatedBy         sql.NullInt64  `json:"updated_by"`
+	ID                int64          `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
 	row := q.db.QueryRowContext(ctx, updateUser,
-		arg.ID,
+		arg.SetName,
 		arg.Name,
+		arg.SetPhone,
+		arg.Phone,
+		arg.SetIdentityNumber,
+		arg.IdentityNumber,
+		arg.SetPassword,
 		arg.Password,
+		arg.SetBalance,
+		arg.Balance,
 		arg.UpdatedBy,
+		arg.ID,
 	)
 	var i User
 	err := row.Scan(

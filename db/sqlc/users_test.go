@@ -77,8 +77,10 @@ func TestUpdateUser(t *testing.T) {
 	user1 := CreateRandomUser(t)
 
 	arg := UpdateUserParams{
-		ID:   user1.ID,
-		Name: user1.Name,
+		ID:          user1.ID,
+		SetName:     true,
+		Name:        user1.Name,
+		SetPassword: true,
 		Password: sql.NullString{
 			String: user1.Password.String,
 			Valid:  true,

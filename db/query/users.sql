@@ -19,12 +19,35 @@ OFFSET $2;
 UPDATE
     users
 SET
-    name = $2,
-    password = $3,
-    updated_by = $4,
+    name = CASE
+                   WHEN sqlc.arg(set_name)::bool
+                    THEN sqlc.arg(name)
+                   ELSE name
+            END,
+    phone = CASE
+                 WHEN sqlc.arg(set_phone)::bool
+                    THEN sqlc.arg(phone)
+                 ELSE phone
+            END,
+    identity_number = CASE
+                WHEN sqlc.arg(set_identity_number)::bool
+                    THEN sqlc.arg(identity_number)
+                ELSE identity_number
+            END,
+    password = CASE
+                WHEN sqlc.arg(set_password)::bool
+                    THEN sqlc.arg(password)
+                ELSE password
+            END,
+    balance = CASE
+               WHEN sqlc.arg(set_balance)::bool
+                THEN sqlc.arg(balance)
+               ELSE balance
+            END,
+    updated_by = sqlc.arg(updated_by),
     updated_at = now()
 WHERE
-    id = $1
+    id = sqlc.arg(id)
 RETURNING *;
 
 -- name: UpdateInactiveUser :one
