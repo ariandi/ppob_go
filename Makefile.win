@@ -41,3 +41,12 @@ mock:
 #docker run --rm -v "$(pwd):/src" -w /src kjconroy/sqlc generate
 #mockgen -destination=.\db\mock\store.go -package=mockdb github.com/ariandi/ppob_go/db/sqlc Store
 #mockgen -package mockdb -destination .\db\mock\store.go github.com/ariandi/ppob_go/db/sqlc Store
+
+#docker build -t ppob_go:latest .
+#docker rmi <image_id>
+#docker run --name ppob_go --network ppob-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE=postgresql://postgres:postgres@postgres-local/ppob?sslmode=disable ppob_go:latest
+#docker container inspect postgres-local
+#docker notwork ls
+#docker notwork inspect bridge
+#docker network create ppob-network
+#docker network connect ppob-network postgres-local
