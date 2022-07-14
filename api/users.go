@@ -86,22 +86,18 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 
 	//authPayload := c.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
 	userPayload, err := server.store.GetUserByUsername(c, "dbduabelas")
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+	if err == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user already exist"})
 		return
 	}
 	arg := db.CreateUserParams{
-		Name:           req.Name,
-		Email:          req.Email,
-		Username:       req.Username,
+		Name:           "Ariandi Nugraha",
+		Email:          "dbduabelas@gmail.com",
+		Username:       "dbduabelas",
 		CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
-		Phone:          req.Phone,
+		Phone:          "081219836581",
 		Balance:        sql.NullString{String: "0.00", Valid: true},
-		IdentityNumber: req.IdentityNumber,
+		IdentityNumber: "3201011411870003",
 	}
 
 	if req.Password != "" {

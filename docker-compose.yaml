@@ -13,9 +13,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_SOURCE=postgresql://postgres:postgres@latihan-postgres-1:5432/ppob?sslmode=disable
+      - DB_SOURCE=postgresql://postgres:postgres@postgres:5432/ppob?sslmode=disable
     depends_on:
-      - postgres-local
+      - postgres
     entrypoint:
       [
         "/app/wait-for.sh",
