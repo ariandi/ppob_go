@@ -1,11 +1,8 @@
-package middleware
+package api
 
 import (
 	"fmt"
-	"github.com/ariandi/ppob_go/api"
-	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/token"
-	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -105,16 +102,4 @@ func TestAuthMiddleware(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-}
-
-func newTestServer(t *testing.T, store db.Store) *api.Server {
-	config := util.Config{
-		TokenSymmetricKey:   util.RandomString(32),
-		AccessTokenDuration: time.Minute,
-	}
-
-	server, err := api.NewServer(config, store)
-	require.NoError(t, err)
-
-	return server
 }

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	mockdb "github.com/ariandi/ppob_go/db/mock"
 	db "github.com/ariandi/ppob_go/db/sqlc"
-	"github.com/ariandi/ppob_go/middleware"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -71,7 +70,7 @@ func TestCreateUserApi(t *testing.T) {
 				"password":        password,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateUserParams{
@@ -171,7 +170,7 @@ func TestCreateUserApi(t *testing.T) {
 				"password":        password,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -199,7 +198,7 @@ func TestCreateUserApi(t *testing.T) {
 				"password":        password,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -227,7 +226,7 @@ func TestCreateUserApi(t *testing.T) {
 				"password":        password,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -254,7 +253,7 @@ func TestCreateUserApi(t *testing.T) {
 				"email":           "invalid-email",
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -281,7 +280,7 @@ func TestCreateUserApi(t *testing.T) {
 				"email":           "invalid-email",
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-				addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
+				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -367,20 +366,4 @@ func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
 	//require.Equal(t, user.IdentityNumber, gotUser.IdentityNumber)
 	//require.Equal(t, user.Balance.String, gotUser.Balance.String)
 	require.Empty(t, gotUser.Password.String)
-}
-
-func addAuthorization(
-	t *testing.T,
-	request *http.Request,
-	tokenMaker token.Maker,
-	authorizationType string,
-	username string,
-	duration time.Duration,
-) {
-	createToken, payload, err := tokenMaker.CreateToken(username, duration)
-	require.NoError(t, err)
-	require.NotEmpty(t, payload)
-
-	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, createToken)
-	request.Header.Set(middleware.AuthorizationHeaderKey, authorizationHeader)
 }

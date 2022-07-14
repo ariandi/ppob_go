@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	db "github.com/ariandi/ppob_go/db/sqlc"
-	"github.com/ariandi/ppob_go/middleware"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -57,7 +56,7 @@ func (server *Server) setupRouter() {
 	router.POST("/users/login", server.loginUser)
 	router.POST("/users/test-create", server.createUsersFirst)
 
-	authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.TokenMaker))
+	authRoutes := router.Group("/").Use(AuthMiddleware(server.TokenMaker))
 	authRoutes.POST("/users", server.createUsers)
 	authRoutes.GET("/users/:id", server.getUser)
 	authRoutes.GET("/users", server.listUsers)

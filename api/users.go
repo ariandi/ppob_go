@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/middleware"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -31,7 +30,7 @@ func (server *Server) createUsers(c *gin.Context) {
 		return
 	}
 
-	authPayload := c.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+	authPayload := c.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
