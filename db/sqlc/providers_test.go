@@ -66,7 +66,7 @@ func CreateRandomProvider(t *testing.T) Provider {
 	require.Equal(t, arg.Secret, provider.Secret)
 	require.Equal(t, arg.AddInfo1, provider.AddInfo1)
 	require.Equal(t, arg.AddInfo2, provider.AddInfo2)
-	require.Equal(t, arg.ValidFrom.Time.Format("2006-01-02 15:04:05"), provider.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"))
+	require.Equal(t, arg.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"), provider.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"))
 	require.Equal(t, arg.ValidTo.Time.Format("2006-01-02 15:04:05"), provider.ValidTo.Time.Format("2006-01-02 15:04:05"))
 	require.Equal(t, arg.BaseUrl, provider.BaseUrl)
 	require.Equal(t, arg.Method, provider.Method)
