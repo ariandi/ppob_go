@@ -43,7 +43,7 @@ func CreateRandomPartner(t *testing.T) Partner {
 	require.Equal(t, arg.Secret, partner.Secret)
 	require.Equal(t, arg.AddInfo1, partner.AddInfo1)
 	require.Equal(t, arg.AddInfo2, partner.AddInfo2)
-	require.Equal(t, arg.ValidFrom.Time.Format("2006-01-02 15:04:05"), partner.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"))
+	require.Equal(t, arg.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"), partner.ValidFrom.Time.In(cstSh).Format("2006-01-02 15:04:05"))
 	require.Equal(t, arg.ValidTo.Time.Format("2006-01-02 15:04:05"), partner.ValidTo.Time.Format("2006-01-02 15:04:05"))
 	require.Equal(t, arg.PaymentType, partner.PaymentType)
 	require.Equal(t, arg.Status, partner.Status)
