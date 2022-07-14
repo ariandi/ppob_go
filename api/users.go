@@ -77,6 +77,59 @@ func (server *Server) createUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+func (server *Server) createUsersFirst(c *gin.Context) {
+	var req dto.CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	//authPayload := c.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+	userPayload, err := server.store.GetUserByUsername(c, "dbduabelas")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	arg := db.CreateUserParams{
+		Name:           req.Name,
+		Email:          req.Email,
+		Username:       req.Username,
+		CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
+		Phone:          req.Phone,
+		Balance:        sql.NullString{String: "0.00", Valid: true},
+		IdentityNumber: req.IdentityNumber,
+	}
+
+	if req.Password != "" {
+		password, err := util.HashPassword(req.Password)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		arg.Password = sql.NullString{String: password, Valid: true}
+	}
+
+	users, err := server.store.CreateUser(c, arg)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation", "unique_violation":
+				c.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
+		}
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	resp := newUserResponse(users)
+	c.JSON(http.StatusOK, resp)
+}
+
 func (server *Server) getUser(ctx *gin.Context) {
 	var req dto.GetUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
