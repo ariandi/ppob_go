@@ -4,7 +4,7 @@ network:
 	docker network create sport-book
 
 postgres:
-	docker run --name postgres-local --network sport-book -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d postgres:14-alpine
+	docker run --name postgres-local --network sport-book -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -v ./postgres-data/:/var/lib/postgresql/data -d postgres:14.0-alpine
 
 createdb:
 	docker exec -it postgres-local createdb --username=postgres --owner=postgres ppob
@@ -51,3 +51,9 @@ mock:
 #docker network create ppob-network
 #docker network connect ppob-network postgres-local
 #docker compose up
+
+#docker volume create postgresppob
+#docker container create --name postgres14-local2 --network ppob-network -p 5433:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres --mount "type=volume,source=postgresppob,destination=/var/lib/postgresql/data" postgres:14.0-alpine
+#docker exec -it postgres14-local2 createdb --username=postgres --owner=postgres ppob
+#migrate -path db/migration -database "postgresql://postgres:postgres@localhost:5433/ppob?sslmode=disable" -verbose up
+#docker container create --name ppob_go --network ppob-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE=postgresql://postgres:postgres@postgres14-local2:5433/ppob?sslmode=disable ariandin1411/ppob_go:v1
