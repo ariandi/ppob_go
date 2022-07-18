@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
+	"github.com/ariandi/ppob_go/services"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -232,6 +233,28 @@ func (server *Server) updateUsers(c *gin.Context) {
 
 	resp := newUserResponse(users)
 	c.JSON(http.StatusOK, resp)
+}
+
+func (server *Server) testRedisMq(ctx *gin.Context) {
+	var userService services.UserService
+	var req dto.LoginUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	//arg := dto.LoginUserRequest{
+	//	Username: "Ariandi Nugraha",
+	//	Password: "123456",
+	//}
+
+	res, err := userService.TestRedisMq(req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (server *Server) loginUser(ctx *gin.Context) {

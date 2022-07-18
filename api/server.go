@@ -3,14 +3,18 @@ package api
 import (
 	"fmt"
 	db "github.com/ariandi/ppob_go/db/sqlc"
+	"github.com/ariandi/ppob_go/services"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
-// Server serves HTTP requests for ppob service.
+var userService *services.UserService
+
+// Server serves HTTP requests for ppob services.
 type Server struct {
 	store      db.Store
 	TokenMaker token.Maker
@@ -47,13 +51,20 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	//server.router = router
 
 	server.setupRouter()
+	services.GetUserService(config)
+	util.InitLogger()
+	logrus.Println("=========================")
+	logrus.Println("Server running at port %s", config.ServerAddress)
+	logrus.Println("=========================")
 	return server, nil
 }
 
 func (server *Server) setupRouter() {
 	router := gin.Default()
+	CORSMiddleware()
 
 	router.POST("/users/login", server.loginUser)
+	router.POST("/users/test-redis", server.testRedisMq)
 	router.POST("/users/test-create", server.createUsersFirst)
 
 	authRoutes := router.Group("/").Use(AuthMiddleware(server.TokenMaker))
@@ -71,4 +82,20 @@ func (server Server) Start(address string) error {
 
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
+}
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }
