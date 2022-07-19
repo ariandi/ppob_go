@@ -4,7 +4,7 @@ network:
 	docker network create ppob-network
 
 postgres:
-	docker run --name postgres-local --network ppob-network -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d postgres:14-alpine
+	docker run --name postgres-local --network ppob-network -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d postgres:12-alpine
 
 createdb:
 	docker exec -it postgres-local createdb --username=postgres --owner=postgres ppob

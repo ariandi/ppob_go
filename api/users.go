@@ -9,6 +9,7 @@ import (
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -258,16 +259,19 @@ func (server *Server) testRedisMq(ctx *gin.Context) {
 }
 
 func (server *Server) loginUser(ctx *gin.Context) {
+	logrus.Println("start login")
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logrus.Println("error validation is : ", err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	user, err := server.store.GetUserByUsername(ctx, req.Username)
 	if err != nil {
+		logrus.Println("error get username is : ", err.Error())
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			ctx.JSON(http.StatusNotFound, errorResponseString("user not found"))
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -276,7 +280,8 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	err = util.CheckPassword(req.Password, user.Password.String)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		logrus.Println("password not same : ", err.Error())
+		ctx.JSON(http.StatusUnauthorized, errorResponseString("password is incorrect"))
 		return
 	}
 

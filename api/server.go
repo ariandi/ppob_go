@@ -61,7 +61,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 
 func (server *Server) setupRouter() {
 	router := gin.Default()
-	CORSMiddleware()
+	router.Use(CORSMiddleware())
 
 	router.POST("/users/login", server.loginUser)
 	router.POST("/users/test-redis", server.testRedisMq)
@@ -81,7 +81,11 @@ func (server Server) Start(address string) error {
 }
 
 func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
+	return gin.H{"message": err.Error()}
+}
+
+func errorResponseString(err string) gin.H {
+	return gin.H{"message": err}
 }
 
 func CORSMiddleware() gin.HandlerFunc {
