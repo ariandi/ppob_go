@@ -128,7 +128,9 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 }
 
 const listUser = `-- name: ListUser :many
-SELECT id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM users
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, role_users.role_id
+FROM users
+LEFT JOIN role_users on role_users.user_id = users.id
 ORDER BY name
 LIMIT $1
 OFFSET $2
@@ -139,15 +141,34 @@ type ListUserParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]User, error) {
+type ListUserRow struct {
+	ID             int64          `json:"id"`
+	Name           string         `json:"name"`
+	Email          string         `json:"email"`
+	Username       string         `json:"username"`
+	Password       sql.NullString `json:"password"`
+	Balance        sql.NullString `json:"balance"`
+	Phone          string         `json:"phone"`
+	IdentityNumber string         `json:"identity_number"`
+	VerifiedAt     sql.NullTime   `json:"verified_at"`
+	CreatedAt      sql.NullTime   `json:"created_at"`
+	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	DeletedAt      sql.NullTime   `json:"deleted_at"`
+	CreatedBy      sql.NullInt64  `json:"created_by"`
+	UpdatedBy      sql.NullInt64  `json:"updated_by"`
+	DeletedBy      sql.NullInt64  `json:"deleted_by"`
+	RoleID         sql.NullInt64  `json:"role_id"`
+}
+
+func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, listUser, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []User{}
+	items := []ListUserRow{}
 	for rows.Next() {
-		var i User
+		var i ListUserRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
@@ -164,6 +185,7 @@ func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]User, err
 			&i.CreatedBy,
 			&i.UpdatedBy,
 			&i.DeletedBy,
+			&i.RoleID,
 		); err != nil {
 			return nil, err
 		}

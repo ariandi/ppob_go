@@ -45,7 +45,7 @@ type Querier interface {
 	ListRole(ctx context.Context, arg ListRoleParams) ([]Role, error)
 	ListRoleUser(ctx context.Context, arg ListRoleUserParams) ([]RoleUser, error)
 	ListTransaction(ctx context.Context, arg ListTransactionParams) ([]Transaction, error)
-	ListUser(ctx context.Context, arg ListUserParams) ([]User, error)
+	ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdateInactiveCategory(ctx context.Context, arg UpdateInactiveCategoryParams) (Category, error)
 	UpdateInactivePartner(ctx context.Context, arg UpdateInactivePartnerParams) (Partner, error)

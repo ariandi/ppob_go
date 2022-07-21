@@ -23,6 +23,7 @@ type UserResponse struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	Role           []RoleUser     `json:"role"`
 }
 
 type UpdateUserRequest struct {
@@ -34,6 +35,10 @@ type UpdateUserRequest struct {
 	Balance        string `json:"balance"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number" binding:"required"`
+}
+
+type UpdateInactiveUserRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 type GetUserRequest struct {

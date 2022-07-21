@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/services"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -13,21 +12,17 @@ import (
 	"net/http"
 )
 
-func newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
-	return dto.UserResponse{
-		ID:             user.ID,
-		Name:           user.Name,
-		Email:          user.Email,
-		Username:       user.Username,
-		Balance:        user.Balance,
-		Phone:          user.Phone,
-		IdentityNumber: user.IdentityNumber,
-		Role:           roleUsers,
+func newRoleUserResponse(roleUser db.RoleUser) dto.CreateRoleUserRes {
+	return dto.CreateRoleUserRes{
+		ID:     roleUser.ID,
+		UserID: roleUser.UserID,
+		RoleID: roleUser.RoleID,
 	}
 }
 
-func (server *Server) createUsers(c *gin.Context) {
-	var req dto.CreateUserRequest
+func (server *Server) createRoleUsers(c *gin.Context) {
+	logrus.Println("start createRoleUsers")
+	var req dto.CreateRoleUserReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -37,33 +32,23 @@ func (server *Server) createUsers(c *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			logrus.Println("start createRoleUsers : user not found")
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
-	arg := db.CreateUserParams{
-		Name:           req.Name,
-		Email:          req.Email,
-		Username:       req.Username,
-		CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
-		Phone:          req.Phone,
-		Balance:        sql.NullString{String: "0.00", Valid: true},
-		IdentityNumber: req.IdentityNumber,
+
+	arg := db.CreateRoleUserParams{
+		UserID:    req.UserID,
+		RoleID:    req.RoleID,
+		CreatedBy: sql.NullInt64{Int64: userPayload.ID, Valid: true},
 	}
 
-	if req.Password != "" {
-		password, err := util.HashPassword(req.Password)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-		arg.Password = sql.NullString{String: password, Valid: true}
-	}
-
-	users, err := server.store.CreateUser(c, arg)
+	roleUsers, err := server.store.CreateRoleUser(c, arg)
 	if err != nil {
+		logrus.Println("start createRoleUsers : error create role users")
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
@@ -77,68 +62,27 @@ func (server *Server) createUsers(c *gin.Context) {
 
 	//var roleUser []dto.RoleUser
 	//roleUser = []
-	resp := newUserResponse(users, []dto.RoleUser{})
+	resp := newRoleUserResponse(roleUsers)
 	c.JSON(http.StatusOK, resp)
 }
 
-func (server *Server) createUsersFirst(c *gin.Context) {
-	var req dto.CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	//authPayload := c.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
-	userPayload, err := server.store.GetUserByUsername(c, "dbduabelas")
-	if err == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user already exist"})
-		return
-	}
-	arg := db.CreateUserParams{
-		Name:           "Ariandi Nugraha",
-		Email:          "dbduabelas@gmail.com",
-		Username:       "dbduabelas",
-		CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
-		Phone:          "081219836581",
-		Balance:        sql.NullString{String: "0.00", Valid: true},
-		IdentityNumber: "3201011411870003",
-	}
-
-	if req.Password != "" {
-		password, err := util.HashPassword(req.Password)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-		arg.Password = sql.NullString{String: password, Valid: true}
-	}
-
-	users, err := server.store.CreateUser(c, arg)
-	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok {
-			switch pqErr.Code.Name() {
-			case "foreign_key_violation", "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
-				return
-			}
-		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	resp := newUserResponse(users, []dto.RoleUser{})
-	c.JSON(http.StatusOK, resp)
-}
-
-func (server *Server) getUser(ctx *gin.Context) {
-	var req dto.GetUserRequest
+func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
+	logrus.Println("start getRoleUserByUserID.")
+	var req dto.GetRoleUserByUserID
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	users, err := server.store.GetUser(ctx, req.ID)
+	arg := db.GetRoleUserByUserIDParams{
+		UserID: req.UserID,
+		Limit:  1,
+		Offset: 0,
+	}
+
+	users, err := server.store.GetRoleUserByUserID(ctx, arg)
 	if err != nil {
+		logrus.Println("start getRoleUserByUserID.")
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
@@ -158,7 +102,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func (server *Server) listUsers(c *gin.Context) {
+func (server *Server) listRoleUsers(c *gin.Context) {
 	logrus.Println("start listUsers", c.Request.Body)
 
 	var req dto.ListUserRequest
@@ -231,7 +175,7 @@ func (server *Server) listUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func (server *Server) updateUsers(c *gin.Context) {
+func (server *Server) updateRoleUsers(c *gin.Context) {
 	var req dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
@@ -289,7 +233,7 @@ func (server *Server) updateUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func (server *Server) softDeleteUser(c *gin.Context) {
+func (server *Server) softDeleteRoleUser(c *gin.Context) {
 	logrus.Println("start softDeleteUser", c.Request.RequestURI)
 
 	var req dto.UpdateInactiveUserRequest
@@ -332,24 +276,7 @@ func (server *Server) softDeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func (server *Server) testRedisMq(ctx *gin.Context) {
-	var userService services.UserService
-	var req dto.LoginUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	res, err := userService.TestRedisMq(req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Server) loginUser(ctx *gin.Context) {
+func (server *Server) loginRoleUser(ctx *gin.Context) {
 	logrus.Println("start login")
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

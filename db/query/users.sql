@@ -14,7 +14,9 @@ SELECT * FROM users
 WHERE username = $1 LIMIT 1;
 
 -- name: ListUser :many
-SELECT * FROM users
+SELECT users.*, role_users.role_id
+FROM users
+LEFT JOIN role_users on role_users.user_id = users.id
 ORDER BY name
 LIMIT $1
 OFFSET $2;

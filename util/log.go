@@ -2,7 +2,6 @@ package util
 
 import (
 	"github.com/momper14/rotatefilehook"
-	"github.com/onsi/ginkgo/reporters/stenographer/support/go-colorable"
 	"github.com/sirupsen/logrus"
 	"time"
 )
@@ -31,7 +30,7 @@ func InitLogger() {
 	}
 
 	logrus.SetLevel(logLevel)
-	logrus.SetOutput(colorable.NewColorableStdout())
+	//logrus.SetOutput(formatter.ColorableStdOut)
 	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceColors:     true,
 		FullTimestamp:   true,
