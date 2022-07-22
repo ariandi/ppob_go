@@ -53,9 +53,9 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	server.setupRouter()
 	services.GetUserService(config)
 	util.InitLogger()
-	logrus.Println("=========================")
+	logrus.Println("================================================")
 	logrus.Println("Server running at port %s", config.ServerAddress)
-	logrus.Println("=========================")
+	logrus.Println("================================================")
 	return server, nil
 }
 
@@ -78,14 +78,6 @@ func (server *Server) setupRouter() {
 
 func (server Server) Start(address string) error {
 	return server.Router.Run(address)
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{"message": err.Error()}
-}
-
-func errorResponseString(err string) gin.H {
-	return gin.H{"message": err}
 }
 
 func CORSMiddleware() gin.HandlerFunc {

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/adjust/rmq/v4"
+	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/util"
 	"strconv"
@@ -62,4 +63,12 @@ func (o *UserService) TestRedisMq(msg dto.LoginUserRequest) ([]string, error) {
 	ret = append(ret, "Success")
 
 	return ret, nil
+}
+
+func (o *UserService) ValidateUserRole(user db.GetUserByUsernameRow) error {
+	if user.RoleID.Int64 != 1 {
+		return fmt.Errorf("you not allow to access this service")
+	}
+
+	return nil
 }

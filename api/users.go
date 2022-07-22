@@ -26,10 +26,22 @@ func newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
 	}
 }
 
+func userRowToUserType(user db.GetUserByUsernameRow) db.User {
+	return db.User{
+		ID:             user.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		Username:       user.Username,
+		Balance:        user.Balance,
+		Phone:          user.Phone,
+		IdentityNumber: user.IdentityNumber,
+	}
+}
+
 func (server *Server) createUsers(c *gin.Context) {
 	var req dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -37,10 +49,10 @@ func (server *Server) createUsers(c *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, errorResponse(err))
+			c.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 	arg := db.CreateUserParams{
@@ -56,7 +68,7 @@ func (server *Server) createUsers(c *gin.Context) {
 	if req.Password != "" {
 		password, err := util.HashPassword(req.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 			return
 		}
 		arg.Password = sql.NullString{String: password, Valid: true}
@@ -67,11 +79,11 @@ func (server *Server) createUsers(c *gin.Context) {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
+				c.JSON(http.StatusForbidden, dto.ErrorResponse(err))
 				return
 			}
 		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -84,7 +96,7 @@ func (server *Server) createUsers(c *gin.Context) {
 func (server *Server) createUsersFirst(c *gin.Context) {
 	var req dto.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -107,7 +119,7 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 	if req.Password != "" {
 		password, err := util.HashPassword(req.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 			return
 		}
 		arg.Password = sql.NullString{String: password, Valid: true}
@@ -118,11 +130,11 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
+				c.JSON(http.StatusForbidden, dto.ErrorResponse(err))
 				return
 			}
 		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -133,25 +145,25 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 func (server *Server) getUser(ctx *gin.Context) {
 	var req dto.GetUserRequest
 	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
 	users, err := server.store.GetUser(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
 
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
 	//authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	//if account.Owner != authPayload.Username {
 	//	err := errors.New("account doesn't belong to the authenticated user")
-	//	ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+	//	ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse(err))
 	//	return
 	//}
 
@@ -163,7 +175,7 @@ func (server *Server) listUsers(c *gin.Context) {
 
 	var req dto.ListUserRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -176,7 +188,7 @@ func (server *Server) listUsers(c *gin.Context) {
 
 	users, err := server.store.ListUser(c, arg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -194,35 +206,12 @@ func (server *Server) listUsers(c *gin.Context) {
 			UpdatedAt:      user.UpdatedAt,
 			CreatedBy:      user.CreatedBy,
 			UpdatedBy:      user.UpdatedBy,
-			//RoleID:         user.RoleID,
 		}
 
-		roleUserArg := db.GetRoleUserByUserIDParams{
-			UserID: user.ID,
-			Limit:  5,
-			Offset: 0,
+		argUser := db.User{
+			ID: user.ID,
 		}
-		roleUsers, err := server.store.GetRoleUserByUserID(c, roleUserArg)
-		if err != nil {
-			logrus.Println("error GetRoleUserByUserID is : ", err.Error())
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
-			return
-		}
-		var roleUserResponse []dto.RoleUser
-		for _, roleUser := range roleUsers {
-			if roleUser.UserID == user.ID {
-				roleUserDto := dto.RoleUser{
-					ID:     roleUser.ID,
-					RoleID: roleUser.RoleID,
-					UserID: roleUser.UserID,
-				}
-				roleUserResponse = append(roleUserResponse, roleUserDto)
-			}
-		}
-
-		if roleUserResponse == nil {
-			roleUserResponse = []dto.RoleUser{}
-		}
+		roleUserResponse := getRoleByUser(argUser, c, server)
 
 		u := newUserResponse(dbUser, roleUserResponse)
 		resp = append(resp, u)
@@ -234,7 +223,7 @@ func (server *Server) listUsers(c *gin.Context) {
 func (server *Server) updateUsers(c *gin.Context) {
 	var req dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -266,7 +255,7 @@ func (server *Server) updateUsers(c *gin.Context) {
 		arg.SetPassword = true
 		password, err := util.HashPassword(req.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 			return
 		}
 		arg.Password = sql.NullString{String: password, Valid: true}
@@ -277,11 +266,11 @@ func (server *Server) updateUsers(c *gin.Context) {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
+				c.JSON(http.StatusForbidden, dto.ErrorResponse(err))
 				return
 			}
 		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -294,7 +283,7 @@ func (server *Server) softDeleteUser(c *gin.Context) {
 
 	var req dto.UpdateInactiveUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -303,7 +292,7 @@ func (server *Server) softDeleteUser(c *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
 	if err != nil {
 		logrus.Println("cannot find username")
-		c.JSON(http.StatusBadRequest, errorResponseString("you not allow to delete user"))
+		c.JSON(http.StatusBadRequest, dto.ErrorResponseString("you not allow to delete user"))
 		return
 	}
 	arg := db.UpdateInactiveUserParams{
@@ -316,11 +305,11 @@ func (server *Server) softDeleteUser(c *gin.Context) {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
-				c.JSON(http.StatusForbidden, errorResponse(err))
+				c.JSON(http.StatusForbidden, dto.ErrorResponse(err))
 				return
 			}
 		}
-		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -336,13 +325,13 @@ func (server *Server) testRedisMq(ctx *gin.Context) {
 	var userService services.UserService
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
 	res, err := userService.TestRedisMq(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -354,7 +343,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		logrus.Println("error validation is : ", err.Error())
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
@@ -362,17 +351,17 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	if err != nil {
 		logrus.Println("error get username is : ", err.Error())
 		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponseString("user not found"))
+			ctx.JSON(http.StatusNotFound, dto.ErrorResponseString("user not found"))
 			return
 		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
 	err = util.CheckPassword(req.Password, user.Password.String)
 	if err != nil {
 		logrus.Println("password not same : ", err.Error())
-		ctx.JSON(http.StatusUnauthorized, errorResponseString("password is incorrect"))
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponseString("password is incorrect"))
 		return
 	}
 
@@ -381,7 +370,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -390,7 +379,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
@@ -404,9 +393,15 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	//	ExpiresAt:    refreshPayload.ExpiredAt,
 	//})
 	//if err != nil {
-	//	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	//	ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 	//	return
 	//}
+
+	argUser := db.User{
+		ID: user.ID,
+	}
+	roleUsers := getRoleByUser(argUser, ctx, server)
+	userRes := userRowToUserType(user)
 
 	rsp := dto.LoginUserResponse{
 		//SessionID:             session.ID,
@@ -414,7 +409,33 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		User:                  newUserResponse(user, []dto.RoleUser{}),
+		User:                  newUserResponse(userRes, roleUsers),
 	}
 	ctx.JSON(http.StatusOK, rsp)
+}
+
+func getRoleByUser(user db.User, ctx *gin.Context, server *Server) []dto.RoleUser {
+	roleUserArg := db.GetRoleUserByUserIDParams{
+		UserID: user.ID,
+		Limit:  5,
+		Offset: 0,
+	}
+	roleUsers, _ := server.store.GetRoleUserByUserID(ctx, roleUserArg)
+	var roleUserResponse []dto.RoleUser
+	for _, roleUser := range roleUsers {
+		if roleUser.UserID == user.ID {
+			roleUserDto := dto.RoleUser{
+				ID:     roleUser.ID,
+				RoleID: roleUser.RoleID,
+				UserID: roleUser.UserID,
+			}
+			roleUserResponse = append(roleUserResponse, roleUserDto)
+		}
+	}
+
+	if roleUserResponse == nil {
+		roleUserResponse = []dto.RoleUser{}
+	}
+
+	return roleUserResponse
 }

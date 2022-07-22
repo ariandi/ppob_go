@@ -3,7 +3,11 @@ package dto
 import "github.com/gin-gonic/gin"
 
 func ErrorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
+	return gin.H{"message": err.Error()}
+}
+
+func ErrorResponseString(err string) gin.H {
+	return gin.H{"message": err}
 }
 
 type ResponseDefault struct {

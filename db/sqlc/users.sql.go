@@ -72,13 +72,35 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM users
-WHERE id = $1 LIMIT 1
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
+LEFT JOIN role_users on role_users.user_id = users.id
+LEFT JOIN roles on roles.user_id = users.id
+WHERE users.id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
+type GetUserRow struct {
+	ID             int64          `json:"id"`
+	Name           string         `json:"name"`
+	Email          string         `json:"email"`
+	Username       string         `json:"username"`
+	Password       sql.NullString `json:"password"`
+	Balance        sql.NullString `json:"balance"`
+	Phone          string         `json:"phone"`
+	IdentityNumber string         `json:"identity_number"`
+	VerifiedAt     sql.NullTime   `json:"verified_at"`
+	CreatedAt      sql.NullTime   `json:"created_at"`
+	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	DeletedAt      sql.NullTime   `json:"deleted_at"`
+	CreatedBy      sql.NullInt64  `json:"created_by"`
+	UpdatedBy      sql.NullInt64  `json:"updated_by"`
+	DeletedBy      sql.NullInt64  `json:"deleted_by"`
+	RoleID         sql.NullInt64  `json:"role_id"`
+	Name_2         sql.NullString `json:"name_2"`
+}
+
+func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 	row := q.db.QueryRowContext(ctx, getUser, id)
-	var i User
+	var i GetUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
@@ -95,18 +117,42 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 		&i.CreatedBy,
 		&i.UpdatedBy,
 		&i.DeletedBy,
+		&i.RoleID,
+		&i.Name_2,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM users
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
+LEFT JOIN role_users on role_users.user_id = users.id
+LEFT JOIN roles on roles.user_id = users.id
 WHERE username = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+type GetUserByUsernameRow struct {
+	ID             int64          `json:"id"`
+	Name           string         `json:"name"`
+	Email          string         `json:"email"`
+	Username       string         `json:"username"`
+	Password       sql.NullString `json:"password"`
+	Balance        sql.NullString `json:"balance"`
+	Phone          string         `json:"phone"`
+	IdentityNumber string         `json:"identity_number"`
+	VerifiedAt     sql.NullTime   `json:"verified_at"`
+	CreatedAt      sql.NullTime   `json:"created_at"`
+	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	DeletedAt      sql.NullTime   `json:"deleted_at"`
+	CreatedBy      sql.NullInt64  `json:"created_by"`
+	UpdatedBy      sql.NullInt64  `json:"updated_by"`
+	DeletedBy      sql.NullInt64  `json:"deleted_by"`
+	RoleID         sql.NullInt64  `json:"role_id"`
+	Name_2         sql.NullString `json:"name_2"`
+}
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
-	var i User
+	var i GetUserByUsernameRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
@@ -123,15 +169,18 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.CreatedBy,
 		&i.UpdatedBy,
 		&i.DeletedBy,
+		&i.RoleID,
+		&i.Name_2,
 	)
 	return i, err
 }
 
 const listUser = `-- name: ListUser :many
-SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, role_users.role_id
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name
 FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-ORDER BY name
+LEFT JOIN roles on roles.user_id = users.id
+ORDER BY users.name
 LIMIT $1
 OFFSET $2
 `
@@ -158,6 +207,7 @@ type ListUserRow struct {
 	UpdatedBy      sql.NullInt64  `json:"updated_by"`
 	DeletedBy      sql.NullInt64  `json:"deleted_by"`
 	RoleID         sql.NullInt64  `json:"role_id"`
+	Name_2         sql.NullString `json:"name_2"`
 }
 
 func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error) {
@@ -186,6 +236,7 @@ func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserR
 			&i.UpdatedBy,
 			&i.DeletedBy,
 			&i.RoleID,
+			&i.Name_2,
 		); err != nil {
 			return nil, err
 		}
