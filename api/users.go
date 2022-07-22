@@ -89,8 +89,13 @@ func (server *Server) createUsers(c *gin.Context) {
 
 	//var roleUser []dto.RoleUser
 	//roleUser = []
-	resp := newUserResponse(users, []dto.RoleUser{})
-	c.JSON(http.StatusOK, resp)
+	resp1 := newUserResponse(users, []dto.RoleUser{})
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	c.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) createUsersFirst(c *gin.Context) {
@@ -138,8 +143,13 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 		return
 	}
 
-	resp := newUserResponse(users, []dto.RoleUser{})
-	c.JSON(http.StatusOK, resp)
+	resp1 := newUserResponse(users, []dto.RoleUser{})
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	c.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) getUser(ctx *gin.Context) {
@@ -149,7 +159,7 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	users, err := server.store.GetUser(ctx, req.ID)
+	user, err := server.store.GetUser(ctx, req.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
@@ -160,14 +170,30 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	//authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
-	//if account.Owner != authPayload.Username {
-	//	err := errors.New("account doesn't belong to the authenticated user")
-	//	ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse(err))
-	//	return
-	//}
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err = server.store.GetUserByUsername(ctx, authPayload.Username)
+	if err != nil {
+		logrus.Println("cannot find username")
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponseString("you not allow to delete user"))
+		return
+	}
 
-	ctx.JSON(http.StatusOK, users)
+	userArg := db.User{
+		ID:             user.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		Username:       user.Username,
+		Balance:        user.Balance,
+		Phone:          user.Phone,
+		IdentityNumber: user.IdentityNumber,
+	}
+	resp1 := newUserResponse(userArg, []dto.RoleUser{})
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) listUsers(c *gin.Context) {
@@ -179,9 +205,16 @@ func (server *Server) listUsers(c *gin.Context) {
 		return
 	}
 
-	//authPayload := c.MustGet(authorizationPayloadKey).(*token.Payload)
+	authPayload := c.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
+	err = userService.ValidateUserRole(userPayload)
+	if err != nil {
+		logrus.Println("createRoleUsers, ValidateUserRole : ", err)
+		c.JSON(http.StatusNotFound, dto.ErrorResponse(err))
+		return
+	}
+
 	arg := db.ListUserParams{
-		//Owner:  authPayload.Username,
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
@@ -192,7 +225,7 @@ func (server *Server) listUsers(c *gin.Context) {
 		return
 	}
 
-	var resp []dto.UserResponse
+	var resp1 []dto.UserResponse
 	for _, user := range users {
 		dbUser := db.User{
 			ID:             user.ID,
@@ -214,10 +247,15 @@ func (server *Server) listUsers(c *gin.Context) {
 		roleUserResponse := getRoleByUser(argUser, c, server)
 
 		u := newUserResponse(dbUser, roleUserResponse)
-		resp = append(resp, u)
+		resp1 = append(resp1, u)
 	}
 	//resp := newUserResponse(users)
-	c.JSON(http.StatusOK, resp)
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	c.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) updateUsers(c *gin.Context) {
@@ -274,8 +312,13 @@ func (server *Server) updateUsers(c *gin.Context) {
 		return
 	}
 
-	resp := newUserResponse(users, []dto.RoleUser{})
-	c.JSON(http.StatusOK, resp)
+	resp1 := newUserResponse(users, []dto.RoleUser{})
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	c.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) softDeleteUser(c *gin.Context) {
@@ -339,17 +382,17 @@ func (server *Server) testRedisMq(ctx *gin.Context) {
 }
 
 func (server *Server) loginUser(ctx *gin.Context) {
-	logrus.Println("start login")
+	logrus.Println("[User loginUser] start login")
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		logrus.Println("error validation is : ", err.Error())
+		logrus.Println("[User loginUser] error validation is : ", err.Error())
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
 	user, err := server.store.GetUserByUsername(ctx, req.Username)
 	if err != nil {
-		logrus.Println("error get username is : ", err.Error())
+		logrus.Println("[User loginUser] error get username is : ", err.Error())
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponseString("user not found"))
 			return
@@ -360,7 +403,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	err = util.CheckPassword(req.Password, user.Password.String)
 	if err != nil {
-		logrus.Println("password not same : ", err.Error())
+		logrus.Println("[User loginUser] password not same : ", err.Error())
 		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponseString("password is incorrect"))
 		return
 	}
@@ -425,9 +468,13 @@ func getRoleByUser(user db.User, ctx *gin.Context, server *Server) []dto.RoleUse
 	for _, roleUser := range roleUsers {
 		if roleUser.UserID == user.ID {
 			roleUserDto := dto.RoleUser{
-				ID:     roleUser.ID,
-				RoleID: roleUser.RoleID,
-				UserID: roleUser.UserID,
+				ID:        roleUser.ID,
+				RoleID:    roleUser.RoleID,
+				UserID:    roleUser.UserID,
+				CreatedAt: roleUser.CreatedAt,
+				CreatedBy: roleUser.CreatedBy,
+				UpdatedBy: roleUser.UpdatedBy,
+				UpdatedAt: roleUser.UpdatedAt,
 			}
 			roleUserResponse = append(roleUserResponse, roleUserDto)
 		}

@@ -72,6 +72,19 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/users/:id", server.getUser)
 	authRoutes.GET("/users", server.listUsers)
 	authRoutes.PUT("/users/:id", server.updateUsers)
+	authRoutes.DELETE("/users/:id", server.softDeleteUser)
+
+	authRoutes.POST("/roles", server.createRole)
+	authRoutes.GET("/roles/:id", server.getRole)
+	authRoutes.GET("/roles", server.listRole)
+	authRoutes.PUT("/roles/:id", server.updateRole)
+	authRoutes.DELETE("/roles/:id", server.softDeleteRole)
+
+	authRoutes.POST("/role-users", server.createRoleUsers)
+	authRoutes.GET("/role-users/:id", server.getRoleUserByUserID)
+	authRoutes.GET("/role-users", server.listRoleUsers)
+	authRoutes.PUT("/role-users/:id", server.updateRoleUsers)
+	authRoutes.DELETE("/role-users/:id", server.softDeleteRoleUser)
 
 	server.Router = router
 }

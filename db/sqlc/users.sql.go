@@ -74,7 +74,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 const getUser = `-- name: GetUser :one
 SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 WHERE users.id = $1 LIMIT 1
 `
 
@@ -126,7 +126,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 const getUserByUsername = `-- name: GetUserByUsername :one
 SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 WHERE username = $1 LIMIT 1
 `
 
@@ -179,7 +179,7 @@ const listUser = `-- name: ListUser :many
 SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name
 FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 ORDER BY users.name
 LIMIT $1
 OFFSET $2

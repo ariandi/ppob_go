@@ -8,20 +8,20 @@ INSERT INTO users (
 -- name: GetUser :one
 SELECT users.*, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 WHERE users.id = $1 LIMIT 1;
 
 -- name: GetUserByUsername :one
 SELECT users.*, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 WHERE username = $1 LIMIT 1;
 
 -- name: ListUser :many
 SELECT users.*, roles.id AS role_id, roles.name
 FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
-LEFT JOIN roles on roles.user_id = users.id
+LEFT JOIN roles on roles.id = role_users.role_id
 ORDER BY users.name
 LIMIT $1
 OFFSET $2;

@@ -11,17 +11,17 @@ import (
 	"net/http"
 )
 
-func newRoleUserResponse(roleUser db.RoleUser) dto.RoleUserRes {
-	return dto.RoleUserRes{
-		ID:     roleUser.ID,
-		UserID: roleUser.UserID,
-		RoleID: roleUser.RoleID,
+func RoleResponse(role db.Role) dto.RoleRes {
+	return dto.RoleRes{
+		ID:    role.ID,
+		Name:  role.Name,
+		Level: role.Level,
 	}
 }
 
-func (server *Server) createRoleUsers(c *gin.Context) {
-	logrus.Println("start createRoleUsers")
-	var req dto.CreateRoleUserReq
+func (server *Server) createRole(c *gin.Context) {
+	logrus.Println("[Roles createRole] start.")
+	var req dto.CreateRoleReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
@@ -31,7 +31,7 @@ func (server *Server) createRoleUsers(c *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(c, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logrus.Println("start createRoleUsers : user not found")
+			logrus.Println("[Roles createRole] : user not found")
 			c.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
@@ -46,15 +46,15 @@ func (server *Server) createRoleUsers(c *gin.Context) {
 		return
 	}
 
-	arg := db.CreateRoleUserParams{
-		UserID:    req.UserID,
-		RoleID:    req.RoleID,
+	arg := db.CreateRoleParams{
+		Name:      req.Name,
+		Level:     req.Level,
 		CreatedBy: sql.NullInt64{Int64: userPayload.ID, Valid: true},
 	}
 
-	roleUsers, err := server.store.CreateRoleUser(c, arg)
+	role, err := server.store.CreateRole(c, arg)
 	if err != nil {
-		logrus.Println("start createRoleUsers : error create role users")
+		logrus.Println("[Roles createRole] : error create role users")
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
@@ -66,20 +66,18 @@ func (server *Server) createRoleUsers(c *gin.Context) {
 		return
 	}
 
-	//var roleUser []dto.RoleUser
-	//roleUser = []
-	resp := newRoleUserResponse(roleUsers)
+	resp1 := RoleResponse(role)
 	resp2 := dto.ResponseDefault{
 		Status:  http.StatusOK,
 		Message: "Success",
-		Data:    resp,
+		Data:    resp1,
 	}
 	c.JSON(http.StatusOK, resp2)
 }
 
-func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
-	logrus.Println("start getRoleUserByUserID.")
-	var req dto.GetRoleUserByUserID
+func (server *Server) getRole(ctx *gin.Context) {
+	logrus.Println("[Roles getRole] start.")
+	var req dto.GetRoleReq
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
@@ -89,7 +87,7 @@ func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(ctx, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logrus.Println("start createRoleUsers : user not found")
+			logrus.Println("[Roles getRole] user not found")
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
@@ -99,20 +97,14 @@ func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
 
 	err = userService.ValidateUserRole(userPayload)
 	if err != nil {
-		logrus.Println("createRoleUsers, ValidateUserRole : ", err)
+		logrus.Println("[Roles getRole] createRoleUsers, ValidateUserRole : ", err)
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 		return
 	}
 
-	arg := db.GetRoleUserByUserIDParams{
-		UserID: req.UserID,
-		Limit:  5,
-		Offset: 0,
-	}
-
-	roleUsers, err := server.store.GetRoleUserByUserID(ctx, arg)
+	role, err := server.store.GetRole(ctx, req.ID)
 	if err != nil {
-		logrus.Println("start getRoleUserByUserID.")
+		logrus.Println("[Roles getRole] start getRoleUserByUserID.")
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
@@ -122,11 +114,7 @@ func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
 		return
 	}
 
-	var resp1 []dto.RoleUserRes
-	for _, roleUser := range roleUsers {
-		resArg := newRoleUserResponse(roleUser)
-		resp1 = append(resp1, resArg)
-	}
+	resp1 := RoleResponse(role)
 	resp2 := dto.ResponseDefault{
 		Status:  http.StatusOK,
 		Message: "Success",
@@ -135,10 +123,10 @@ func (server *Server) getRoleUserByUserID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
-func (server *Server) listRoleUsers(ctx *gin.Context) {
-	logrus.Println("start listRoleUsers", ctx.Request.Body)
+func (server *Server) listRole(ctx *gin.Context) {
+	logrus.Println("[Roles listRole] start listRoleUsers", ctx.Request.Body)
 
-	var req dto.ListRoleUserRequest
+	var req dto.ListRoleRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
@@ -148,7 +136,7 @@ func (server *Server) listRoleUsers(ctx *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(ctx, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logrus.Println("start createRoleUsers : user not found")
+			logrus.Println("[Roles listRole] start createRoleUsers : user not found")
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
@@ -158,31 +146,25 @@ func (server *Server) listRoleUsers(ctx *gin.Context) {
 
 	err = userService.ValidateUserRole(userPayload)
 	if err != nil {
-		logrus.Println("createRoleUsers, ValidateUserRole : ", err)
+		logrus.Println("[Roles listRole] createRoleUsers, ValidateUserRole : ", err)
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 		return
 	}
 
-	arg := db.ListRoleUserParams{
+	arg := db.ListRoleParams{
 		Limit:  req.PageSize,
 		Offset: (req.PageID - 1) * req.PageSize,
 	}
 
-	roleUsers, err := server.store.ListRoleUser(ctx, arg)
+	roles, err := server.store.ListRole(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return
 	}
 
-	var resp1 []dto.RoleUserRes
-	for _, roleUser := range roleUsers {
-		dbRoleUser := db.RoleUser{
-			ID:     roleUser.ID,
-			RoleID: roleUser.RoleID,
-			UserID: roleUser.UserID,
-		}
-
-		u := newRoleUserResponse(dbRoleUser)
+	var resp1 []dto.RoleRes
+	for _, role := range roles {
+		u := RoleResponse(role)
 		resp1 = append(resp1, u)
 	}
 	resp2 := dto.ResponseDefault{
@@ -193,8 +175,9 @@ func (server *Server) listRoleUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
-func (server *Server) updateRoleUsers(ctx *gin.Context) {
-	var req dto.UpdateRoleUserRequest
+func (server *Server) updateRole(ctx *gin.Context) {
+	logrus.Println("[Roles updateRole] start.")
+	var req dto.UpdateRoleRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
@@ -204,7 +187,7 @@ func (server *Server) updateRoleUsers(ctx *gin.Context) {
 	userPayload, err := server.store.GetUserByUsername(ctx, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			logrus.Println("start createRoleUsers : user not found")
+			logrus.Println("[Roles updateRole] start createRoleUsers : user not found")
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 			return
 		}
@@ -214,19 +197,19 @@ func (server *Server) updateRoleUsers(ctx *gin.Context) {
 
 	err = userService.ValidateUserRole(userPayload)
 	if err != nil {
-		logrus.Println("createRoleUsers, ValidateUserRole : ", err)
+		logrus.Println("[Roles updateRole] createRoleUsers, ValidateUserRole : ", err)
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 		return
 	}
 
-	arg := db.UpdateRoleUserParams{
+	arg := db.UpdateRoleParams{
 		ID:        req.ID,
-		UserID:    req.UserID,
-		RoleID:    req.RoleID,
+		Name:      req.Name,
+		Level:     req.Level,
 		UpdatedBy: sql.NullInt64{Int64: userPayload.ID, Valid: true},
 	}
 
-	roleUser, err := server.store.UpdateRoleUser(ctx, arg)
+	role, err := server.store.UpdateRole(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -239,7 +222,7 @@ func (server *Server) updateRoleUsers(ctx *gin.Context) {
 		return
 	}
 
-	resp1 := newRoleUserResponse(roleUser)
+	resp1 := RoleResponse(role)
 	resp2 := dto.ResponseDefault{
 		Status:  http.StatusOK,
 		Message: "Success",
@@ -248,15 +231,15 @@ func (server *Server) updateRoleUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
-func (server *Server) softDeleteRoleUser(ctx *gin.Context) {
-	logrus.Println("[role_user softDeleteRoleUser] start. softDeleteRoleUser", ctx.Request.RequestURI)
-	var req dto.UpdateInactiveROleUserRequest
+func (server *Server) softDeleteRole(ctx *gin.Context) {
+	logrus.Println("[Roles softDeleteRole] start.")
+	var req dto.UpdateInactiveRoleRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
-	logrus.Println("[role_user softDeleteRoleUser] start get payload")
+	logrus.Println("[Roles softDeleteRole] start get payload")
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	userPayload, err := server.store.GetUserByUsername(ctx, authPayload.Username)
 	if err != nil {
@@ -271,17 +254,17 @@ func (server *Server) softDeleteRoleUser(ctx *gin.Context) {
 
 	err = userService.ValidateUserRole(userPayload)
 	if err != nil {
-		logrus.Println("createRoleUsers, ValidateUserRole : ", err)
+		logrus.Println("[Roles softDeleteRole] createRoleUsers, ValidateUserRole : ", err)
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
 		return
 	}
 
-	arg := db.UpdateInactiveRoleUserParams{
+	arg := db.UpdateInactiveRoleParams{
 		ID:        req.ID,
 		DeletedBy: sql.NullInt64{Int64: userPayload.ID, Valid: true},
 	}
 
-	_, err = server.store.UpdateInactiveRoleUser(ctx, arg)
+	_, err = server.store.UpdateInactiveRole(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
