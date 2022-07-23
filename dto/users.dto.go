@@ -13,6 +13,7 @@ type CreateUserRequest struct {
 	Password       string `json:"password" binding:"min=6"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number" binding:"required"`
+	RoleID         int64  `json:"role_id" binding:"required"`
 }
 
 type UserResponse struct {
@@ -47,7 +48,7 @@ type GetUserRequest struct {
 
 type ListUserRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=200"`
 }
 
 type LoginUserRequest struct {
