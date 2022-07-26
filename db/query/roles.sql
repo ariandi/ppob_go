@@ -7,10 +7,11 @@ INSERT INTO roles (
 
 -- name: GetRole :one
 SELECT * FROM roles
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListRole :many
 SELECT * FROM roles
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2;

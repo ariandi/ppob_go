@@ -8,10 +8,11 @@ INSERT INTO providers (
 
 -- name: GetProvider :one
 SELECT * FROM providers
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListProvider :many
 SELECT * FROM providers
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2;

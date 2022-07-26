@@ -7,10 +7,11 @@ INSERT INTO categories (
 
 -- name: GetCategory :one
 SELECT * FROM categories
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListCategory :many
 SELECT * FROM categories
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2;

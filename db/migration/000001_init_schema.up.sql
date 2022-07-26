@@ -8,6 +8,7 @@ CREATE TABLE "users"
     "balance"         decimal(16, 2) DEFAULT (0),
     "phone"           varchar        NOT NULL,
     "identity_number" varchar        NOT NULL,
+    "bank_code"       bigint         DEFAULT (null),
     "verified_at"     timestamptz    DEFAULT (null),
     "created_at"      timestamptz    DEFAULT (now()),
     "updated_at"      timestamptz    DEFAULT (null),
@@ -215,8 +216,8 @@ CREATE INDEX ON "transactions" ("cat_id", "prod_id");
 
 CREATE INDEX ON "transactions" ("created_at", "status");
 
-ALTER TABLE "users"
-    ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
+-- ALTER TABLE "users"
+--     ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
 
 ALTER TABLE "users"
     ADD FOREIGN KEY ("updated_by") REFERENCES "users" ("id");

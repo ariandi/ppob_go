@@ -69,7 +69,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 
 const getProduct = `-- name: GetProduct :one
 SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
@@ -95,6 +95,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 
 const listProduct = `-- name: ListProduct :many
 SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2

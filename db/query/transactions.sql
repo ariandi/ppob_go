@@ -12,14 +12,15 @@ INSERT INTO "transactions" (
 
 -- name: GetTransaction :one
 SELECT * FROM "transactions"
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: GetTransactionByTxID :one
 SELECT * FROM "transactions"
-WHERE tx_id = $1 LIMIT 1;
+WHERE tx_id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListTransaction :many
 SELECT * FROM "transactions"
+WHERE deleted_at is null
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;

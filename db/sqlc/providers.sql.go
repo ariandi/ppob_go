@@ -97,7 +97,7 @@ func (q *Queries) DeleteProvider(ctx context.Context, id int64) error {
 
 const getProvider = `-- name: GetProvider :one
 SELECT id, name, "user", secret, add_info1, add_info2, valid_from, valid_to, base_url, method, inq, pay, adv, cmt, rev, status, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM providers
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetProvider(ctx context.Context, id int64) (Provider, error) {
@@ -132,6 +132,7 @@ func (q *Queries) GetProvider(ctx context.Context, id int64) (Provider, error) {
 
 const listProvider = `-- name: ListProvider :many
 SELECT id, name, "user", secret, add_info1, add_info2, valid_from, valid_to, base_url, method, inq, pay, adv, cmt, rev, status, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM providers
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2

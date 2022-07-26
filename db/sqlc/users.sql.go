@@ -15,7 +15,7 @@ INSERT INTO users (
     name, email, username, password, balance, phone, identity_number, created_by
 ) values (
     $1, $2, $3, $4, $5, $6, $7, $8
-) RETURNING id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+) RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type CreateUserParams struct {
@@ -50,6 +50,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Balance,
 		&i.Phone,
 		&i.IdentityNumber,
+		&i.BankCode,
 		&i.VerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -72,10 +73,10 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.bank_code, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
 LEFT JOIN roles on roles.id = role_users.role_id
-WHERE users.id = $1 LIMIT 1
+WHERE users.id = $1 AND users.deleted_at is null LIMIT 1
 `
 
 type GetUserRow struct {
@@ -87,6 +88,7 @@ type GetUserRow struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 	VerifiedAt     sql.NullTime   `json:"verified_at"`
 	CreatedAt      sql.NullTime   `json:"created_at"`
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
@@ -110,6 +112,7 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 		&i.Balance,
 		&i.Phone,
 		&i.IdentityNumber,
+		&i.BankCode,
 		&i.VerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -124,10 +127,10 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (GetUserRow, error) {
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.bank_code, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
 LEFT JOIN roles on roles.id = role_users.role_id
-WHERE username = $1 LIMIT 1
+WHERE username = $1 AND users.deleted_at is null LIMIT 1
 `
 
 type GetUserByUsernameRow struct {
@@ -139,6 +142,7 @@ type GetUserByUsernameRow struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 	VerifiedAt     sql.NullTime   `json:"verified_at"`
 	CreatedAt      sql.NullTime   `json:"created_at"`
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
@@ -162,6 +166,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 		&i.Balance,
 		&i.Phone,
 		&i.IdentityNumber,
+		&i.BankCode,
 		&i.VerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -176,10 +181,11 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 }
 
 const listUser = `-- name: ListUser :many
-SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name
+SELECT users.id, users.name, users.email, users.username, users.password, users.balance, users.phone, users.identity_number, users.bank_code, users.verified_at, users.created_at, users.updated_at, users.deleted_at, users.created_by, users.updated_by, users.deleted_by, roles.id AS role_id, roles.name
 FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
 LEFT JOIN roles on roles.id = role_users.role_id
+WHERE users.deleted_at is null
 ORDER BY users.name
 LIMIT $1
 OFFSET $2
@@ -199,6 +205,7 @@ type ListUserRow struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 	VerifiedAt     sql.NullTime   `json:"verified_at"`
 	CreatedAt      sql.NullTime   `json:"created_at"`
 	UpdatedAt      sql.NullTime   `json:"updated_at"`
@@ -228,6 +235,7 @@ func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserR
 			&i.Balance,
 			&i.Phone,
 			&i.IdentityNumber,
+			&i.BankCode,
 			&i.VerifiedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -253,7 +261,7 @@ func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserR
 
 const updateInactiveUser = `-- name: UpdateInactiveUser :one
 UPDATE users SET deleted_by = $2, deleted_at = now() WHERE id = $1
-RETURNING id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateInactiveUserParams struct {
@@ -273,6 +281,7 @@ func (q *Queries) UpdateInactiveUser(ctx context.Context, arg UpdateInactiveUser
 		&i.Balance,
 		&i.Phone,
 		&i.IdentityNumber,
+		&i.BankCode,
 		&i.VerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -317,7 +326,7 @@ SET
     updated_at = now()
 WHERE
     id = $12
-RETURNING id, name, email, username, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateUserParams struct {
@@ -360,6 +369,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Balance,
 		&i.Phone,
 		&i.IdentityNumber,
+		&i.BankCode,
 		&i.VerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,

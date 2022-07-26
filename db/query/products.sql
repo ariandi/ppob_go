@@ -7,10 +7,11 @@ INSERT INTO products (
 
 -- name: GetProduct :one
 SELECT * FROM products
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListProduct :many
 SELECT * FROM products
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2;

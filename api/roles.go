@@ -234,7 +234,8 @@ func (server *Server) updateRole(ctx *gin.Context) {
 func (server *Server) softDeleteRole(ctx *gin.Context) {
 	logrus.Println("[Roles softDeleteRole] start.")
 	var req dto.UpdateInactiveRoleRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		logrus.Println("[Roles softDeleteRole] error validation.")
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}

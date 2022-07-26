@@ -152,6 +152,7 @@ type User struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 	VerifiedAt     sql.NullTime   `json:"verified_at"`
 	CreatedAt      sql.NullTime   `json:"created_at"`
 	UpdatedAt      sql.NullTime   `json:"updated_at"`

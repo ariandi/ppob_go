@@ -53,7 +53,7 @@ func (q *Queries) DeleteRoleUser(ctx context.Context, id int64) error {
 
 const getRoleUserByID = `-- name: GetRoleUserByID :one
 SELECT id, role_id, user_id, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM role_users
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetRoleUserByID(ctx context.Context, id int64) (RoleUser, error) {
@@ -76,7 +76,7 @@ func (q *Queries) GetRoleUserByID(ctx context.Context, id int64) (RoleUser, erro
 const getRoleUserByRoleID = `-- name: GetRoleUserByRoleID :many
 SELECT id, role_id, user_id, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM role_users
 WHERE
-    role_id = $1
+    role_id = $1 AND deleted_at is null
 LIMIT $2
 OFFSET $3
 `
@@ -123,7 +123,7 @@ func (q *Queries) GetRoleUserByRoleID(ctx context.Context, arg GetRoleUserByRole
 const getRoleUserByUserID = `-- name: GetRoleUserByUserID :many
 SELECT id, role_id, user_id, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM role_users
 WHERE
-    user_id = $1
+    user_id = $1 AND deleted_at is null
 LIMIT $2
 OFFSET $3
 `
@@ -169,6 +169,7 @@ func (q *Queries) GetRoleUserByUserID(ctx context.Context, arg GetRoleUserByUser
 
 const listRoleUser = `-- name: ListRoleUser :many
 SELECT id, role_id, user_id, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM role_users
+WHERE deleted_at is null
 ORDER BY id
 LIMIT $1
 OFFSET $2

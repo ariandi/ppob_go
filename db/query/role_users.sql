@@ -7,24 +7,25 @@ INSERT INTO role_users (
 
 -- name: GetRoleUserByID :one
 SELECT * FROM role_users
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: GetRoleUserByUserID :many
 SELECT * FROM role_users
 WHERE
-    user_id = $1
+    user_id = $1 AND deleted_at is null
 LIMIT $2
 OFFSET $3;
 
 -- name: GetRoleUserByRoleID :many
 SELECT * FROM role_users
 WHERE
-    role_id = $1
+    role_id = $1 AND deleted_at is null
 LIMIT $2
 OFFSET $3;
 
 -- name: ListRoleUser :many
 SELECT * FROM role_users
+WHERE deleted_at is null
 ORDER BY id
 LIMIT $1
 OFFSET $2;

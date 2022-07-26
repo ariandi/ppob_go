@@ -8,10 +8,11 @@ INSERT INTO "partners" (
 
 -- name: GetPartner :one
 SELECT * FROM "partners"
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: ListPartner :many
 SELECT * FROM "partners"
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2;

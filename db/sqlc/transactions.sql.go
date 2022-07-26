@@ -143,7 +143,7 @@ func (q *Queries) DeleteTransaction(ctx context.Context, id int64) error {
 
 const getTransaction = `-- name: GetTransaction :one
 SELECT id, tx_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetTransaction(ctx context.Context, id int64) (Transaction, error) {
@@ -192,7 +192,7 @@ func (q *Queries) GetTransaction(ctx context.Context, id int64) (Transaction, er
 
 const getTransactionByTxID = `-- name: GetTransactionByTxID :one
 SELECT id, tx_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
-WHERE tx_id = $1 LIMIT 1
+WHERE tx_id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetTransactionByTxID(ctx context.Context, txID string) (Transaction, error) {
@@ -241,6 +241,7 @@ func (q *Queries) GetTransactionByTxID(ctx context.Context, txID string) (Transa
 
 const listTransaction = `-- name: ListTransaction :many
 SELECT id, tx_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+WHERE deleted_at is null
 ORDER BY created_at
 LIMIT $1
 OFFSET $2

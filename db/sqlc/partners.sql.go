@@ -79,7 +79,7 @@ func (q *Queries) DeletePartner(ctx context.Context, id int64) error {
 
 const getPartner = `-- name: GetPartner :one
 SELECT id, name, "user", secret, add_info1, add_info2, valid_from, valid_to, payment_type, status, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "partners"
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
 func (q *Queries) GetPartner(ctx context.Context, id int64) (Partner, error) {
@@ -108,6 +108,7 @@ func (q *Queries) GetPartner(ctx context.Context, id int64) (Partner, error) {
 
 const listPartner = `-- name: ListPartner :many
 SELECT id, name, "user", secret, add_info1, add_info2, valid_from, valid_to, payment_type, status, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "partners"
+WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
 OFFSET $2

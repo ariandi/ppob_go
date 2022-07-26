@@ -119,6 +119,7 @@ func (server *Server) softDeleteUser(ctx *gin.Context) {
 
 	var req dto.UpdateInactiveUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logrus.Println("error validation softDeleteUser", err)
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
