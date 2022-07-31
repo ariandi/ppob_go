@@ -12,9 +12,9 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    name, email, username, password, balance, phone, identity_number, created_by
+    name, email, username, password, balance, phone, identity_number, created_by, bank_code
 ) values (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 ) RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
@@ -27,6 +27,7 @@ type CreateUserParams struct {
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
 	CreatedBy      sql.NullInt64  `json:"created_by"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -39,6 +40,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Phone,
 		arg.IdentityNumber,
 		arg.CreatedBy,
+		arg.BankCode,
 	)
 	var i User
 	err := row.Scan(
@@ -322,10 +324,15 @@ SET
                 THEN $10
                ELSE balance
             END,
-    updated_by = $11,
+    bank_code = CASE
+                  WHEN $11::bool
+                THEN $12
+                  ELSE bank_code
+        END,
+    updated_by = $13,
     updated_at = now()
 WHERE
-    id = $12
+    id = $14
 RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
@@ -340,6 +347,8 @@ type UpdateUserParams struct {
 	Password          sql.NullString `json:"password"`
 	SetBalance        bool           `json:"set_balance"`
 	Balance           sql.NullString `json:"balance"`
+	SetBankCode       bool           `json:"set_bank_code"`
+	BankCode          sql.NullInt64  `json:"bank_code"`
 	UpdatedBy         sql.NullInt64  `json:"updated_by"`
 	ID                int64          `json:"id"`
 }
@@ -356,6 +365,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Password,
 		arg.SetBalance,
 		arg.Balance,
+		arg.SetBankCode,
+		arg.BankCode,
 		arg.UpdatedBy,
 		arg.ID,
 	)

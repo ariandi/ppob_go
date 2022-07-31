@@ -11,7 +11,7 @@ import (
 
 func CreateRandomRoleUser(t *testing.T) RoleUser {
 	user1 := CreateRandomUser(t)
-	role1 := CreateRandomRole(t, false)
+	role1 := CreateRandomRole(t, false, false)
 
 	arg := CreateRoleUserParams{
 		UserID: user1.ID,
@@ -95,7 +95,7 @@ func TestGetRoleUserByRoleID(t *testing.T) {
 
 func TestUpdateRoleUser(t *testing.T) {
 	user1 := CreateRandomUser(t)
-	role1 := CreateRandomRole(t, false)
+	role1 := CreateRandomRole(t, false, false)
 	roleUser1 := CreateRandomRoleUser(t)
 
 	arg := UpdateRoleUserParams{

@@ -1,8 +1,8 @@
 -- name: CreateUser :one
 INSERT INTO users (
-    name, email, username, password, balance, phone, identity_number, created_by
+    name, email, username, password, balance, phone, identity_number, created_by, bank_code
 ) values (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 ) RETURNING *;
 
 -- name: GetUser :one
@@ -56,6 +56,11 @@ SET
                 THEN sqlc.arg(balance)
                ELSE balance
             END,
+    bank_code = CASE
+                  WHEN sqlc.arg(set_bank_code)::bool
+                THEN sqlc.arg(bank_code)
+                  ELSE bank_code
+        END,
     updated_by = sqlc.arg(updated_by),
     updated_at = now()
 WHERE

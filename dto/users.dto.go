@@ -24,6 +24,7 @@ type UserResponse struct {
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
+	BankCode       int64          `json:"bank_code"`
 	Role           []RoleUser     `json:"role"`
 }
 

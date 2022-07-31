@@ -54,7 +54,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	services.GetUserService(config)
 	util.InitLogger()
 	logrus.Println("================================================")
-	logrus.Println("Server running at port %s", config.ServerAddress)
+	logrus.Printf("Server running at port %s", config.ServerAddress)
 	logrus.Println("================================================")
 	return server, nil
 }

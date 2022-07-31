@@ -99,7 +99,7 @@ func (o *UserService) CreateUserService(req dto.CreateUserRequest, authPayload *
 		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
-	users, err := store.CreateUserTx(ctx, req, authPayload)
+	users, err := store.CreateUserTx(ctx, arg, authPayload, req.RoleID)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -232,6 +232,7 @@ func (o *UserService) ListUserService(req dto.ListUserRequest, authPayload *toke
 			Username:       user.Username,
 			Balance:        user.Balance,
 			Phone:          user.Phone,
+			BankCode:       user.BankCode,
 			IdentityNumber: user.IdentityNumber,
 			CreatedAt:      user.CreatedAt,
 			UpdatedAt:      user.UpdatedAt,
@@ -421,6 +422,7 @@ func newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
 		Balance:        user.Balance,
 		Phone:          user.Phone,
 		IdentityNumber: user.IdentityNumber,
+		BankCode:       user.BankCode.Int64,
 		Role:           roleUsers,
 	}
 }

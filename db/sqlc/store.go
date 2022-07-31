@@ -12,7 +12,7 @@ import (
 type Store interface {
 	Querier
 	//TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
-	CreateUserTx(ctx context.Context, req dto.CreateUserRequest, authPayload *token.Payload) (dto.UserResponse, error)
+	CreateUserTx(ctx context.Context, req CreateUserParams, authPayload *token.Payload, roleId int64) (dto.UserResponse, error)
 }
 
 type SQLStore struct {
@@ -46,7 +46,7 @@ func (store *SQLStore) execTransaction(ctx context.Context, fn func(*Queries) er
 	return tx.Commit()
 }
 
-func (store *SQLStore) CreateUserTx(ctx context.Context, req dto.CreateUserRequest, authPayload *token.Payload) (dto.UserResponse, error) {
+func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, authPayload *token.Payload, roleId int64) (dto.UserResponse, error) {
 	logrus.Println("[Store CreateUserTx] start.")
 	var result dto.UserResponse
 	err := store.execTransaction(ctx, func(q *Queries) error {
@@ -56,7 +56,7 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req dto.CreateUserReque
 			Name:           req.Name,
 			Email:          req.Email,
 			Username:       req.Username,
-			Password:       sql.NullString{String: req.Password, Valid: true},
+			Password:       sql.NullString{String: req.Password.String, Valid: true},
 			Balance:        sql.NullString{String: "0.00", Valid: true},
 			Phone:          req.Phone,
 			IdentityNumber: req.IdentityNumber,
@@ -67,7 +67,7 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req dto.CreateUserReque
 		}
 
 		arg := CreateRoleUserParams{
-			RoleID:    req.RoleID,
+			RoleID:    roleId,
 			UserID:    user.ID,
 			CreatedBy: sql.NullInt64{Int64: userPayload.ID, Valid: true},
 		}

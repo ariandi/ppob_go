@@ -50,7 +50,7 @@ func RandomNumberStr() string {
 //}
 
 func RandomRole() string {
-	role := []string{"admin", "partner", "locket"}
+	role := []string{"Admin", "Biller", "Merchant"}
 	n := len(role)
 	return role[rand.Intn(n)]
 }

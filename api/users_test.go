@@ -7,6 +7,7 @@ import (
 	"fmt"
 	mockdb "github.com/ariandi/ppob_go/db/mock"
 	db "github.com/ariandi/ppob_go/db/sqlc"
+	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
@@ -51,6 +52,7 @@ func EqCreateUserParams(arg db.CreateUserParams, password string) gomock.Matcher
 
 func TestCreateUserApi(t *testing.T) {
 	user, password := randomUser(t)
+	userResponse := randomUserResponse(user)
 
 	testCases := []struct {
 		name          string
@@ -68,6 +70,7 @@ func TestCreateUserApi(t *testing.T) {
 				"phone":           user.Phone,
 				"identity_number": user.IdentityNumber,
 				"password":        password,
+				"role_id":         user.RoleID.Int64,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
@@ -75,13 +78,20 @@ func TestCreateUserApi(t *testing.T) {
 			buildStubs: func(store *mockdb.MockStore) {
 				arg := db.CreateUserParams{
 					Name:           user.Name,
+					Email:          user.Email,
 					Username:       user.Username,
 					Phone:          user.Phone,
-					Email:          user.Email,
 					IdentityNumber: user.IdentityNumber,
-					Balance:        user.Balance,
+					//BankCode: sql.NullInt64{
+					//	Int64: 1,
+					//	Valid: true,
+					//},
+					Balance: sql.NullString{
+						String: "0.00",
+						Valid:  true,
+					},
 					CreatedBy: sql.NullInt64{
-						Int64: user.ID,
+						Int64: 0,
 						Valid: true,
 					},
 				}
@@ -91,13 +101,13 @@ func TestCreateUserApi(t *testing.T) {
 					Return(user, nil)
 
 				store.EXPECT().
-					CreateUser(gomock.Any(), EqCreateUserParams(arg, password)).
+					CreateUserTx(gomock.Any(), EqCreateUserParams(arg, password), gomock.Any(), user.RoleID.Int64).
 					Times(1).
-					Return(user, nil)
+					Return(userResponse, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				requireBodyMatchUser(t, recorder.Body, user)
+				requireBodyMatchUser(t, recorder.Body, userResponse)
 			},
 		},
 		{
@@ -109,22 +119,22 @@ func TestCreateUserApi(t *testing.T) {
 				"phone":           user.Phone,
 				"identity_number": user.IdentityNumber,
 				"password":        password,
-				//"balance":         user.Balance,
+				"role_id":         1,
 				//"created_by":      user.CreatedBy,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				//addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, user.Username, time.Minute)
 			},
 			buildStubs: func(store *mockdb.MockStore) {
-				store.EXPECT().
-					GetUserByUsername(gomock.Any(), gomock.Any()).
-					Times(0).
-					Return(user, nil)
-
-				store.EXPECT().
-					CreateUser(gomock.Any(), gomock.Any()).
-					Times(0).
-					Return(user, nil)
+				//store.EXPECT().
+				//	GetUserByUsername(gomock.Any(), gomock.Any()).
+				//	Times(0).
+				//	Return(user, nil)
+				//
+				//store.EXPECT().
+				//	CreateUser(gomock.Any(), gomock.Any()).
+				//	Times(0).
+				//	Return(user, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusUnauthorized, recorder.Code)
@@ -139,15 +149,14 @@ func TestCreateUserApi(t *testing.T) {
 		//		"phone":           user.Phone,
 		//		"identity_number": user.IdentityNumber,
 		//		"password":        password,
-		//		//"balance":         user.Balance,
-		//		//"created_by":      user.CreatedBy,
+		//		"role_id":         1,
 		//	},
 		//	setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
-		//		addAuthorization(t, request, tokenMaker, middleware.AuthorizationTypeBearer, "unauthorized_user", time.Minute)
+		//		addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, "unauthorized_user", time.Minute)
 		//	},
 		//	buildStubs: func(store *mockdb.MockStore) {
 		//		store.EXPECT().
-		//			GetUserByUsername(gomock.Any(), gomock.Eq(user.Username)).
+		//			CreateUserTx(gomock.Any(), gomock.Eq(user.Username), gomock.Any()).
 		//			Times(1).
 		//			Return(user, nil)
 		//		store.EXPECT().
@@ -168,6 +177,7 @@ func TestCreateUserApi(t *testing.T) {
 				"phone":           user.Phone,
 				"identity_number": user.IdentityNumber,
 				"password":        password,
+				"role_id":         user.RoleID.Int64,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
@@ -179,9 +189,9 @@ func TestCreateUserApi(t *testing.T) {
 					Return(user, nil)
 
 				store.EXPECT().
-					CreateUser(gomock.Any(), gomock.Any()).
+					CreateUserTx(gomock.Any(), gomock.Any(), gomock.Any(), user.RoleID.Int64).
 					Times(1).
-					Return(db.User{}, sql.ErrConnDone)
+					Return(dto.UserResponse{}, sql.ErrConnDone)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusInternalServerError, recorder.Code)
@@ -196,6 +206,7 @@ func TestCreateUserApi(t *testing.T) {
 				"phone":           user.Phone,
 				"identity_number": user.IdentityNumber,
 				"password":        password,
+				"role_id":         user.RoleID.Int64,
 			},
 			setupAuth: func(t *testing.T, request *http.Request, tokenMaker token.Maker) {
 				addAuthorization(t, request, tokenMaker, AuthorizationTypeBearer, user.Username, time.Minute)
@@ -207,9 +218,9 @@ func TestCreateUserApi(t *testing.T) {
 					Return(user, nil)
 
 				store.EXPECT().
-					CreateUser(gomock.Any(), gomock.Any()).
+					CreateUserTx(gomock.Any(), gomock.Any(), gomock.Any(), user.RoleID.Int64).
 					Times(1).
-					Return(db.User{}, &pq.Error{Code: "23505"})
+					Return(dto.UserResponse{}, &pq.Error{Code: "23505"})
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
@@ -327,43 +338,83 @@ func TestCreateUserApi(t *testing.T) {
 	}
 }
 
-func randomUser(t *testing.T) (user db.User, password string) {
+func randomUser(t *testing.T) (user db.GetUserByUsernameRow, password string) {
 	username := util.RandomUsername()
 	password = util.RandomString(6)
 	hashedPassword, err := util.HashPassword(password)
 	require.NoError(t, err)
 
-	user = db.User{
-		ID:        util.RandomInt(1, 1000),
-		Name:      username,
-		Email:     username + "@gmial.com",
-		Password:  sql.NullString{String: hashedPassword, Valid: true},
-		Username:  username,
-		CreatedBy: sql.NullInt64{Int64: 1, Valid: true},
-		Phone:     "081219836581",
-		Balance: sql.NullString{
-			String: "0.00",
-			Valid:  true,
-		},
+	user = db.GetUserByUsernameRow{
+		//ID:       util.RandomInt(1, 1000),
+		Name:     username,
+		Email:    username + "@gmial.com",
+		Username: username,
+		Password: sql.NullString{String: hashedPassword, Valid: true},
+		//Balance: sql.NullString{
+		//	String: "0.00",
+		//	Valid:  true,
+		//},
+		Phone:          "081219836581",
 		IdentityNumber: "3201011411870003",
+		BankCode: sql.NullInt64{
+			Int64: 1,
+			Valid: true,
+		},
+		CreatedBy: sql.NullInt64{Int64: 1, Valid: true},
+		RoleID: sql.NullInt64{
+			Int64: 1,
+			Valid: true,
+		},
+		//Name_2: sql.NullString{},
 	}
 	return
 }
 
-func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
+func randomUserResponse(user db.GetUserByUsernameRow) dto.UserResponse {
+	var roles []dto.RoleUser
+
+	role := dto.RoleUser{
+		ID:     1,
+		RoleID: 1,
+		UserID: user.ID,
+	}
+
+	roles = append(roles, role)
+
+	userResponse := dto.UserResponse{
+		ID:             user.ID,
+		Name:           user.Name,
+		Email:          user.Email,
+		Username:       user.Username,
+		Balance:        user.Balance,
+		Phone:          user.Phone,
+		IdentityNumber: user.IdentityNumber,
+		BankCode:       user.BankCode.Int64,
+		Role:           roles,
+	}
+	return userResponse
+}
+
+func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user dto.UserResponse) {
 	data, err := ioutil.ReadAll(body)
 	require.NoError(t, err)
 
-	var gotUser db.User
+	var gotUser dto.ResponseDefault
+	var responseUser dto.UserResponse
 	err = json.Unmarshal(data, &gotUser)
 
+	responseUserStr, err := json.Marshal(gotUser.Data)
 	require.NoError(t, err)
-	require.Equal(t, user.ID, gotUser.ID)
-	require.Equal(t, user.Name, gotUser.Name)
-	require.Equal(t, user.Username, gotUser.Username)
-	require.Equal(t, user.Phone, gotUser.Phone)
-	require.Equal(t, user.Email, gotUser.Email)
+
+	err = json.Unmarshal(responseUserStr, &responseUser)
+
+	require.NoError(t, err)
+	require.Equal(t, user.ID, responseUser.ID)
+	require.Equal(t, user.Name, responseUser.Name)
+	require.Equal(t, user.Username, responseUser.Username)
+	require.Equal(t, user.Phone, responseUser.Phone)
+	require.Equal(t, user.Email, responseUser.Email)
 	//require.Equal(t, user.IdentityNumber, gotUser.IdentityNumber)
 	//require.Equal(t, user.Balance.String, gotUser.Balance.String)
-	require.Empty(t, gotUser.Password.String)
+	//require.Empty(t, gotUser.Password.String)
 }

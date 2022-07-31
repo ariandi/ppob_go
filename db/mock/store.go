@@ -9,6 +9,8 @@ import (
 	reflect "reflect"
 
 	db "github.com/ariandi/ppob_go/db/sqlc"
+	dto "github.com/ariandi/ppob_go/dto"
+	token "github.com/ariandi/ppob_go/token"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -153,6 +155,21 @@ func (m *MockStore) CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (
 func (mr *MockStoreMockRecorder) CreateUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockStore)(nil).CreateUser), arg0, arg1)
+}
+
+// CreateUserTx mocks base method.
+func (m *MockStore) CreateUserTx(arg0 context.Context, arg1 db.CreateUserParams, arg2 *token.Payload, arg3 int64) (dto.UserResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserTx", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(dto.UserResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUserTx indicates an expected call of CreateUserTx.
+func (mr *MockStoreMockRecorder) CreateUserTx(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserTx", reflect.TypeOf((*MockStore)(nil).CreateUserTx), arg0, arg1, arg2, arg3)
 }
 
 // DeleteCategories mocks base method.
@@ -418,10 +435,10 @@ func (mr *MockStoreMockRecorder) GetTransactionByTxID(arg0, arg1 interface{}) *g
 }
 
 // GetUser mocks base method.
-func (m *MockStore) GetUser(arg0 context.Context, arg1 int64) (db.User, error) {
+func (m *MockStore) GetUser(arg0 context.Context, arg1 int64) (db.GetUserRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
+	ret0, _ := ret[0].(db.GetUserRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -433,10 +450,10 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // GetUserByUsername mocks base method.
-func (m *MockStore) GetUserByUsername(arg0 context.Context, arg1 string) (db.User, error) {
+func (m *MockStore) GetUserByUsername(arg0 context.Context, arg1 string) (db.GetUserByUsernameRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByUsername", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
+	ret0, _ := ret[0].(db.GetUserByUsernameRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -568,10 +585,10 @@ func (mr *MockStoreMockRecorder) ListTransaction(arg0, arg1 interface{}) *gomock
 }
 
 // ListUser mocks base method.
-func (m *MockStore) ListUser(arg0 context.Context, arg1 db.ListUserParams) ([]db.User, error) {
+func (m *MockStore) ListUser(arg0 context.Context, arg1 db.ListUserParams) ([]db.ListUserRow, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListUser", arg0, arg1)
-	ret0, _ := ret[0].([]db.User)
+	ret0, _ := ret[0].([]db.ListUserRow)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
