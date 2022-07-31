@@ -169,12 +169,12 @@ func TestListRoles(t *testing.T) {
 }
 
 func GetRoles(t *testing.T) []Role {
-	arg := ListRoleParams{
+	arg := ListRoleWithDeleteParams{
 		Limit:  5,
 		Offset: 0,
 	}
 
-	roles, err := testQueries.ListRole(context.Background(), arg)
+	roles, err := testQueries.ListRoleWithDelete(context.Background(), arg)
 	require.NoError(t, err)
 
 	return roles

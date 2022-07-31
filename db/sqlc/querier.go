@@ -44,6 +44,7 @@ type Querier interface {
 	ListProvider(ctx context.Context, arg ListProviderParams) ([]Provider, error)
 	ListRole(ctx context.Context, arg ListRoleParams) ([]Role, error)
 	ListRoleUser(ctx context.Context, arg ListRoleUserParams) ([]RoleUser, error)
+	ListRoleWithDelete(ctx context.Context, arg ListRoleWithDeleteParams) ([]Role, error)
 	ListTransaction(ctx context.Context, arg ListTransactionParams) ([]Transaction, error)
 	ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)

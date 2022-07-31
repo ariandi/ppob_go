@@ -48,6 +48,7 @@ func (store *SQLStore) execTransaction(ctx context.Context, fn func(*Queries) er
 
 func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, authPayload *token.Payload, roleId int64) (dto.UserResponse, error) {
 	logrus.Println("[Store CreateUserTx] start.")
+	logrus.Println("[Store CreateUserTx] request is ", req)
 	var result dto.UserResponse
 	err := store.execTransaction(ctx, func(q *Queries) error {
 		var err error
@@ -63,9 +64,12 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, a
 			CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
 		})
 		if err != nil {
+			logrus.Println("[Store CreateUserTx] user is ", req.Email)
+			logrus.Println("[Store CreateUserTx] error create user is ", err)
 			return err
 		}
 
+		logrus.Println("[Store CreateUserTx] user ID is ", user.ID)
 		arg := CreateRoleUserParams{
 			RoleID:    roleId,
 			UserID:    user.ID,
@@ -73,6 +77,7 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, a
 		}
 		roleUser, err := q.CreateRoleUser(ctx, arg)
 		if err != nil {
+			logrus.Println("[Store CreateUserTx] error create role is ", err)
 			return err
 		}
 

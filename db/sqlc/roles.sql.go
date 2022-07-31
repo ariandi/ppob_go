@@ -119,6 +119,51 @@ func (q *Queries) ListRole(ctx context.Context, arg ListRoleParams) ([]Role, err
 	return items, nil
 }
 
+const listRoleWithDelete = `-- name: ListRoleWithDelete :many
+SELECT id, name, level, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM roles
+ORDER BY name
+LIMIT $1
+OFFSET $2
+`
+
+type ListRoleWithDeleteParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListRoleWithDelete(ctx context.Context, arg ListRoleWithDeleteParams) ([]Role, error) {
+	rows, err := q.db.QueryContext(ctx, listRoleWithDelete, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Role{}
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Level,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.CreatedBy,
+			&i.UpdatedBy,
+			&i.DeletedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateInactiveRole = `-- name: UpdateInactiveRole :one
 UPDATE roles SET deleted_by = $2, deleted_at = now() WHERE id = $1
 RETURNING id, name, level, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by

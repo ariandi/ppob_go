@@ -569,6 +569,21 @@ func (mr *MockStoreMockRecorder) ListRoleUser(arg0, arg1 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoleUser", reflect.TypeOf((*MockStore)(nil).ListRoleUser), arg0, arg1)
 }
 
+// ListRoleWithDelete mocks base method.
+func (m *MockStore) ListRoleWithDelete(arg0 context.Context, arg1 db.ListRoleWithDeleteParams) ([]db.Role, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRoleWithDelete", arg0, arg1)
+	ret0, _ := ret[0].([]db.Role)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRoleWithDelete indicates an expected call of ListRoleWithDelete.
+func (mr *MockStoreMockRecorder) ListRoleWithDelete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoleWithDelete", reflect.TypeOf((*MockStore)(nil).ListRoleWithDelete), arg0, arg1)
+}
+
 // ListTransaction mocks base method.
 func (m *MockStore) ListTransaction(arg0 context.Context, arg1 db.ListTransactionParams) ([]db.Transaction, error) {
 	m.ctrl.T.Helper()
