@@ -14,6 +14,7 @@ import (
 
 func TestCreateUserTx(t *testing.T) {
 	store := NewStore(testDB)
+	user := CreateRandomUser(t)
 	n := 5
 
 	errs := make(chan error)
@@ -48,8 +49,8 @@ func TestCreateUserTx(t *testing.T) {
 
 			payload := new(token.Payload)
 			payload.ID = uuid.New()
-			payload.Username = "dbduabelas"
-			payload.UserID = 2
+			payload.Username = user.Username
+			payload.UserID = user.ID
 			payload.ExpiredAt = time.Now()
 			payload.IssuedAt = time.Now()
 
