@@ -260,31 +260,15 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 	}
 
 	arg := db.UpdateUserParams{
-		ID:                req.ID,
-		SetName:           false,
-		Name:              req.Name,
-		SetPhone:          false,
-		Phone:             req.Phone,
-		SetIdentityNumber: false,
-		IdentityNumber:    req.IdentityNumber,
-		SetPassword:       false,
-		UpdatedBy:         sql.NullInt64{Int64: user.ID, Valid: true},
-	}
-
-	if req.Name != "" {
-		arg.SetName = true
-	}
-
-	if req.Phone != "" {
-		arg.SetPhone = true
-	}
-
-	if req.IdentityNumber != "" {
-		arg.SetIdentityNumber = true
+		ID:             req.ID,
+		Email:          req.Email,
+		Name:           req.Name,
+		Phone:          req.Phone,
+		IdentityNumber: req.IdentityNumber,
+		UpdatedBy:      sql.NullInt64{Int64: user.ID, Valid: true},
 	}
 
 	if req.Password != "" {
-		arg.SetPassword = true
 		password, errPasswd := util.HashPassword(req.Password)
 		if errPasswd != nil {
 			ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(errPasswd))
@@ -293,7 +277,7 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
-	users, err := store.UpdateUser(ctx, arg)
+	users, err := store.UpdateUserTx(ctx, arg, authPayload, req.RoleID)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -306,13 +290,13 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 		return result, err
 	}
 
-	argUser := db.User{
-		ID: user.ID,
-	}
-	roleUsers := getRoleByUser(argUser, ctx, store)
-	resp1 := newUserResponse(users, roleUsers)
+	//argUser := db.User{
+	//	ID: user.ID,
+	//}
+	//roleUsers := getRoleByUser(argUser, ctx, store)
+	//resp1 := newUserResponse(users, roleUsers)
 
-	return resp1, nil
+	return users, nil
 }
 
 func (o *UserService) SoftDeleteUserService(req dto.UpdateInactiveUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {

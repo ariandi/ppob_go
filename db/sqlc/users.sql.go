@@ -329,10 +329,15 @@ SET
                 THEN $12
                   ELSE bank_code
         END,
-    updated_by = $13,
+    email = CASE
+                    WHEN $13::bool
+                THEN $14
+                    ELSE email
+        END,
+    updated_by = $15,
     updated_at = now()
 WHERE
-    id = $14
+    id = $16
 RETURNING id, name, email, username, password, balance, phone, identity_number, bank_code, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
@@ -349,6 +354,8 @@ type UpdateUserParams struct {
 	Balance           sql.NullString `json:"balance"`
 	SetBankCode       bool           `json:"set_bank_code"`
 	BankCode          sql.NullInt64  `json:"bank_code"`
+	SetEmail          bool           `json:"set_email"`
+	Email             string         `json:"email"`
 	UpdatedBy         sql.NullInt64  `json:"updated_by"`
 	ID                int64          `json:"id"`
 }
@@ -367,6 +374,8 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Balance,
 		arg.SetBankCode,
 		arg.BankCode,
+		arg.SetEmail,
+		arg.Email,
 		arg.UpdatedBy,
 		arg.ID,
 	)

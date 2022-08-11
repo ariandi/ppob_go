@@ -37,6 +37,7 @@ type UpdateUserRequest struct {
 	Balance        string `json:"balance"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number" binding:"required"`
+	RoleID         int64  `json:"role_id" binding:"required"`
 }
 
 type UpdateInactiveUserRequest struct {

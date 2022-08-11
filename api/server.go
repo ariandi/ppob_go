@@ -13,6 +13,10 @@ import (
 )
 
 var userService *services.UserService
+var roleService *services.RoleService
+var categoryService *services.CategoryService
+var partnerService *services.PartnerService
+var providerService *services.ProviderService
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
@@ -41,6 +45,11 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		if err != nil {
 			return nil, fmt.Errorf("cannot register validation status : %w", err)
 		}
+
+		err = v.RegisterValidation("paymentType", validPaymentType)
+		if err != nil {
+			return nil, fmt.Errorf("cannot register validation status : %w", err)
+		}
 	}
 
 	//router.POST("/users", server.createUsers)
@@ -52,6 +61,10 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 
 	server.setupRouter()
 	services.GetUserService(config)
+	services.GetRoleService()
+	services.GetCategoryService()
+	services.GetPartnerService()
+	services.GetProviderService()
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)

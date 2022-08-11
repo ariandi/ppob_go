@@ -61,6 +61,11 @@ SET
                 THEN sqlc.arg(bank_code)
                   ELSE bank_code
         END,
+    email = CASE
+                    WHEN sqlc.arg(set_email)::bool
+                THEN sqlc.arg(email)
+                    ELSE email
+        END,
     updated_by = sqlc.arg(updated_by),
     updated_at = now()
 WHERE

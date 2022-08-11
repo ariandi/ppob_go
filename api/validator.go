@@ -11,3 +11,10 @@ var validStatus validator.Func = func(fieldLevel validator.FieldLevel) bool {
 	}
 	return false
 }
+
+var validPaymentType validator.Func = func(fieldLevel validator.FieldLevel) bool {
+	if paymentType, ok := fieldLevel.Field().Interface().(string); ok {
+		return util.IsSupportedPaymentType(paymentType)
+	}
+	return false
+}

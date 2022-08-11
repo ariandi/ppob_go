@@ -8,12 +8,24 @@ const (
 	INQ          = "3"
 	WaitCallback = "4"
 	Refund       = "5"
+
+	DEPOSIT    = "Deposit"
+	SETTLEMENT = "Settlement"
 )
 
 // IsSupportedStatus returns true if the status is supported
 func IsSupportedStatus(status string) bool {
 	switch status {
 	case SUCCESS, PENDING, FAILED, INQ, WaitCallback, Refund:
+		return true
+	}
+	return false
+}
+
+// IsSupportedPaymentType returns true if the status is supported
+func IsSupportedPaymentType(status string) bool {
+	switch status {
+	case DEPOSIT, SETTLEMENT:
 		return true
 	}
 	return false

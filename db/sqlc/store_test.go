@@ -82,6 +82,67 @@ func TestCreateUserTx(t *testing.T) {
 	}
 }
 
+func TestUpdateUserTx(t *testing.T) {
+	store := NewStore(testDB)
+	user := CreateRandomUser(t)
+	n := 5
+
+	errs := make(chan error)
+	results := make(chan dto.UserResponse)
+	users := make(chan GetUserRow)
+	for i := 0; i < n; i++ {
+		userUpdate1 := CreateRandomUser(t)
+		userUpdate2, _ := testQueries.GetUser(context.Background(), userUpdate1.ID)
+		go func() {
+			users <- userUpdate2
+			//fmt.Println(">> user email is :", userTmp.Email)
+			//fmt.Println(">> user is :", userTmp)
+			arg := UpdateUserParams{
+				Name:           userUpdate2.Name,
+				Phone:          userUpdate2.Phone,
+				IdentityNumber: userUpdate2.IdentityNumber,
+				Password: sql.NullString{
+					String: "password",
+					Valid:  true,
+				},
+				Email: userUpdate2.Email,
+			}
+
+			payload := new(token.Payload)
+			payload.ID = uuid.New()
+			payload.Username = user.Username
+			payload.UserID = user.ID
+			payload.ExpiredAt = time.Now()
+			payload.IssuedAt = time.Now()
+
+			result, err := store.UpdateUserTx(context.Background(), arg, payload, int64(1))
+
+			errs <- err
+			results <- result
+		}()
+	}
+
+	for i := 0; i < n; i++ {
+		user2 := <-users
+		require.NotEmpty(t, user2)
+
+		err := <-errs
+		require.NoError(t, err)
+
+		userResult := <-results
+		require.NotEmpty(t, userResult)
+
+		require.Equal(t, user2.Username, userResult.Username)
+		require.Equal(t, user2.Name, userResult.Name)
+		require.Equal(t, user2.Email, userResult.Email)
+		require.NotZero(t, userResult.ID)
+		require.NotEmpty(t, userResult.Role)
+
+		_, err = store.GetUser(context.Background(), userResult.ID)
+		require.NoError(t, err)
+	}
+}
+
 //func TestGoRoutin(t *testing.T) {
 //	n := 5
 //	aduh := make(chan string)
