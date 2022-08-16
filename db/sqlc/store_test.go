@@ -96,14 +96,20 @@ func TestUpdateUserTx(t *testing.T) {
 		go func() {
 			users <- userUpdate2
 			arg := UpdateUserParams{
-				Name:           userUpdate2.Name,
-				Phone:          userUpdate2.Phone,
-				IdentityNumber: userUpdate2.IdentityNumber,
+				ID:                userUpdate2.ID,
+				SetName:           true,
+				Name:              userUpdate2.Name,
+				SetPhone:          true,
+				Phone:             userUpdate2.Phone,
+				SetIdentityNumber: true,
+				IdentityNumber:    userUpdate2.IdentityNumber,
+				SetPassword:       true,
 				Password: sql.NullString{
 					String: "password",
 					Valid:  true,
 				},
-				Email: userUpdate2.Email,
+				SetEmail: true,
+				Email:    userUpdate2.Email,
 			}
 
 			payload := new(token.Payload)

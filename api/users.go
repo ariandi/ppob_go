@@ -96,10 +96,19 @@ func (server *Server) listUsers(ctx *gin.Context) {
 
 func (server *Server) updateUsers(ctx *gin.Context) {
 	var req dto.UpdateUserRequest
+	var reqID dto.UpdateUserIDRequest
+
+	if err := ctx.ShouldBindUri(&reqID); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+		return
+	}
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
+
+	req.ID = reqID.ID
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	resp1, err := userService.UpdateUserService(req, authPayload, ctx, server.store)

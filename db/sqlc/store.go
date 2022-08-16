@@ -110,37 +110,21 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, a
 func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, authPayload *token.Payload, roleId int64) (dto.UserResponse, error) {
 	logrus.Println("[Store UpdateUserTx] start.")
 	logrus.Println("[Store UpdateUserTx] request is ", req)
+	logrus.Println("[Store UpdateUserTx] auth payload is ", authPayload)
 	var result dto.UserResponse
 	err := store.execTransaction(ctx, func(q *Queries) error {
 		var err error
 
-		if req.Name != "" {
-			req.SetName = true
-		}
-		if req.Phone != "" {
-			req.SetPhone = true
-		}
-		if req.Password.Valid {
-			req.SetPassword = true
-		}
-		if req.Email != "" {
-			req.SetEmail = true
-		}
-		if req.BankCode.Valid {
-			req.SetBankCode = true
-		}
-		if req.Balance.Valid {
-			if authPayload.Username == "dbduabelas" {
-				req.SetBalance = true
-			} else {
-				req.SetBalance = false
-			}
+		userPayload, err := q.GetUserByUsername(ctx, authPayload.Username)
+		if err != nil {
+			logrus.Println("[Store UpdateUserTx] user is ", authPayload.Username)
+			logrus.Println("[Store UpdateUserTx] auth payload error is ", err)
+			return err
 		}
 
-		userPayload, err := q.GetUserByUsername(ctx, authPayload.Username)
+		req = store.setUpdateUserTxValid(req, authPayload)
 		req.UpdatedBy = sql.NullInt64{Int64: userPayload.ID, Valid: true}
 		user, err := q.UpdateUser(ctx, req)
-
 		if err != nil {
 			logrus.Println("[Store UpdateUserTx] user is ", req.Email)
 			logrus.Println("[Store UpdateUserTx] error create user is ", err)
@@ -159,8 +143,18 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 			return err
 		}
 
+		logrus.Println("[Store UpdateUserTx] get role user is", getRoleID)
+		defaultRoleID := int64(0)
+		if len(getRoleID) == 0 {
+			defaultRoleID = roleId
+			logrus.Println("[Store UpdateUserTx] get role id is null ", defaultRoleID)
+		} else {
+			defaultRoleID = getRoleID[len(getRoleID)-1].ID
+			logrus.Println("[Store UpdateUserTx] get role id is not null ", defaultRoleID)
+		}
+
 		roleUserParams := UpdateRoleUserParams{
-			ID:     getRoleID[0].ID,
+			ID:     defaultRoleID,
 			UserID: req.ID,
 			RoleID: roleId,
 			UpdatedBy: sql.NullInt64{
@@ -199,4 +193,31 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 	})
 
 	return result, err
+}
+
+func (store *SQLStore) setUpdateUserTxValid(req UpdateUserParams, authPayload *token.Payload) UpdateUserParams {
+	if req.Name != "" {
+		req.SetName = true
+	}
+	if req.Phone != "" {
+		req.SetPhone = true
+	}
+	if req.Password.Valid {
+		req.SetPassword = true
+	}
+	if req.Email != "" {
+		req.SetEmail = true
+	}
+	if req.BankCode.Valid {
+		req.SetBankCode = true
+	}
+	if req.Balance.Valid {
+		if authPayload.Username == "dbduabelas" {
+			req.SetBalance = true
+		} else {
+			req.SetBalance = false
+		}
+	}
+
+	return req
 }

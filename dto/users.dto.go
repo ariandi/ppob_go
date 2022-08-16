@@ -29,15 +29,19 @@ type UserResponse struct {
 }
 
 type UpdateUserRequest struct {
-	ID             int64  `uri:"id" binding:"required,min=1"`
-	Name           string `json:"name" binding:"required"`
-	Email          string `json:"email" binding:"required,email"`
-	Username       string `json:"username" binding:"required,alphanum"`
-	Password       string `json:"password" binding:"min=6"`
+	ID             int64
+	Name           string `json:"name"`
+	Email          string `json:"email"`
+	Username       string `json:"username"`
+	Password       string `json:"password"`
 	Balance        string `json:"balance"`
 	Phone          string `json:"phone"`
-	IdentityNumber string `json:"identity_number" binding:"required"`
+	IdentityNumber string `json:"identity_number"`
 	RoleID         int64  `json:"role_id" binding:"required"`
+}
+
+type UpdateUserIDRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
 type UpdateInactiveUserRequest struct {
