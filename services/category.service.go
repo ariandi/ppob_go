@@ -138,7 +138,7 @@ func (o *CategoryService) UpdateCategoryService(req dto.UpdateCategoryRequest, a
 	return result, nil
 }
 
-func (o *CategoryService) SoftDeleteCategoryService(req dto.UpdateInactiveRoleRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *CategoryService) SoftDeleteCategoryService(req dto.UpdateInactiveCategoryRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
 	logrus.Println("[CategoryService SoftDeleteCategoryService] start.")
 	userValid, err := validator(store, ctx, authPayload)
 	if err != nil {

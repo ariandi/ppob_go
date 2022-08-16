@@ -38,7 +38,6 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		TokenMaker: tokenMaker,
 		config:     config,
 	}
-	//router := gin.Default()
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("status", validStatus)
@@ -51,13 +50,6 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 			return nil, fmt.Errorf("cannot register validation status : %w", err)
 		}
 	}
-
-	//router.POST("/users", server.createUsers)
-	//router.GET("/users/:id", server.getUser)
-	//router.GET("/users", server.listUsers)
-	//router.PUT("/users/:id", server.updateUsers)
-	//
-	//server.router = router
 
 	server.setupRouter()
 	services.GetUserService(config)
@@ -98,6 +90,24 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/role-users", server.listRoleUsers)
 	authRoutes.PUT("/role-users/:id", server.updateRoleUsers)
 	authRoutes.DELETE("/role-users/:id", server.softDeleteRoleUser)
+
+	authRoutes.POST("/categories", server.createCategory)
+	authRoutes.GET("/categories/:id", server.getCategory)
+	authRoutes.GET("/categories", server.listCategory)
+	authRoutes.PUT("/categories/:id", server.updateCategory)
+	authRoutes.DELETE("/categories/:id", server.softDeleteCategory)
+
+	authRoutes.POST("/partners", server.createPartner)
+	authRoutes.GET("/partners/:id", server.getPartner)
+	authRoutes.GET("/partners", server.listPartner)
+	authRoutes.PUT("/partners/:id", server.updatePartner)
+	authRoutes.DELETE("/partners/:id", server.softDeletePartner)
+
+	authRoutes.POST("/providers", server.createProvider)
+	authRoutes.GET("/providers/:id", server.getProvider)
+	authRoutes.GET("/providers", server.listProvider)
+	authRoutes.PUT("/providers/:id", server.updateProvider)
+	authRoutes.DELETE("/providers/:id", server.softDeleteProvider)
 
 	server.Router = router
 }
