@@ -218,49 +218,49 @@ func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto
 		}
 	}
 
-	if req.BaseUrl == "" {
+	if req.BaseUrl != "" {
 		arg.BaseUrl = sql.NullString{
 			String: req.BaseUrl,
 			Valid:  true,
 		}
 	}
 
-	if req.Method == "" {
+	if req.Method != "" {
 		arg.Method = sql.NullString{
 			String: req.Method,
 			Valid:  true,
 		}
 	}
 
-	if req.Inq == "" {
+	if req.Inq != "" {
 		arg.Inq = sql.NullString{
 			String: req.Inq,
 			Valid:  true,
 		}
 	}
 
-	if req.Pay == "" {
+	if req.Pay != "" {
 		arg.Pay = sql.NullString{
 			String: req.Pay,
 			Valid:  true,
 		}
 	}
 
-	if req.Adv == "" {
+	if req.Adv != "" {
 		arg.Adv = sql.NullString{
 			String: req.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Adv == "" {
+	if req.Adv != "" {
 		arg.Adv = sql.NullString{
 			String: req.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Rev == "" {
+	if req.Rev != "" {
 		arg.Rev = sql.NullString{
 			String: req.Rev,
 			Valid:  true,
@@ -300,49 +300,49 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 		}
 	}
 
-	if req.BaseUrl == "" {
+	if req.BaseUrl != "" {
 		arg.BaseUrl = sql.NullString{
 			String: req.BaseUrl,
 			Valid:  true,
 		}
 	}
 
-	if req.Method == "" {
+	if req.Method != "" {
 		arg.Method = sql.NullString{
 			String: req.Method,
 			Valid:  true,
 		}
 	}
 
-	if req.Inq == "" {
+	if req.Inq != "" {
 		arg.Inq = sql.NullString{
 			String: req.Inq,
 			Valid:  true,
 		}
 	}
 
-	if req.Pay == "" {
+	if req.Pay != "" {
 		arg.Pay = sql.NullString{
 			String: req.Pay,
 			Valid:  true,
 		}
 	}
 
-	if req.Adv == "" {
+	if req.Adv != "" {
 		arg.Adv = sql.NullString{
 			String: req.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Adv == "" {
+	if req.Adv != "" {
 		arg.Adv = sql.NullString{
 			String: req.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Rev == "" {
+	if req.Rev != "" {
 		arg.Rev = sql.NullString{
 			String: req.Rev,
 			Valid:  true,

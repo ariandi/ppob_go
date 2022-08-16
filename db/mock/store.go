@@ -853,3 +853,18 @@ func (mr *MockStoreMockRecorder) UpdateUser(arg0, arg1 interface{}) *gomock.Call
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockStore)(nil).UpdateUser), arg0, arg1)
 }
+
+// UpdateUserTx mocks base method.
+func (m *MockStore) UpdateUserTx(arg0 context.Context, arg1 db.UpdateUserParams, arg2 *token.Payload, arg3 int64) (dto.UserResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserTx", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(dto.UserResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserTx indicates an expected call of UpdateUserTx.
+func (mr *MockStoreMockRecorder) UpdateUserTx(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserTx", reflect.TypeOf((*MockStore)(nil).UpdateUserTx), arg0, arg1, arg2, arg3)
+}
