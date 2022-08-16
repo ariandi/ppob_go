@@ -69,19 +69,26 @@ type GetTransactionReq struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
 
-type ListTRansactionRequest struct {
+type GetTransactionByTxIDReq struct {
+	ID string `uri:"tx_id" binding:"required,min=1"`
+}
+
+type ListTransactionRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
 }
 
 type UpdateTransactionRequest struct {
-	ID         int64  `uri:"id" binding:"required,min=1"`
-	Name       string `json:"name" binding:"required"`
-	CatID      int64  `json:"cat_id" binding:"required"`
-	Amount     string `json:"amount"`
-	ProviderID int64  `json:"provider_id" binding:"required"`
-	Status     string `json:"status"`
-	Parent     int64  `json:"parent"`
+	TxID         int64  `uri:"tx_id" binding:"required,min=1"`
+	Status       string `json:"status"`
+	ReqPayParams string `json:"req_pay_params"`
+	ResPayParams string `json:"res_pay_params"`
+	ReqCmtParams string `json:"req_cmt_params"`
+	ResCmtParams string `json:"res_cmt_params"`
+	ReqAdvParams string `json:"req_adv_params"`
+	ResAdvParams string `json:"res_adv_params"`
+	ReqRevParams string `json:"req_rev_params"`
+	ResRevParams string `json:"res_rev_params"`
 }
 
 type UpdateInactiveTransactionRequest struct {

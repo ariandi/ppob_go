@@ -62,7 +62,7 @@ func (o *ProductService) CreateProductService(req dto.CreateProductReq, authPayl
 		return result, err
 	}
 
-	result = ProductRes(prod)
+	result = o.ProductRes(prod)
 	return result, nil
 }
 
@@ -85,7 +85,7 @@ func (o *ProductService) GetProductService(req dto.GetProductReq, authPayload *t
 		return result, err
 	}
 
-	result = ProductRes(prod)
+	result = o.ProductRes(prod)
 	return result, nil
 }
 
@@ -109,7 +109,7 @@ func (o *ProductService) ListProductService(req dto.ListProductRequest, authPayl
 	}
 
 	for _, prod := range products {
-		u := ProductRes(prod)
+		u := o.ProductRes(prod)
 		result = append(result, u)
 	}
 
@@ -150,7 +150,7 @@ func (o *ProductService) UpdateProductService(req dto.UpdateProductRequest, auth
 		return result, err
 	}
 
-	result = ProductRes(prod)
+	result = o.ProductRes(prod)
 
 	return result, nil
 }
@@ -207,7 +207,7 @@ func (o ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.Update
 	return arg
 }
 
-func ProductRes(prod db.Product) dto.ProductRes {
+func (o ProductService) ProductRes(prod db.Product) dto.ProductRes {
 	return dto.ProductRes{
 		ID:         prod.ID,
 		Name:       prod.Name,

@@ -17,6 +17,8 @@ var roleService *services.RoleService
 var categoryService *services.CategoryService
 var partnerService *services.PartnerService
 var providerService *services.ProviderService
+var productService *services.ProductService
+var transactionService *services.TransactionService
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
@@ -57,6 +59,8 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	services.GetCategoryService()
 	services.GetPartnerService()
 	services.GetProviderService()
+	services.GetProductService()
+	services.GetTransactionService()
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)
@@ -108,6 +112,18 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/providers", server.listProvider)
 	authRoutes.PUT("/providers/:id", server.updateProvider)
 	authRoutes.DELETE("/providers/:id", server.softDeleteProvider)
+
+	authRoutes.POST("/products", server.createProduct)
+	authRoutes.GET("/products/:id", server.getProduct)
+	authRoutes.GET("/products", server.listProduct)
+	authRoutes.PUT("/products/:id", server.updateProduct)
+	authRoutes.DELETE("/products/:id", server.softDeleteProduct)
+
+	authRoutes.POST("/transactions", server.createTrx)
+	authRoutes.GET("/transactions/:tx_id", server.getTrx)
+	authRoutes.GET("/transactions", server.listTrx)
+	authRoutes.PUT("/transactions/:tx_id", server.updateTrx)
+	authRoutes.DELETE("/transactions/:id", server.softDeleteTrx)
 
 	server.Router = router
 }

@@ -72,7 +72,7 @@ func (o *ProviderService) CreateProviderService(req dto.CreateProviderReq, authP
 		return result, err
 	}
 
-	result = ProviderRes(provider)
+	result = o.ProviderRes(provider)
 	return result, nil
 }
 
@@ -95,7 +95,7 @@ func (o *ProviderService) GetProviderService(req dto.GetProviderReq, authPayload
 		return result, err
 	}
 
-	result = ProviderRes(prov)
+	result = o.ProviderRes(prov)
 	return result, nil
 }
 
@@ -119,7 +119,7 @@ func (o *ProviderService) ListProviderService(req dto.ListProviderRequest, authP
 	}
 
 	for _, provider := range providers {
-		u := ProviderRes(provider)
+		u := o.ProviderRes(provider)
 		result = append(result, u)
 	}
 
@@ -159,7 +159,7 @@ func (o *ProviderService) UpdateProviderService(req dto.UpdateProviderRequest, a
 		return result, err
 	}
 
-	result = ProviderRes(prov)
+	result = o.ProviderRes(prov)
 
 	return result, nil
 }
@@ -356,7 +356,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 	return arg, nil
 }
 
-func ProviderRes(provider db.Provider) dto.ProviderRes {
+func (o *ProviderService) ProviderRes(provider db.Provider) dto.ProviderRes {
 	return dto.ProviderRes{
 		ID:        provider.ID,
 		Name:      provider.Name,

@@ -52,7 +52,7 @@ func (o *CategoryService) CreateCategoryService(req dto.CreateCategoryReq, authP
 		return result, err
 	}
 
-	result = CatResponse(cat)
+	result = o.CatResponse(cat)
 	return result, nil
 }
 
@@ -75,7 +75,7 @@ func (o *CategoryService) GetCategoryService(req dto.GetCategoryReq, authPayload
 		return result, err
 	}
 
-	result = CatResponse(cat)
+	result = o.CatResponse(cat)
 	return result, nil
 }
 
@@ -99,7 +99,7 @@ func (o *CategoryService) ListCategoryService(req dto.ListCategoryRequest, authP
 	}
 
 	for _, cat := range categories {
-		u := CatResponse(cat)
+		u := o.CatResponse(cat)
 		result = append(result, u)
 	}
 
@@ -133,7 +133,7 @@ func (o *CategoryService) UpdateCategoryService(req dto.UpdateCategoryRequest, a
 		return result, err
 	}
 
-	result = CatResponse(cat)
+	result = o.CatResponse(cat)
 
 	return result, nil
 }
@@ -166,7 +166,7 @@ func (o *CategoryService) SoftDeleteCategoryService(req dto.UpdateInactiveCatego
 	return nil
 }
 
-func CatResponse(cat db.Category) dto.CategoryRes {
+func (o *CategoryService) CatResponse(cat db.Category) dto.CategoryRes {
 	return dto.CategoryRes{
 		ID:   cat.ID,
 		Name: cat.Name,

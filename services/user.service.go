@@ -163,7 +163,7 @@ func (o *UserService) CreateUserFirstService(req dto.CreateUserRequest, ctx *gin
 		return result, err
 	}
 
-	result = newUserResponse(users, []dto.RoleUser{})
+	result = o.newUserResponse(users, []dto.RoleUser{})
 	return result, nil
 }
 
@@ -199,7 +199,7 @@ func (o *UserService) GetUserService(req dto.GetUserRequest, authPayload *token.
 		Phone:          user.Phone,
 		IdentityNumber: user.IdentityNumber,
 	}
-	resp1 := newUserResponse(userArg, roleUsers)
+	resp1 := o.newUserResponse(userArg, roleUsers)
 
 	return resp1, nil
 }
@@ -245,7 +245,7 @@ func (o *UserService) ListUserService(req dto.ListUserRequest, authPayload *toke
 		}
 		roleUserResponse := getRoleByUser(argUser, ctx, store)
 
-		u := newUserResponse(dbUser, roleUserResponse)
+		u := o.newUserResponse(dbUser, roleUserResponse)
 		resp1 = append(resp1, u)
 	}
 	return resp1, nil
@@ -289,12 +289,6 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return result, err
 	}
-
-	//argUser := db.User{
-	//	ID: user.ID,
-	//}
-	//roleUsers := getRoleByUser(argUser, ctx, store)
-	//resp1 := newUserResponse(users, roleUsers)
 
 	return users, nil
 }
@@ -366,20 +360,6 @@ func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker toke
 		return result, err
 	}
 
-	//session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
-	//	ID:           refreshPayload.ID,
-	//	Username:     user.Username,
-	//	RefreshToken: refreshToken,
-	//	UserAgent:    ctx.Request.UserAgent(),
-	//	ClientIp:     ctx.ClientIP(),
-	//	IsBlocked:    false,
-	//	ExpiresAt:    refreshPayload.ExpiredAt,
-	//})
-	//if err != nil {
-	//	ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-	//	return
-	//}
-
 	argUser := db.User{
 		ID: user.ID,
 	}
@@ -392,12 +372,12 @@ func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker toke
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
-		User:                  newUserResponse(userRes, roleUsers),
+		User:                  o.newUserResponse(userRes, roleUsers),
 	}
 	return result, nil
 }
 
-func newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
+func (o *UserService) newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
 	return dto.UserResponse{
 		ID:             user.ID,
 		Name:           user.Name,

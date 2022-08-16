@@ -64,7 +64,7 @@ func (o *PartnerService) CreatePartnerService(req dto.CreatePartnerReq, authPayl
 		return result, err
 	}
 
-	result = PartnerResponse(partner)
+	result = o.PartnerResponse(partner)
 	return result, nil
 }
 
@@ -87,7 +87,7 @@ func (o *PartnerService) GetPartnerService(req dto.GetPartnerReq, authPayload *t
 		return result, err
 	}
 
-	result = PartnerResponse(partner)
+	result = o.PartnerResponse(partner)
 	return result, nil
 }
 
@@ -111,7 +111,7 @@ func (o *PartnerService) ListPartnerService(req dto.ListPartnerRequest, authPayl
 	}
 
 	for _, partner := range partners {
-		u := PartnerResponse(partner)
+		u := o.PartnerResponse(partner)
 		result = append(result, u)
 	}
 
@@ -146,7 +146,7 @@ func (o *PartnerService) UpdatePartnerService(req dto.UpdatePartnerRequest, auth
 		return result, err
 	}
 
-	result = PartnerResponse(partner)
+	result = o.PartnerResponse(partner)
 
 	return result, nil
 }
@@ -179,7 +179,7 @@ func (o *PartnerService) SoftDeletePartnerService(req dto.UpdateInactivePartnerR
 	return nil
 }
 
-func PartnerResponse(partner db.Partner) dto.PartnerRes {
+func (o *PartnerService) PartnerResponse(partner db.Partner) dto.PartnerRes {
 	return dto.PartnerRes{
 		ID:          partner.ID,
 		Name:        partner.Name,

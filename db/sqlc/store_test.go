@@ -95,8 +95,6 @@ func TestUpdateUserTx(t *testing.T) {
 		userUpdate2, _ := testQueries.GetUser(context.Background(), userUpdate1.ID)
 		go func() {
 			users <- userUpdate2
-			//fmt.Println(">> user email is :", userTmp.Email)
-			//fmt.Println(">> user is :", userTmp)
 			arg := UpdateUserParams{
 				Name:           userUpdate2.Name,
 				Phone:          userUpdate2.Phone,

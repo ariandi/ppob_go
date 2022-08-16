@@ -53,7 +53,7 @@ func (o *RoleService) CreateRoleService(req dto.CreateRoleReq, authPayload *toke
 		return result, err
 	}
 
-	result = RoleResponse(role)
+	result = o.RoleResponse(role)
 	return result, nil
 }
 
@@ -76,7 +76,7 @@ func (o *RoleService) GetRoleService(req dto.GetRoleReq, authPayload *token.Payl
 		return result, err
 	}
 
-	result = RoleResponse(role)
+	result = o.RoleResponse(role)
 	return result, nil
 }
 
@@ -100,7 +100,7 @@ func (o *RoleService) ListRoleService(req dto.ListRoleRequest, authPayload *toke
 	}
 
 	for _, role := range roles {
-		u := RoleResponse(role)
+		u := o.RoleResponse(role)
 		result = append(result, u)
 	}
 
@@ -135,7 +135,7 @@ func (o *RoleService) UpdateRoleService(req dto.UpdateRoleRequest, authPayload *
 		return result, err
 	}
 
-	result = RoleResponse(role)
+	result = o.RoleResponse(role)
 
 	return result, nil
 }
@@ -168,7 +168,7 @@ func (o *RoleService) SoftDeleteRoleService(req dto.UpdateInactiveRoleRequest, a
 	return nil
 }
 
-func RoleResponse(role db.Role) dto.RoleRes {
+func (o *RoleService) RoleResponse(role db.Role) dto.RoleRes {
 	return dto.RoleRes{
 		ID:    role.ID,
 		Name:  role.Name,
