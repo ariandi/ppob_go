@@ -96,18 +96,31 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 const listProduct = `-- name: ListProduct :many
 SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
 WHERE deleted_at is null
+AND (CASE WHEN $3::bool THEN cat_id = $4 ELSE TRUE END)
+AND (CASE WHEN $5::bool THEN provider_id = $6 ELSE TRUE END)
 ORDER BY name
 LIMIT $1
 OFFSET $2
 `
 
 type ListProductParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit      int32 `json:"limit"`
+	Offset     int32 `json:"offset"`
+	IsCat      bool  `json:"is_cat"`
+	CatID      int64 `json:"cat_id"`
+	IsProv     bool  `json:"is_prov"`
+	ProviderID int64 `json:"provider_id"`
 }
 
 func (q *Queries) ListProduct(ctx context.Context, arg ListProductParams) ([]Product, error) {
-	rows, err := q.db.QueryContext(ctx, listProduct, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listProduct,
+		arg.Limit,
+		arg.Offset,
+		arg.IsCat,
+		arg.CatID,
+		arg.IsProv,
+		arg.ProviderID,
+	)
 	if err != nil {
 		return nil, err
 	}

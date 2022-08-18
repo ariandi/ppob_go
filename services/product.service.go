@@ -36,7 +36,7 @@ func (o *ProductService) CreateProductService(req dto.CreateProductReq, authPayl
 	}
 
 	arg := db.CreateProductParams{
-		CatID:      0,
+		CatID:      req.CatID,
 		Name:       req.Name,
 		Amount:     req.Amount,
 		ProviderID: req.ProviderID,
@@ -98,8 +98,18 @@ func (o *ProductService) ListProductService(req dto.ListProductRequest, authPayl
 	}
 
 	arg := db.ListProductParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:      req.PageSize,
+		Offset:     (req.PageID - 1) * req.PageSize,
+		CatID:      req.CatID,
+		ProviderID: req.ProviderID,
+	}
+
+	if req.CatID > 0 {
+		arg.IsCat = true
+	}
+
+	if req.ProviderID > 0 {
+		arg.IsProv = true
 	}
 
 	products, err := store.ListProduct(ctx, arg)
@@ -183,7 +193,7 @@ func (o *ProductService) SoftDeleteProductService(req dto.UpdateInactiveProductR
 	return nil
 }
 
-func (o ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.UpdateProductRequest) db.UpdateProductParams {
+func (o *ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.UpdateProductRequest) db.UpdateProductParams {
 
 	if req.Name != "" {
 		arg.SetName = true
@@ -207,7 +217,7 @@ func (o ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.Update
 	return arg
 }
 
-func (o ProductService) ProductRes(prod db.Product) dto.ProductRes {
+func (o *ProductService) ProductRes(prod db.Product) dto.ProductRes {
 	return dto.ProductRes{
 		ID:         prod.ID,
 		Name:       prod.Name,

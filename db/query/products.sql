@@ -12,6 +12,8 @@ WHERE id = $1 AND deleted_at is null LIMIT 1;
 -- name: ListProduct :many
 SELECT * FROM products
 WHERE deleted_at is null
+AND (CASE WHEN @is_cat::bool THEN cat_id = @cat_id ELSE TRUE END)
+AND (CASE WHEN @is_prov::bool THEN provider_id = @provider_id ELSE TRUE END)
 ORDER BY name
 LIMIT $1
 OFFSET $2;
