@@ -49,7 +49,7 @@ func (o *ProviderService) CreateProviderService(req dto.CreateProviderReq, authP
 		Adv:       sql.NullString{},
 		Cmt:       sql.NullString{},
 		Rev:       sql.NullString{},
-		Status:    "",
+		Status:    req.Status,
 		CreatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
@@ -135,9 +135,13 @@ func (o *ProviderService) UpdateProviderService(req dto.UpdateProviderRequest, a
 	}
 
 	arg := db.UpdateProviderParams{
-		ID:        req.ID,
-		Name:      req.Name,
-		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
+		ID:         req.ID,
+		Name:       req.Name,
+		UserParams: req.User,
+		Secret:     req.Secret,
+		AddInfo1:   req.AddInfo1,
+		AddInfo2:   req.AddInfo2,
+		UpdatedBy:  sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
 	arg, err = o.setUpdateProvider(arg, req)
@@ -253,8 +257,8 @@ func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto
 		}
 	}
 
-	if req.Adv != "" {
-		arg.Adv = sql.NullString{
+	if req.Cmt != "" {
+		arg.Cmt = sql.NullString{
 			String: req.Adv,
 			Valid:  true,
 		}
@@ -268,7 +272,7 @@ func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto
 	}
 
 	if req.Status == "" {
-		arg.Status = "active"
+		arg.Status = "Active"
 	}
 
 	return arg, nil
@@ -286,6 +290,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			Time:  fromDate,
 			Valid: true,
 		}
+		arg.SetValidFrom = true
 	}
 
 	if req.ValidTo != "" {
@@ -298,6 +303,27 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			Time:  toDate,
 			Valid: true,
 		}
+		arg.SetValidTo = true
+	}
+
+	if req.Name != "" {
+		arg.SetName = true
+	}
+
+	if req.User != "" {
+		arg.SetUser = true
+	}
+
+	if req.Secret != "" {
+		arg.SetSecret = true
+	}
+
+	if req.AddInfo1 != "" {
+		arg.SetAddInfo1 = true
+	}
+
+	if req.AddInfo2 != "" {
+		arg.SetAddInfo2 = true
 	}
 
 	if req.BaseUrl != "" {
@@ -305,6 +331,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.BaseUrl,
 			Valid:  true,
 		}
+		arg.SetBaseUrl = true
 	}
 
 	if req.Method != "" {
@@ -312,6 +339,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.Method,
 			Valid:  true,
 		}
+		arg.SetMethod = true
 	}
 
 	if req.Inq != "" {
@@ -319,6 +347,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.Inq,
 			Valid:  true,
 		}
+		arg.SetInq = true
 	}
 
 	if req.Pay != "" {
@@ -326,6 +355,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.Pay,
 			Valid:  true,
 		}
+		arg.SetPay = true
 	}
 
 	if req.Adv != "" {
@@ -333,13 +363,7 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.Adv,
 			Valid:  true,
 		}
-	}
-
-	if req.Adv != "" {
-		arg.Adv = sql.NullString{
-			String: req.Adv,
-			Valid:  true,
-		}
+		arg.SetAdv = true
 	}
 
 	if req.Rev != "" {
@@ -347,10 +371,28 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 			String: req.Rev,
 			Valid:  true,
 		}
+		arg.SetRev = true
 	}
 
-	if req.Status == "" {
-		arg.Status = "active"
+	if req.Cmt != "" {
+		arg.Cmt = sql.NullString{
+			String: req.Rev,
+			Valid:  true,
+		}
+		arg.SetCmt = true
+	}
+
+	if req.Cmt != "" {
+		arg.Cmt = sql.NullString{
+			String: req.Cmt,
+			Valid:  true,
+		}
+		arg.SetCmt = true
+	}
+
+	if req.Status != "" {
+		arg.Status = req.Status
+		arg.SetStatus = true
 	}
 
 	return arg, nil
@@ -362,7 +404,7 @@ func (o *ProviderService) ProviderRes(provider db.Provider) dto.ProviderRes {
 		Name:      provider.Name,
 		User:      provider.User,
 		Secret:    provider.Secret,
-		AddInfo1:  provider.AddInfo2,
+		AddInfo1:  provider.AddInfo1,
 		AddInfo2:  provider.AddInfo2,
 		ValidFrom: provider.ValidFrom.Time.Format("2006-01-02 15:04:05"),
 		ValidTo:   provider.ValidTo.Time.Format("2006-01-02 15:04:05"),
