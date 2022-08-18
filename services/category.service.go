@@ -116,6 +116,7 @@ func (o *CategoryService) UpdateCategoryService(req dto.UpdateCategoryRequest, a
 
 	arg := db.UpdateCategoryParams{
 		ID:        req.ID,
+		SetName:   true,
 		Name:      req.Name,
 		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
