@@ -42,6 +42,7 @@ func (o *PartnerService) CreatePartnerService(req dto.CreatePartnerReq, authPayl
 		AddInfo1:    req.AddInfo1,
 		AddInfo2:    req.AddInfo2,
 		PaymentType: req.PaymentType,
+		Status:      req.Status,
 		CreatedBy:   sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
@@ -197,26 +198,32 @@ func (o *PartnerService) PartnerResponse(partner db.Partner) dto.PartnerRes {
 func (o *PartnerService) setUpdateParamsService(arg db.UpdatePartnerParams, req dto.UpdatePartnerRequest) db.UpdatePartnerParams {
 	if req.Name != "" {
 		arg.Name = req.Name
+		arg.SetName = true
 	}
 
 	if req.User != "" {
-		arg.Name = req.User
+		arg.UserParams = req.User
+		arg.SetUser = true
 	}
 
 	if req.Secret != "" {
-		arg.Name = req.Secret
+		arg.Secret = req.Secret
+		arg.SetSecret = true
 	}
 
 	if req.AddInfo1 != "" {
-		arg.Name = req.AddInfo1
+		arg.AddInfo1 = req.AddInfo1
+		arg.SetAddInfo1 = true
 	}
 
 	if req.AddInfo2 != "" {
-		arg.Name = req.AddInfo2
+		arg.AddInfo2 = req.AddInfo2
+		arg.SetAddInfo2 = true
 	}
 
 	if req.PaymentType != "" {
-		arg.Name = req.PaymentType
+		arg.PaymentType = req.PaymentType
+		arg.SetPaymentType = true
 	}
 
 	return arg
