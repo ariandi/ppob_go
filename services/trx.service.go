@@ -1,15 +1,20 @@
 package services
 
 import (
+	"crypto/sha256"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/token"
+	"github.com/ariandi/ppob_go/util"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 // TransactionService is
@@ -173,7 +178,31 @@ func (o *TransactionService) SoftDeleteTransactionService(req dto.UpdateInactive
 	return nil
 }
 
-func (o TransactionService) setCreateParams(arg db.CreateTransactionParams, req dto.CreateTransactionReq) db.CreateTransactionParams {
+func (o *TransactionService) InqService(req dto.InqRequestConsume, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]string, error) {
+	var ret []string
+	_, err := validator(store, ctx, authPayload)
+	if err != nil {
+		return ret, errors.New("error in user validator")
+	}
+
+	queueName := "transactions"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	byt, err := json.Marshal(req)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
+	ret = append(ret, "Success")
+
+	return ret, nil
+}
+
+func (o *TransactionService) setCreateParams(arg db.CreateTransactionParams, req dto.CreateTransactionReq) db.CreateTransactionParams {
 
 	if req.CustName != "" {
 		arg.CustName = sql.NullString{
@@ -269,7 +298,7 @@ func (o TransactionService) setCreateParams(arg db.CreateTransactionParams, req 
 	return arg
 }
 
-func (o TransactionService) setUpdateParams(arg db.UpdateTransactionParams, req dto.UpdateTransactionRequest) db.UpdateTransactionParams {
+func (o *TransactionService) setUpdateParams(arg db.UpdateTransactionParams, req dto.UpdateTransactionRequest) db.UpdateTransactionParams {
 
 	if req.ReqPayParams != "" {
 		arg.ReqPayParams = sql.NullString{
@@ -305,7 +334,122 @@ func (o TransactionService) setUpdateParams(arg db.UpdateTransactionParams, req 
 	return arg
 }
 
-func (o TransactionService) TransactionRes(trx db.Transaction) dto.TransactionRes {
+func (o *TransactionService) setTxID() string {
+
+	unique := util.RandomInt(1, 9999)
+	uniqueString := strconv.Itoa(int(unique))
+	t := time.Now()
+	txID := "MADU_" + t.Format("200601021504") + uniqueString
+
+	return txID
+}
+
+func (o *TransactionService) validateTrx(store db.Store, ctx *gin.Context, req dto.InqRequest) (dto.InqResponse, error) {
+
+	inqRes := dto.InqResponse{}
+
+	partnerArg := db.GetPartnerByParamsParams{
+		IsName:     true,
+		Name:       req.AppName,
+		IsUser:     true,
+		UserParams: req.UserID,
+	}
+	partner, err := store.GetPartnerByParams(ctx, partnerArg)
+	if err != nil {
+		logrus.Info("select partner error", err)
+		return inqRes, err
+	}
+
+	_, err = store.GetUserByUsername(ctx, req.UserID)
+	if err != nil {
+		logrus.Info("select user error", err)
+		return inqRes, err
+	}
+
+	prodCode, _ := strconv.ParseInt(req.ProductCode, 10, 64)
+	prod, err := store.GetProduct(ctx, prodCode)
+	if err != nil {
+		logrus.Info("select prod error", err)
+		return inqRes, err
+	}
+
+	_, err = store.GetCategory(ctx, prod.CatID)
+	if err != nil {
+		logrus.Info("select GetCategory error", err)
+		return inqRes, err
+	}
+
+	_, err = store.GetProvider(ctx, prod.ProviderID)
+	if err != nil {
+		logrus.Info("select GetProvider error", err)
+		return inqRes, err
+	}
+
+	sellingArg := db.ListSellingByParamsParams{
+		Limit:     10,
+		Offset:    0,
+		IsPartner: true,
+		PartnerID: sql.NullInt64{
+			Int64: prod.ProviderID,
+			Valid: true,
+		},
+		IsCategory: true,
+		CategoryID: sql.NullInt64{
+			Int64: prod.CatID,
+			Valid: true,
+		},
+	}
+	_, err = store.ListSellingByParams(ctx, sellingArg)
+	if err != nil {
+		logrus.Info("select ListSellingByParams error", err)
+		return inqRes, err
+	}
+
+	if len(req.TimeStamp) != 14 {
+		err = errors.New("time stamp length should 14")
+		logrus.Info("select time stamp error", err)
+		return inqRes, err
+	}
+
+	sha256Req := req.BillID + req.ProductCode + req.UserID + req.RefID + partner.Secret + req.TimeStamp
+	h := sha256.New()
+	h.Write([]byte(sha256Req))
+	sha256Res := h.Sum(nil)
+
+	logrus.Info("[TrxService setTxID] local token is : ", string(sha256Res))
+	logrus.Info("[TrxService setTxID] merchant token is : ", req.MerchantToken)
+
+	if string(sha256Res) != req.MerchantToken {
+		err = errors.New("token not same")
+		logrus.Info("token not same", err)
+		return inqRes, err
+	}
+
+	layoutFormat := "2006-01-02 15:04:05"
+	value := req.TimeStamp
+	timeStampStr, _ := time.Parse(layoutFormat, value)
+	logrus.Info("[TrxService setTxID] ref id date is : ", timeStampStr)
+	trxRefArg := db.GetTransactionByRefIDParams{
+		RefID: req.RefID,
+		PartnerID: sql.NullInt64{
+			Int64: partner.ID,
+			Valid: true,
+		},
+		CreatedAt: sql.NullTime{
+			Time:  timeStampStr,
+			Valid: true,
+		},
+	}
+	refID, err := store.GetTransactionByRefID(ctx, trxRefArg)
+	if refID.RefID != "" {
+		logrus.Info("select GetTransactionByRefID error", err)
+		return inqRes, err
+	}
+
+	return inqRes, nil
+}
+
+func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionRes {
 	return dto.TransactionRes{
 		ID:           trx.ID,
 		TxID:         trx.TxID,

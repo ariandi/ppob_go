@@ -1,0 +1,40 @@
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:12 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 12:12 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:12 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:13 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:13 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:14 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:14 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:14 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:15 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 12:15 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:19 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 12:19 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:19 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:20 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 12:20 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:22 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 12:22 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] user already exist.","time":"23 Aug 22 12:22 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] user already exist.","time":"23 Aug 22 12:23 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 13:53 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 13:53 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 13:53 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 13:53 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 13:53 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 14:32 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 14:32 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 14:32 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 14:32 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 14:32 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 14:59 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"23 Aug 22 14:59 WIB"}
+{"level":"info","msg":"================================================","time":"23 Aug 22 14:59 WIB"}
+{"level":"info","msg":"[Users createUsersFirst] start.","time":"23 Aug 22 14:59 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] start.","time":"23 Aug 22 14:59 WIB"}
+{"level":"info","msg":"[UserService CreateUserFirstService] user already exist.","time":"23 Aug 22 14:59 WIB"}

@@ -104,9 +104,23 @@ type RoleUser struct {
 	DeletedBy sql.NullInt64 `json:"deleted_by"`
 }
 
+type Selling struct {
+	ID         int64          `json:"id"`
+	PartnerID  sql.NullInt64  `json:"partner_id"`
+	CategoryID sql.NullInt64  `json:"category_id"`
+	Amount     sql.NullString `json:"amount"`
+	CreatedAt  sql.NullTime   `json:"created_at"`
+	UpdatedAt  sql.NullTime   `json:"updated_at"`
+	DeletedAt  sql.NullTime   `json:"deleted_at"`
+	CreatedBy  sql.NullInt64  `json:"created_by"`
+	UpdatedBy  sql.NullInt64  `json:"updated_by"`
+	DeletedBy  sql.NullInt64  `json:"deleted_by"`
+}
+
 type Transaction struct {
 	ID           int64          `json:"id"`
 	TxID         string         `json:"tx_id"`
+	RefID        string         `json:"ref_id"`
 	BillID       string         `json:"bill_id"`
 	CustName     sql.NullString `json:"cust_name"`
 	Amount       sql.NullString `json:"amount"`
@@ -114,6 +128,8 @@ type Transaction struct {
 	TotAmount    sql.NullString `json:"tot_amount"`
 	FeePartner   sql.NullString `json:"fee_partner"`
 	FeePpob      sql.NullString `json:"fee_ppob"`
+	FirstBalance sql.NullString `json:"first_balance"`
+	LastBalance  sql.NullString `json:"last_balance"`
 	ValidFrom    sql.NullTime   `json:"valid_from"`
 	ValidTo      sql.NullTime   `json:"valid_to"`
 	CatID        sql.NullInt64  `json:"cat_id"`
@@ -148,11 +164,11 @@ type User struct {
 	Name           string         `json:"name"`
 	Email          string         `json:"email"`
 	Username       string         `json:"username"`
+	BankCode       sql.NullInt64  `json:"bank_code"`
 	Password       sql.NullString `json:"password"`
 	Balance        sql.NullString `json:"balance"`
 	Phone          string         `json:"phone"`
 	IdentityNumber string         `json:"identity_number"`
-	BankCode       sql.NullInt64  `json:"bank_code"`
 	VerifiedAt     sql.NullTime   `json:"verified_at"`
 	CreatedAt      sql.NullTime   `json:"created_at"`
 	UpdatedAt      sql.NullTime   `json:"updated_at"`

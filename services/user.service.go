@@ -54,7 +54,7 @@ func GetUserService(config util.Config) *UserService {
 func (o *UserService) TestRedisMq(msg dto.LoginUserRequest) ([]string, error) {
 
 	ret := []string{}
-	queueName := "test_123456"
+	queueName := "test_"
 	redisQueue, err := redisConn.OpenQueue(queueName)
 	if err != nil {
 		return ret, err

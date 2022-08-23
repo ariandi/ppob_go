@@ -4,10 +4,10 @@ INSERT INTO "transactions" (
     cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name,
     status, req_inq_params, res_inq_params, req_pay_params, res_pay_params,
     req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params,
-    created_by, created_at
+    created_by, ref_id, created_at
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, now()
+            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
          ) RETURNING *;
 
 -- name: GetTransaction :one
@@ -17,6 +17,15 @@ WHERE id = $1 AND deleted_at is null LIMIT 1;
 -- name: GetTransactionByTxID :one
 SELECT * FROM "transactions"
 WHERE tx_id = $1 AND deleted_at is null LIMIT 1;
+
+-- name: GetTransactionByRefID :one
+SELECT * FROM "transactions"
+WHERE ref_id = $1
+AND status = '0'
+AND partner_id = $2
+AND CAST(created_at AS DATE) = $3
+AND deleted_at is null
+LIMIT 1;
 
 -- name: ListTransaction :many
 SELECT * FROM "transactions"

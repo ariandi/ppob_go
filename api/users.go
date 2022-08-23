@@ -39,7 +39,7 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 	}
 
 	resp1, err := userService.CreateUserFirstService(req, c, server.store)
-	if err == nil {
+	if err != nil {
 		return
 	}
 

@@ -94,3 +94,32 @@ type UpdateTransactionRequest struct {
 type UpdateInactiveTransactionRequest struct {
 	ID int64 `uri:"id" binding:"required,min=1"`
 }
+
+type InqRequest struct {
+	TimeStamp     string `json:"time_stamp"`
+	UserID        string `json:"user_id"`
+	RefID         string `json:"ref_id"`
+	BillID        string `json:"bill_id"`
+	AppName       string `json:"app_name"`
+	ProductCode   string `json:"product_code"`
+	MerchantToken string `json:"merchant_token"`
+	Amount        int64  `json:"amount"`
+}
+
+type InqRequestConsume struct {
+	InqRequest InqRequest
+	TxID       string
+}
+
+type InqResponse struct {
+	TimeStamp     string `json:"time_stamp"`
+	UserID        string `json:"user_id"`
+	RefID         string `json:"ref_id"`
+	BillID        string `json:"bill_id"`
+	AppName       string `json:"app_name"`
+	ProductCode   string `json:"product_code"`
+	MerchantToken string `json:"merchant_token"`
+	Amount        int64  `json:"amount"`
+	ResultCd      string `json:"result_cd"`
+	ResultMsg     string `json:"result_msg"`
+}
