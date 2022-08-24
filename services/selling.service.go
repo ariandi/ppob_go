@@ -94,18 +94,25 @@ func (o *SellingService) GetSellingService(req dto.GetSellingReq, authPayload *t
 func (o *SellingService) ListSellingService(req dto.ListSellingRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.SellingRes, error) {
 	logrus.Println("[SellingService ListSellingService] start.")
 	var result []dto.SellingRes
+	result = []dto.SellingRes{}
 	_, err := validator(store, ctx, authPayload)
 	if err != nil {
 		return result, errors.New("error in user validator")
 	}
 
 	arg := db.ListSellingByParamsParams{
-		Limit:      req.PageSize,
-		Offset:     (req.PageID - 1) * req.PageSize,
-		IsPartner:  false,
-		PartnerID:  sql.NullInt64{},
+		Limit:     req.PageSize,
+		Offset:    (req.PageID - 1) * req.PageSize,
+		IsPartner: false,
+		PartnerID: sql.NullInt64{
+			Int64: req.PartnerID,
+			Valid: true,
+		},
 		IsCategory: false,
-		CategoryID: sql.NullInt64{},
+		CategoryID: sql.NullInt64{
+			Int64: req.CategoryID,
+			Valid: true,
+		},
 	}
 
 	if req.PartnerID > 0 {
@@ -116,13 +123,15 @@ func (o *SellingService) ListSellingService(req dto.ListSellingRequest, authPayl
 		arg.IsCategory = true
 	}
 
-	sellings, err := store.ListSellingByParams(ctx, arg)
+	sells, err := store.ListSellingByParams(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return result, err
 	}
 
-	for _, selling := range sellings {
+	logrus.Println(sells)
+
+	for _, selling := range sells {
 		u := o.SellingRes(selling)
 		result = append(result, u)
 	}

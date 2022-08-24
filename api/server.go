@@ -121,6 +121,12 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/products/:id", server.updateProduct)
 	authRoutes.DELETE("/products/:id", server.softDeleteProduct)
 
+	authRoutes.POST("/selling-prices", server.createSelling)
+	authRoutes.GET("/selling-prices/:id", server.getSelling)
+	authRoutes.GET("/selling-prices", server.listSelling)
+	authRoutes.PUT("/selling-prices/:id", server.updateSelling)
+	authRoutes.DELETE("/selling-prices/:id", server.softDeleteSelling)
+
 	authRoutes.POST("/transactions", server.createTrx)
 	authRoutes.GET("/transactions/:tx_id", server.getTrx)
 	authRoutes.GET("/transactions", server.listTrx)

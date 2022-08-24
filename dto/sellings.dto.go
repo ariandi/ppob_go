@@ -20,8 +20,8 @@ type GetSellingReq struct {
 type ListSellingRequest struct {
 	PageID     int32 `form:"page_id" binding:"required,min=1"`
 	PageSize   int32 `form:"page_size" binding:"required,min=5,max=500"`
-	PartnerID  int64 `form:"partner_id"  binding:"required,min=1"`
-	CategoryID int64 `form:"category_id"  binding:"required,min=1"`
+	PartnerID  int64 `form:"partner_id"`
+	CategoryID int64 `form:"category_id"`
 }
 
 type UpdateSellingRequest struct {
