@@ -12,20 +12,21 @@ import (
 
 const createProduct = `-- name: CreateProduct :one
 INSERT INTO products (
-    cat_id, name, amount, provider_id, status, parent, created_by
+    cat_id, name, amount, provider_id, provider_code, status, parent, created_by
 ) values (
-             $1, $2, $3, $4, $5, $6, $7
-         ) RETURNING id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+             $1, $2, $3, $4, $5, $6, $7, $8
+         ) RETURNING id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type CreateProductParams struct {
-	CatID      int64         `json:"cat_id"`
-	Name       string        `json:"name"`
-	Amount     string        `json:"amount"`
-	ProviderID int64         `json:"provider_id"`
-	Status     string        `json:"status"`
-	Parent     int64         `json:"parent"`
-	CreatedBy  sql.NullInt64 `json:"created_by"`
+	CatID        int64         `json:"cat_id"`
+	Name         string        `json:"name"`
+	Amount       string        `json:"amount"`
+	ProviderID   int64         `json:"provider_id"`
+	ProviderCode string        `json:"provider_code"`
+	Status       string        `json:"status"`
+	Parent       int64         `json:"parent"`
+	CreatedBy    sql.NullInt64 `json:"created_by"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error) {
@@ -34,6 +35,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		arg.Name,
 		arg.Amount,
 		arg.ProviderID,
+		arg.ProviderCode,
 		arg.Status,
 		arg.Parent,
 		arg.CreatedBy,
@@ -45,6 +47,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Name,
 		&i.Amount,
 		&i.ProviderID,
+		&i.ProviderCode,
 		&i.Status,
 		&i.Parent,
 		&i.CreatedAt,
@@ -68,7 +71,7 @@ func (q *Queries) DeleteProduct(ctx context.Context, id int64) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
+SELECT id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
 WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
@@ -81,6 +84,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 		&i.Name,
 		&i.Amount,
 		&i.ProviderID,
+		&i.ProviderCode,
 		&i.Status,
 		&i.Parent,
 		&i.CreatedAt,
@@ -94,7 +98,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 }
 
 const listProduct = `-- name: ListProduct :many
-SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
+SELECT id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
 WHERE deleted_at is null
 AND (CASE WHEN $3::bool THEN cat_id = $4 ELSE TRUE END)
 AND (CASE WHEN $5::bool THEN provider_id = $6 ELSE TRUE END)
@@ -134,6 +138,7 @@ func (q *Queries) ListProduct(ctx context.Context, arg ListProductParams) ([]Pro
 			&i.Name,
 			&i.Amount,
 			&i.ProviderID,
+			&i.ProviderCode,
 			&i.Status,
 			&i.Parent,
 			&i.CreatedAt,
@@ -157,7 +162,7 @@ func (q *Queries) ListProduct(ctx context.Context, arg ListProductParams) ([]Pro
 }
 
 const listProductByCatID = `-- name: ListProductByCatID :many
-SELECT id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
+SELECT id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM products
 WHERE cat_id = $1
 ORDER BY name
 LIMIT $1
@@ -184,6 +189,7 @@ func (q *Queries) ListProductByCatID(ctx context.Context, arg ListProductByCatID
 			&i.Name,
 			&i.Amount,
 			&i.ProviderID,
+			&i.ProviderCode,
 			&i.Status,
 			&i.Parent,
 			&i.CreatedAt,
@@ -208,7 +214,7 @@ func (q *Queries) ListProductByCatID(ctx context.Context, arg ListProductByCatID
 
 const updateInactiveProduct = `-- name: UpdateInactiveProduct :one
 UPDATE products SET deleted_by = $2, deleted_at = now() WHERE id = $1
-RETURNING id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+RETURNING id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateInactiveProductParams struct {
@@ -225,6 +231,7 @@ func (q *Queries) UpdateInactiveProduct(ctx context.Context, arg UpdateInactiveP
 		&i.Name,
 		&i.Amount,
 		&i.ProviderID,
+		&i.ProviderCode,
 		&i.Status,
 		&i.Parent,
 		&i.CreatedAt,
@@ -249,7 +256,7 @@ SET
                WHEN $3::bool
                 THEN $4
                ELSE cat_id
-            END,
+                END,
     "amount" = CASE
                  WHEN $5::bool
                     THEN $6
@@ -259,39 +266,46 @@ SET
                  WHEN $7::bool
                     THEN $8
                  ELSE provider_id
-        END,
-    status = CASE
-                      WHEN $9::bool
+                END,
+    provider_code = CASE
+                 WHEN $9::bool
                     THEN $10
+                 ELSE provider_code
+                END,
+    status = CASE
+                      WHEN $11::bool
+                    THEN $12
                       ELSE status
         END,
     parent = CASE
-              WHEN $11::bool
-                THEN $12
+              WHEN $13::bool
+                THEN $14
               ELSE parent
               END,
-    updated_by = $13,
+    updated_by = $15,
     updated_at = now()
 WHERE
-    id = $14
-RETURNING id, cat_id, name, amount, provider_id, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+    id = $16
+RETURNING id, cat_id, name, amount, provider_id, provider_code, status, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateProductParams struct {
-	SetName     bool          `json:"set_name"`
-	Name        string        `json:"name"`
-	SetCat      bool          `json:"set_cat"`
-	CatID       int64         `json:"cat_id"`
-	SetAmount   bool          `json:"set_amount"`
-	Amount      string        `json:"amount"`
-	SetProvider bool          `json:"set_provider"`
-	ProviderID  int64         `json:"provider_id"`
-	SetStatus   bool          `json:"set_status"`
-	Status      string        `json:"status"`
-	SetParent   bool          `json:"set_parent"`
-	Parent      int64         `json:"parent"`
-	UpdatedBy   sql.NullInt64 `json:"updated_by"`
-	ID          int64         `json:"id"`
+	SetName         bool          `json:"set_name"`
+	Name            string        `json:"name"`
+	SetCat          bool          `json:"set_cat"`
+	CatID           int64         `json:"cat_id"`
+	SetAmount       bool          `json:"set_amount"`
+	Amount          string        `json:"amount"`
+	SetProvider     bool          `json:"set_provider"`
+	ProviderID      int64         `json:"provider_id"`
+	SetProviderCode bool          `json:"set_provider_code"`
+	ProviderCode    string        `json:"provider_code"`
+	SetStatus       bool          `json:"set_status"`
+	Status          string        `json:"status"`
+	SetParent       bool          `json:"set_parent"`
+	Parent          int64         `json:"parent"`
+	UpdatedBy       sql.NullInt64 `json:"updated_by"`
+	ID              int64         `json:"id"`
 }
 
 func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error) {
@@ -304,6 +318,8 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		arg.Amount,
 		arg.SetProvider,
 		arg.ProviderID,
+		arg.SetProviderCode,
+		arg.ProviderCode,
 		arg.SetStatus,
 		arg.Status,
 		arg.SetParent,
@@ -318,6 +334,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.Name,
 		&i.Amount,
 		&i.ProviderID,
+		&i.ProviderCode,
 		&i.Status,
 		&i.Parent,
 		&i.CreatedAt,

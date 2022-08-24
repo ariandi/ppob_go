@@ -72,6 +72,7 @@ CREATE TABLE "products" (
                             "name" varchar(50) NOT NULL,
                             "amount" decimal(16,2) NOT NULL DEFAULT 0,
                             "provider_id" bigint NOT NULL,
+                            "provider_code" varchar(50) NOT NULL,
                             "status" varchar(20) NOT NULL,
                             "parent" bigint NOT NULL DEFAULT (0),
                             "created_at" timestamptz DEFAULT (now()),

@@ -1,9 +1,11 @@
 package api
 
 import (
+	"fmt"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -118,4 +120,36 @@ func (server *Server) softDeleteTrx(ctx *gin.Context) {
 		Data:    "",
 	}
 	ctx.JSON(http.StatusOK, resp)
+}
+
+func (server *Server) inquiry(ctx *gin.Context) {
+	logrus.Println("[Transactions inquiry] start.")
+	var req dto.InqRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		errs, _ := err.(validator.ValidationErrors)
+		logrus.Info("ok", errs)
+		for _, v := range errs {
+			field := v.Field()
+			tag := v.Tag()
+
+			errMsg := fmt.Sprintf("%v: %v", field, tag)
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponseString(errMsg))
+			break
+		}
+		return
+	}
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	resp1, err := transactionService.InqService(req, authPayload, ctx, server.store)
+	if err != nil {
+		ctx.JSON(http.StatusOK, resp1)
+		return
+	}
+
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
 }

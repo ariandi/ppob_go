@@ -36,13 +36,14 @@ func (o *ProductService) CreateProductService(req dto.CreateProductReq, authPayl
 	}
 
 	arg := db.CreateProductParams{
-		CatID:      req.CatID,
-		Name:       req.Name,
-		Amount:     req.Amount,
-		ProviderID: req.ProviderID,
-		Status:     req.Status,
-		Parent:     req.Parent,
-		CreatedBy:  sql.NullInt64{Int64: userValid.ID, Valid: true},
+		CatID:        req.CatID,
+		Name:         req.Name,
+		Amount:       req.Amount,
+		ProviderID:   req.ProviderID,
+		ProviderCode: req.ProviderCode,
+		Status:       req.Status,
+		Parent:       req.Parent,
+		CreatedBy:    sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
 	if req.Status == "" {
@@ -119,6 +120,7 @@ func (o *ProductService) ListProductService(req dto.ListProductRequest, authPayl
 	}
 
 	for _, prod := range products {
+		logrus.Println("prov code", prod.ProviderCode)
 		u := o.ProductRes(prod)
 		result = append(result, u)
 	}
@@ -135,14 +137,15 @@ func (o *ProductService) UpdateProductService(req dto.UpdateProductRequest, auth
 	}
 
 	var arg = db.UpdateProductParams{
-		ID:         req.ID,
-		Name:       req.Name,
-		CatID:      req.CatID,
-		Amount:     req.Amount,
-		ProviderID: req.ProviderID,
-		Status:     req.Status,
-		Parent:     req.Parent,
-		UpdatedBy:  sql.NullInt64{Int64: userValid.ID, Valid: true},
+		ID:           req.ID,
+		Name:         req.Name,
+		CatID:        req.CatID,
+		Amount:       req.Amount,
+		ProviderID:   req.ProviderID,
+		ProviderCode: req.ProviderCode,
+		Status:       req.Status,
+		Parent:       req.Parent,
+		UpdatedBy:    sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
 	arg = o.setUpdateProd(arg, req)
@@ -207,6 +210,9 @@ func (o *ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.Updat
 	if req.ProviderID > 0 {
 		arg.SetProvider = true
 	}
+	if req.ProviderCode != "" {
+		arg.SetProviderCode = true
+	}
 	if req.Status != "" {
 		arg.SetStatus = true
 	}
@@ -219,12 +225,13 @@ func (o *ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.Updat
 
 func (o *ProductService) ProductRes(prod db.Product) dto.ProductRes {
 	return dto.ProductRes{
-		ID:         prod.ID,
-		Name:       prod.Name,
-		CatID:      prod.CatID,
-		Amount:     prod.Amount,
-		ProviderID: prod.ProviderID,
-		Status:     prod.Status,
-		Parent:     prod.Parent,
+		ID:           prod.ID,
+		Name:         prod.Name,
+		CatID:        prod.CatID,
+		Amount:       prod.Amount,
+		ProviderID:   prod.ProviderID,
+		ProviderCode: prod.ProviderCode,
+		Status:       prod.Status,
+		Parent:       prod.Parent,
 	}
 }

@@ -14,7 +14,7 @@ WHERE id = $1 AND deleted_at is null LIMIT 1;
 SELECT * FROM "partners"
 WHERE deleted_at is null
 AND (CASE WHEN @is_name::bool THEN name = @name ELSE TRUE END)
-AND (CASE WHEN @is_user::bool THEN user = @user_params ELSE TRUE END)
+AND (CASE WHEN @is_user::bool THEN "user" = @user_params ELSE TRUE END)
 LIMIT 1;
 
 -- name: ListPartner :many

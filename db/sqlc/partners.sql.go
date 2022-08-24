@@ -110,15 +110,15 @@ const getPartnerByParams = `-- name: GetPartnerByParams :one
 SELECT id, name, "user", secret, add_info1, add_info2, valid_from, valid_to, payment_type, status, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "partners"
 WHERE deleted_at is null
 AND (CASE WHEN $1::bool THEN name = $2 ELSE TRUE END)
-AND (CASE WHEN $3::bool THEN user = $4 ELSE TRUE END)
+AND (CASE WHEN $3::bool THEN "user" = $4 ELSE TRUE END)
 LIMIT 1
 `
 
 type GetPartnerByParamsParams struct {
-	IsName     bool        `json:"is_name"`
-	Name       string      `json:"name"`
-	IsUser     bool        `json:"is_user"`
-	UserParams interface{} `json:"user_params"`
+	IsName     bool   `json:"is_name"`
+	Name       string `json:"name"`
+	IsUser     bool   `json:"is_user"`
+	UserParams string `json:"user_params"`
 }
 
 func (q *Queries) GetPartnerByParams(ctx context.Context, arg GetPartnerByParamsParams) (Partner, error) {

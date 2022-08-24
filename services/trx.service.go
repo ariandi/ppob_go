@@ -178,11 +178,24 @@ func (o *TransactionService) SoftDeleteTransactionService(req dto.UpdateInactive
 	return nil
 }
 
-func (o *TransactionService) InqService(req dto.InqRequestConsume, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]string, error) {
-	var ret []string
+func (o *TransactionService) InqService(req dto.InqRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.InqResponse, error) {
+	logrus.Println("[TransactionService InqService] start.")
+	var ret dto.InqResponse
 	_, err := validator(store, ctx, authPayload)
 	if err != nil {
 		return ret, errors.New("error in user validator")
+	}
+
+	logrus.Println("[TransactionService InqService] begin validate trx.")
+	respValidErr, err := o.validateTrx(req, ctx, store)
+	if err != nil {
+		return respValidErr, err
+	}
+
+	txID := o.setTxID()
+	reqInqConsume := dto.InqRequestConsume{
+		InqRequest: req,
+		TxID:       txID,
 	}
 
 	queueName := "transactions"
@@ -191,13 +204,19 @@ func (o *TransactionService) InqService(req dto.InqRequestConsume, authPayload *
 		return ret, err
 	}
 
-	byt, err := json.Marshal(req)
+	byt, err := json.Marshal(reqInqConsume)
 	if err != nil {
 		return ret, err
 	}
 
 	err = redisQueue.Publish(string(byt))
-	ret = append(ret, "Success")
+	// ret = append(ret, "Success")
+	in := dto.InqSetResponse{
+		InqData:   req,
+		ResultCd:  util.SuccessCd,
+		ResultMsg: util.SuccessMsg,
+	}
+	ret = o.InqResult(in)
 
 	return ret, nil
 }
@@ -344,25 +363,35 @@ func (o *TransactionService) setTxID() string {
 	return txID
 }
 
-func (o *TransactionService) validateTrx(store db.Store, ctx *gin.Context, req dto.InqRequest) (dto.InqResponse, error) {
+func (o *TransactionService) validateTrx(req dto.InqRequest, ctx *gin.Context, store db.Store) (dto.InqResponse, error) {
 
 	inqRes := dto.InqResponse{}
 
 	partnerArg := db.GetPartnerByParamsParams{
-		IsName:     true,
-		Name:       req.AppName,
 		IsUser:     true,
-		UserParams: req.UserID,
+		UserParams: req.AppName,
 	}
 	partner, err := store.GetPartnerByParams(ctx, partnerArg)
 	if err != nil {
-		logrus.Info("select partner error", err)
-		return inqRes, err
+		logrus.Info("select partner error : ", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.AppNameNotFoundCd,
+			ResultMsg: util.AppNameNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
+		return inqRes, errors.New("app name not exist")
 	}
 
 	_, err = store.GetUserByUsername(ctx, req.UserID)
 	if err != nil {
-		logrus.Info("select user error", err)
+		logrus.Info("select user error : ", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.UserNotFoundCd,
+			ResultMsg: util.UserNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
 		return inqRes, err
 	}
 
@@ -370,18 +399,48 @@ func (o *TransactionService) validateTrx(store db.Store, ctx *gin.Context, req d
 	prod, err := store.GetProduct(ctx, prodCode)
 	if err != nil {
 		logrus.Info("select prod error", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.ProductNotFoundCd,
+			ResultMsg: util.ProductNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
+		return inqRes, err
+	}
+
+	if prod.ProviderCode == "" || prod.ProviderCode == "-" {
+		err = errors.New("ProviderCode is empty")
+		logrus.Info("select prod code is empty", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.ProductNotFoundCd,
+			ResultMsg: util.ProductNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
 		return inqRes, err
 	}
 
 	_, err = store.GetCategory(ctx, prod.CatID)
 	if err != nil {
-		logrus.Info("select GetCategory error", err)
+		logrus.Info("select GetCategory error : ", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.CategoryNotFoundCd,
+			ResultMsg: util.CategoryNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
 		return inqRes, err
 	}
 
 	_, err = store.GetProvider(ctx, prod.ProviderID)
 	if err != nil {
-		logrus.Info("select GetProvider error", err)
+		logrus.Info("select GetProvider error : ", err)
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.ProviderNotFoundCd,
+			ResultMsg: util.ProviderNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
 		return inqRes, err
 	}
 
@@ -399,9 +458,18 @@ func (o *TransactionService) validateTrx(store db.Store, ctx *gin.Context, req d
 			Valid: true,
 		},
 	}
-	_, err = store.ListSellingByParams(ctx, sellingArg)
-	if err != nil {
-		logrus.Info("select ListSellingByParams error", err)
+	sellingPrice, err := store.ListSellingByParams(ctx, sellingArg)
+	if err != nil || len(sellingPrice) == 0 {
+		logrus.Info("select ListSellingByParams error : ", err)
+		if err == nil {
+			err = errors.New(util.SellingPriceNotFoundMsg)
+		}
+		in := dto.InqSetResponse{
+			InqData:   req,
+			ResultCd:  util.SellingPriceNotFoundCd,
+			ResultMsg: util.SellingPriceNotFoundMsg,
+		}
+		inqRes = o.InqResult(in)
 		return inqRes, err
 	}
 
@@ -479,5 +547,20 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 		ResAdvParams: trx.ResAdvParams.String,
 		ReqRevParams: trx.ReqRevParams.String,
 		ResRevParams: trx.ResRevParams.String,
+	}
+}
+
+func (o *TransactionService) InqResult(in dto.InqSetResponse) dto.InqResponse {
+	return dto.InqResponse{
+		TimeStamp:     in.InqData.TimeStamp,
+		UserID:        in.InqData.UserID,
+		RefID:         in.InqData.RefID,
+		BillID:        in.InqData.BillID,
+		AppName:       in.InqData.AppName,
+		ProductCode:   in.InqData.ProductCode,
+		MerchantToken: in.InqData.MerchantToken,
+		Amount:        in.InqData.Amount,
+		ResultCd:      in.ResultCd,
+		ResultMsg:     in.ResultMsg,
 	}
 }

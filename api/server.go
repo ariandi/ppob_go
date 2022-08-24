@@ -19,6 +19,7 @@ var partnerService *services.PartnerService
 var providerService *services.ProviderService
 var productService *services.ProductService
 var transactionService *services.TransactionService
+var sellingService *services.SellingService
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
@@ -61,6 +62,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	services.GetProviderService()
 	services.GetProductService()
 	services.GetTransactionService()
+	services.GetSellingService()
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)
@@ -124,6 +126,8 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/transactions", server.listTrx)
 	authRoutes.PUT("/transactions/:tx_id", server.updateTrx)
 	authRoutes.DELETE("/transactions/:id", server.softDeleteTrx)
+
+	authRoutes.POST("/inquiry", server.inquiry)
 
 	server.Router = router
 }

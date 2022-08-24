@@ -1,8 +1,8 @@
 -- name: CreateProduct :one
 INSERT INTO products (
-    cat_id, name, amount, provider_id, status, parent, created_by
+    cat_id, name, amount, provider_id, provider_code, status, parent, created_by
 ) values (
-             $1, $2, $3, $4, $5, $6, $7
+             $1, $2, $3, $4, $5, $6, $7, $8
          ) RETURNING *;
 
 -- name: GetProduct :one
@@ -37,7 +37,7 @@ SET
                WHEN sqlc.arg(set_cat)::bool
                 THEN sqlc.arg(cat_id)
                ELSE cat_id
-            END,
+                END,
     "amount" = CASE
                  WHEN sqlc.arg(set_amount)::bool
                     THEN sqlc.arg(amount)
@@ -47,7 +47,12 @@ SET
                  WHEN sqlc.arg(set_provider)::bool
                     THEN sqlc.arg(provider_id)
                  ELSE provider_id
-        END,
+                END,
+    provider_code = CASE
+                 WHEN sqlc.arg(set_provider_code)::bool
+                    THEN sqlc.arg(provider_code)
+                 ELSE provider_code
+                END,
     status = CASE
                       WHEN sqlc.arg(set_status)::bool
                     THEN sqlc.arg(status)
