@@ -4,7 +4,7 @@ INSERT INTO "transactions" (
     cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name,
     status, req_inq_params, res_inq_params, req_pay_params, res_pay_params,
     req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params,
-    created_by, ref_id, created_at
+    created_by, ref_id, created_at, first_balance, last_balance
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
             $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
@@ -42,6 +42,16 @@ SET
                 THEN sqlc.arg(status)
             ELSE status
             END,
+    "first_balance" = CASE
+                   WHEN sqlc.arg(set_first_balance)::bool
+                THEN sqlc.arg(first_balance)
+                   ELSE first_balance
+        END,
+    "last_balance" = CASE
+                   WHEN sqlc.arg(set_last_balance)::bool
+                THEN sqlc.arg(last_balance)
+                   ELSE last_balance
+        END,
     res_inq_params = CASE
                WHEN sqlc.arg(set_res_inq_params)::bool
                 THEN sqlc.arg(res_inq_params)
