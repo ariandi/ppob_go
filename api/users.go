@@ -1,10 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/services"
 	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -170,7 +172,20 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	var req dto.LoginUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		logrus.Println("[User loginUser] error validation is : ", err.Error())
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+		errs, _ := err.(validator.ValidationErrors)
+		logrus.Info("ok", errs)
+		for _, v := range errs {
+			field := v.Field()
+			tag := v.Tag()
+
+			errMsg := fmt.Sprintf("%v: %v", field, tag)
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponseString(errMsg))
+			break
+		}
+
+		if len(errs) == 0 {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+		}
 		return
 	}
 

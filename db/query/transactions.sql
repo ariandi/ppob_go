@@ -7,7 +7,7 @@ INSERT INTO "transactions" (
     created_by, ref_id, created_at, first_balance, last_balance
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now()
+            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33
          ) RETURNING *;
 
 -- name: GetTransaction :one
@@ -23,9 +23,17 @@ SELECT * FROM "transactions"
 WHERE ref_id = $1
 AND status = '0'
 AND partner_id = $2
-AND CAST(created_at AS DATE) = $3
+AND to_char(created_at,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
 AND deleted_at is null
 LIMIT 1;
+
+-- name: GetTransactionPending :one
+SELECT * FROM "transactions"
+WHERE bill_id = $1
+  AND status = '4'
+  AND to_char(created_at,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
+  AND deleted_at is null
+    LIMIT 1;
 
 -- name: ListTransaction :many
 SELECT * FROM "transactions"

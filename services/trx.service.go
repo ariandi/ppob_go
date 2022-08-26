@@ -3,6 +3,7 @@ package services
 import (
 	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	db "github.com/ariandi/ppob_go/db/sqlc"
@@ -374,24 +375,14 @@ func (o *TransactionService) validateTrx(req dto.InqRequest, ctx *gin.Context, s
 	partner, err := store.GetPartnerByParams(ctx, partnerArg)
 	if err != nil {
 		logrus.Info("select partner error : ", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.AppNameNotFoundCd,
-			ResultMsg: util.AppNameNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.AppNameNotFoundCd, util.AppNameNotFoundMsg)
 		return inqRes, errors.New("app name not exist")
 	}
 
 	_, err = store.GetUserByUsername(ctx, req.UserID)
 	if err != nil {
 		logrus.Info("select user error : ", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.UserNotFoundCd,
-			ResultMsg: util.UserNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.UserNotFoundCd, util.UserNotFoundMsg)
 		return inqRes, err
 	}
 
@@ -399,48 +390,28 @@ func (o *TransactionService) validateTrx(req dto.InqRequest, ctx *gin.Context, s
 	prod, err := store.GetProduct(ctx, prodCode)
 	if err != nil {
 		logrus.Info("select prod error", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.ProductNotFoundCd,
-			ResultMsg: util.ProductNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.ProductNotFoundCd, util.ProductNotFoundMsg)
 		return inqRes, err
 	}
 
 	if prod.ProviderCode == "" || prod.ProviderCode == "-" {
-		err = errors.New("ProviderCode is empty")
 		logrus.Info("select prod code is empty", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.ProductNotFoundCd,
-			ResultMsg: util.ProductNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		err = errors.New(util.ProductNotFoundMsg)
+		inqRes = o.InqResultSet(req, util.ProductNotFoundCd, util.ProductNotFoundMsg)
 		return inqRes, err
 	}
 
 	_, err = store.GetCategory(ctx, prod.CatID)
 	if err != nil {
 		logrus.Info("select GetCategory error : ", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.CategoryNotFoundCd,
-			ResultMsg: util.CategoryNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.CategoryNotFoundCd, util.CategoryNotFoundMsg)
 		return inqRes, err
 	}
 
 	_, err = store.GetProvider(ctx, prod.ProviderID)
 	if err != nil {
 		logrus.Info("select GetProvider error : ", err)
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.ProviderNotFoundCd,
-			ResultMsg: util.ProviderNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.ProviderNotFoundCd, util.ProviderNotFoundMsg)
 		return inqRes, err
 	}
 
@@ -464,53 +435,82 @@ func (o *TransactionService) validateTrx(req dto.InqRequest, ctx *gin.Context, s
 		if err == nil {
 			err = errors.New(util.SellingPriceNotFoundMsg)
 		}
-		in := dto.InqSetResponse{
-			InqData:   req,
-			ResultCd:  util.SellingPriceNotFoundCd,
-			ResultMsg: util.SellingPriceNotFoundMsg,
-		}
-		inqRes = o.InqResult(in)
+		inqRes = o.InqResultSet(req, util.SellingPriceNotFoundCd, util.SellingPriceNotFoundMsg)
 		return inqRes, err
 	}
 
 	if len(req.TimeStamp) != 14 {
-		err = errors.New("time stamp length should 14")
 		logrus.Info("select time stamp error", err)
+		err = errors.New(util.TimeStampLengthInvalidMsg)
+		inqRes = o.InqResultSet(req, util.TimeStampLengthInvalidCd, util.TimeStampLengthInvalidMsg)
+		return inqRes, err
+	}
+
+	layoutFormat := "20060102150405"
+	value := req.TimeStamp
+	timeStampStr, err := time.Parse(layoutFormat, value)
+	if err != nil {
+		logrus.Info("[TrxService setTxID] err timestamp format : ", err)
+		err = errors.New(util.TimeStampFormatInvalidMsg)
+		inqRes = o.InqResultSet(req, util.TimeStampFormatInvalidCd, util.TimeStampFormatInvalidMsg)
 		return inqRes, err
 	}
 
 	sha256Req := req.BillID + req.ProductCode + req.UserID + req.RefID + partner.Secret + req.TimeStamp
-	h := sha256.New()
-	h.Write([]byte(sha256Req))
-	sha256Res := h.Sum(nil)
-
-	logrus.Info("[TrxService setTxID] local token is : ", string(sha256Res))
+	hash := sha256.Sum256([]byte(sha256Req))
+	sha256Res := hash[:]
+	logrus.Info("[TrxService setTxID] local token params is : ", sha256Req)
+	logrus.Info("[TrxService setTxID] local token is : ", hex.EncodeToString(sha256Res))
 	logrus.Info("[TrxService setTxID] merchant token is : ", req.MerchantToken)
 
-	if string(sha256Res) != req.MerchantToken {
-		err = errors.New("token not same")
+	if hex.EncodeToString(sha256Res) != req.MerchantToken {
 		logrus.Info("token not same", err)
+		err = errors.New(util.MerchantTokenErrorMsg)
+		inqRes = o.InqResultSet(req, util.MerchantTokenErrorCd, util.MerchantTokenErrorMsg)
 		return inqRes, err
 	}
 
-	layoutFormat := "2006-01-02 15:04:05"
-	value := req.TimeStamp
-	timeStampStr, _ := time.Parse(layoutFormat, value)
-	logrus.Info("[TrxService setTxID] ref id date is : ", timeStampStr)
+	logrus.Info("[TrxService setTxID] ref id date is : ", timeStampStr.Format("2006-01-02 15:04:05"))
 	trxRefArg := db.GetTransactionByRefIDParams{
 		RefID: req.RefID,
 		PartnerID: sql.NullInt64{
 			Int64: partner.ID,
 			Valid: true,
 		},
-		CreatedAt: sql.NullTime{
-			Time:  timeStampStr,
-			Valid: true,
-		},
 	}
 	refID, err := store.GetTransactionByRefID(ctx, trxRefArg)
-	if refID.RefID != "" {
-		logrus.Info("select GetTransactionByRefID error", err)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logrus.Info("tx id not found", err)
+		} else {
+			logrus.Info("select trx table error", err)
+			inqRes = o.InqResultSet(req, util.GeneralErrorCd, util.GeneralErrorMsg)
+			return inqRes, err
+		}
+	}
+
+	if refID.ID > 0 {
+		err = errors.New(util.RefIDAlreadyUsedMsg)
+		inqRes = o.InqResultSet(req, util.RefIDAlreadyUsedCd, util.RefIDAlreadyUsedMsg)
+		return inqRes, err
+	}
+
+	logrus.Info("[TrxService setTxID] begin check pending trx.")
+	_, err = store.GetTransactionPending(ctx, req.BillID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			logrus.Info("tx id not found", err)
+		} else {
+			logrus.Info("select trx table error", err)
+			err = errors.New(util.GeneralErrorMsg)
+			inqRes = o.InqResultSet(req, util.GeneralErrorCd, util.GeneralErrorMsg)
+			return inqRes, err
+		}
+	}
+
+	if refID.BillID != "" {
+		err = errors.New(util.StillPendingTransactionMsg)
+		inqRes = o.InqResultSet(req, util.StillPendingTransactionCd, util.StillPendingTransactionMsg)
 		return inqRes, err
 	}
 
@@ -563,4 +563,13 @@ func (o *TransactionService) InqResult(in dto.InqSetResponse) dto.InqResponse {
 		ResultCd:      in.ResultCd,
 		ResultMsg:     in.ResultMsg,
 	}
+}
+
+func (o *TransactionService) InqResultSet(req dto.InqRequest, resultCd string, resultMsg string) dto.InqResponse {
+	in := dto.InqSetResponse{
+		InqData:   req,
+		ResultCd:  resultCd,
+		ResultMsg: resultMsg,
+	}
+	return o.InqResult(in)
 }

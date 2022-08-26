@@ -40,6 +40,7 @@ type Querier interface {
 	GetTransaction(ctx context.Context, id int64) (Transaction, error)
 	GetTransactionByRefID(ctx context.Context, arg GetTransactionByRefIDParams) (Transaction, error)
 	GetTransactionByTxID(ctx context.Context, txID string) (Transaction, error)
+	GetTransactionPending(ctx context.Context, billID string) (Transaction, error)
 	GetUser(ctx context.Context, id int64) (GetUserRow, error)
 	GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error)
 	ListCategory(ctx context.Context, arg ListCategoryParams) ([]Category, error)
