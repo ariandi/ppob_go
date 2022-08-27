@@ -103,7 +103,7 @@ type InqRequest struct {
 	AppName       string `json:"app_name" binding:"required"`
 	ProductCode   string `json:"product_code" binding:"required"`
 	MerchantToken string `json:"merchant_token" binding:"required"`
-	Amount        int64  `json:"amount" binding:"required"`
+	Amount        int64  `json:"amount"`
 }
 
 type InqRequestConsume struct {
@@ -122,10 +122,12 @@ type InqResponse struct {
 	Amount        int64  `json:"amount"`
 	ResultCd      string `json:"result_cd"`
 	ResultMsg     string `json:"result_msg"`
+	TxID          string `json:"tx_id"`
 }
 
 type InqSetResponse struct {
 	InqData   InqRequest
 	ResultCd  string `json:"result_cd"`
 	ResultMsg string `json:"result_msg"`
+	TxID      string `json:"tx_id"`
 }

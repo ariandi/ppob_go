@@ -211,9 +211,9 @@ func (o *TransactionService) InqService(req dto.InqRequest, authPayload *token.P
 	}
 
 	err = redisQueue.Publish(string(byt))
-	// ret = append(ret, "Success")
 	in := dto.InqSetResponse{
 		InqData:   req,
+		TxID:      txID,
 		ResultCd:  util.SuccessCd,
 		ResultMsg: util.SuccessMsg,
 	}
@@ -560,6 +560,7 @@ func (o *TransactionService) InqResult(in dto.InqSetResponse) dto.InqResponse {
 		ProductCode:   in.InqData.ProductCode,
 		MerchantToken: in.InqData.MerchantToken,
 		Amount:        in.InqData.Amount,
+		TxID:          in.TxID,
 		ResultCd:      in.ResultCd,
 		ResultMsg:     in.ResultMsg,
 	}
