@@ -20,6 +20,7 @@ import (
 
 // TransactionService is
 type TransactionService struct {
+	prodService ProductService
 }
 
 var transactionService *TransactionService
@@ -211,11 +212,50 @@ func (o *TransactionService) InqService(req dto.InqRequest, authPayload *token.P
 	}
 
 	err = redisQueue.Publish(string(byt))
+
+	prodID, err := strconv.Atoi(req.ProductCode)
+	prod, _ := store.GetProduct(ctx, int64(prodID))
+	category, _ := store.GetCategory(ctx, prod.CatID)
+	partnerArg := db.GetPartnerByParamsParams{
+		IsUser:     true,
+		UserParams: req.AppName,
+	}
+	partner, _ := store.GetPartnerByParams(ctx, partnerArg)
+	sellingArg := db.ListSellingByParamsParams{
+		Limit:     1,
+		Offset:    0,
+		IsPartner: true,
+		PartnerID: sql.NullInt64{
+			Int64: partner.ID,
+			Valid: true,
+		},
+		IsCategory: true,
+		CategoryID: sql.NullInt64{
+			Int64: prod.CatID,
+			Valid: true,
+		},
+	}
+	var selling db.Selling
+	sellings, _ := store.ListSellingByParams(ctx, sellingArg)
+	for _, sell := range sellings {
+		selling = sell
+	}
+
+	prodAmount, _ := strconv.ParseFloat(prod.Amount, 64)
+	amountF, _ := strconv.ParseFloat(selling.Amount.String, 64)
+	upSellingF, _ := strconv.ParseFloat(category.UpSelling.String, 64)
+	amount := int(amountF)
+	upSelling := int(upSellingF)
+	totAmount := int(prodAmount) + amount + upSelling
 	in := dto.InqSetResponse{
-		InqData:   req,
-		TxID:      txID,
-		ResultCd:  util.SuccessCd,
-		ResultMsg: util.SuccessMsg,
+		InqData:     req,
+		ProductName: prod.Name,
+		Amount:      int64(prodAmount + upSellingF),
+		Admin:       int64(amountF),
+		TotalAmount: int64(totAmount),
+		ResultCd:    util.SuccessCd,
+		ResultMsg:   util.SuccessMsg,
+		TxID:        txID,
 	}
 	ret = o.InqResult(in)
 
@@ -559,10 +599,13 @@ func (o *TransactionService) InqResult(in dto.InqSetResponse) dto.InqResponse {
 		AppName:       in.InqData.AppName,
 		ProductCode:   in.InqData.ProductCode,
 		MerchantToken: in.InqData.MerchantToken,
-		Amount:        in.InqData.Amount,
-		TxID:          in.TxID,
+		ProductName:   in.ProductName,
+		Amount:        in.Amount,
+		Admin:         in.Admin,
+		TotalAmount:   in.TotalAmount,
 		ResultCd:      in.ResultCd,
 		ResultMsg:     in.ResultMsg,
+		TxID:          in.TxID,
 	}
 }
 

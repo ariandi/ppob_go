@@ -9,15 +9,16 @@ import (
 )
 
 type Category struct {
-	ID        int64         `json:"id"`
-	Name      string        `json:"name"`
-	Parent    int64         `json:"parent"`
-	CreatedAt sql.NullTime  `json:"created_at"`
-	UpdatedAt sql.NullTime  `json:"updated_at"`
-	DeletedAt sql.NullTime  `json:"deleted_at"`
-	CreatedBy sql.NullInt64 `json:"created_by"`
-	UpdatedBy sql.NullInt64 `json:"updated_by"`
-	DeletedBy sql.NullInt64 `json:"deleted_by"`
+	ID        int64          `json:"id"`
+	Name      string         `json:"name"`
+	UpSelling sql.NullString `json:"up_selling"`
+	Parent    int64          `json:"parent"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+	UpdatedAt sql.NullTime   `json:"updated_at"`
+	DeletedAt sql.NullTime   `json:"deleted_at"`
+	CreatedBy sql.NullInt64  `json:"created_by"`
+	UpdatedBy sql.NullInt64  `json:"updated_by"`
+	DeletedBy sql.NullInt64  `json:"deleted_by"`
 }
 
 type Partner struct {

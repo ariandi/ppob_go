@@ -119,15 +119,22 @@ type InqResponse struct {
 	AppName       string `json:"app_name"`
 	ProductCode   string `json:"product_code"`
 	MerchantToken string `json:"merchant_token"`
+	ProductName   string `json:"product_name"`
 	Amount        int64  `json:"amount"`
+	Admin         int64  `json:"admin"`
+	TotalAmount   int64  `json:"total_amount"`
 	ResultCd      string `json:"result_cd"`
 	ResultMsg     string `json:"result_msg"`
 	TxID          string `json:"tx_id"`
 }
 
 type InqSetResponse struct {
-	InqData   InqRequest
-	ResultCd  string `json:"result_cd"`
-	ResultMsg string `json:"result_msg"`
-	TxID      string `json:"tx_id"`
+	InqData     InqRequest
+	ProductName string `json:"product_name"`
+	Amount      int64  `json:"amount"`
+	Admin       int64  `json:"admin"`
+	TotalAmount int64  `json:"total_amount"`
+	ResultCd    string `json:"result_cd"`
+	ResultMsg   string `json:"result_msg"`
+	TxID        string `json:"tx_id"`
 }

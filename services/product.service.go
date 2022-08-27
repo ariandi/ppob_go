@@ -12,18 +12,26 @@ import (
 	"net/http"
 )
 
-// ProductService is
-type ProductService struct {
+type ProductInterface interface {
+	CreateProductService(req dto.CreateProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
+	GetProductService(req dto.GetProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
+	ListProductService(req dto.ListProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.ProductRes, error)
+	UpdateProductService(req dto.UpdateProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
+	SoftDeleteProductService(req dto.UpdateInactiveProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error
+	setUpdateProd(arg db.UpdateProductParams, req dto.UpdateProductRequest) db.UpdateProductParams
+	ProductRes(prod db.Product) dto.ProductRes
 }
 
-var productService *ProductService
+// ProductService is
+type ProductService struct {
+	//store db.Store
+}
+
+//var productService *ProductService
 
 // GetProductService is
-func GetProductService() *ProductService {
-	if productService == nil {
-		productService = new(ProductService)
-	}
-	return productService
+func GetProductService() ProductInterface {
+	return &ProductService{}
 }
 
 func (o *ProductService) CreateProductService(req dto.CreateProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error) {

@@ -1,12 +1,14 @@
 package dto
 
 type CreateCategoryReq struct {
-	Name string `json:"name" binding:"required"`
+	Name      string `json:"name" binding:"required"`
+	UpSelling string `json:"up_selling"`
 }
 
 type CategoryRes struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	UpSelling string `json:"up_selling"`
 }
 
 type GetCategoryReq struct {
@@ -14,8 +16,9 @@ type GetCategoryReq struct {
 }
 
 type UpdateCategoryRequest struct {
-	ID   int64  `uri:"id" binding:"required,min=1"`
-	Name string `json:"name" binding:"required"`
+	ID        int64  `uri:"id" binding:"required,min=1"`
+	Name      string `json:"name" binding:"required"`
+	UpSelling string `json:"up_selling"`
 }
 
 type ListCategoryRequest struct {

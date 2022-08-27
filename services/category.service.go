@@ -35,7 +35,11 @@ func (o *CategoryService) CreateCategoryService(req dto.CreateCategoryReq, authP
 	}
 
 	arg := db.CreateCategoryParams{
-		Name:      req.Name,
+		Name: req.Name,
+		UpSelling: sql.NullString{
+			String: req.UpSelling,
+			Valid:  true,
+		},
 		CreatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
@@ -115,9 +119,14 @@ func (o *CategoryService) UpdateCategoryService(req dto.UpdateCategoryRequest, a
 	}
 
 	arg := db.UpdateCategoryParams{
-		ID:        req.ID,
-		SetName:   true,
-		Name:      req.Name,
+		ID:           req.ID,
+		SetName:      true,
+		Name:         req.Name,
+		SetUpSelling: true,
+		UpSelling: sql.NullString{
+			String: req.UpSelling,
+			Valid:  true,
+		},
 		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
@@ -169,7 +178,8 @@ func (o *CategoryService) SoftDeleteCategoryService(req dto.UpdateInactiveCatego
 
 func (o *CategoryService) CatResponse(cat db.Category) dto.CategoryRes {
 	return dto.CategoryRes{
-		ID:   cat.ID,
-		Name: cat.Name,
+		ID:        cat.ID,
+		Name:      cat.Name,
+		UpSelling: cat.UpSelling.String,
 	}
 }

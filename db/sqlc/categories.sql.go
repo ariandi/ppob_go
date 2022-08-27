@@ -12,23 +12,25 @@ import (
 
 const createCategory = `-- name: CreateCategory :one
 INSERT INTO categories (
-    name, parent, created_by
+    name, parent, created_by, up_selling
 ) values (
-             $1, 0, $2
-         ) RETURNING id, name, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+             $1, 0, $2, $3
+         ) RETURNING id, name, up_selling, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type CreateCategoryParams struct {
-	Name      string        `json:"name"`
-	CreatedBy sql.NullInt64 `json:"created_by"`
+	Name      string         `json:"name"`
+	CreatedBy sql.NullInt64  `json:"created_by"`
+	UpSelling sql.NullString `json:"up_selling"`
 }
 
 func (q *Queries) CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error) {
-	row := q.db.QueryRowContext(ctx, createCategory, arg.Name, arg.CreatedBy)
+	row := q.db.QueryRowContext(ctx, createCategory, arg.Name, arg.CreatedBy, arg.UpSelling)
 	var i Category
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UpSelling,
 		&i.Parent,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -51,7 +53,7 @@ func (q *Queries) DeleteCategories(ctx context.Context, id int64) error {
 }
 
 const getCategory = `-- name: GetCategory :one
-SELECT id, name, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM categories
+SELECT id, name, up_selling, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM categories
 WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
@@ -61,6 +63,7 @@ func (q *Queries) GetCategory(ctx context.Context, id int64) (Category, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UpSelling,
 		&i.Parent,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -73,7 +76,7 @@ func (q *Queries) GetCategory(ctx context.Context, id int64) (Category, error) {
 }
 
 const listCategory = `-- name: ListCategory :many
-SELECT id, name, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM categories
+SELECT id, name, up_selling, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM categories
 WHERE deleted_at is null
 ORDER BY name
 LIMIT $1
@@ -97,6 +100,7 @@ func (q *Queries) ListCategory(ctx context.Context, arg ListCategoryParams) ([]C
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.UpSelling,
 			&i.Parent,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -131,20 +135,27 @@ SET
                 THEN $4
               ELSE parent
               END,
-    updated_by = $5,
+    up_selling = CASE
+                 WHEN $5::bool
+                    THEN $6
+                 ELSE up_selling
+                END,
+    updated_by = $7,
     updated_at = now()
 WHERE
-        id = $6
-    RETURNING id, name, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+        id = $8
+    RETURNING id, name, up_selling, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateCategoryParams struct {
-	SetName   bool          `json:"set_name"`
-	Name      string        `json:"name"`
-	SetParent bool          `json:"set_parent"`
-	Parent    int64         `json:"parent"`
-	UpdatedBy sql.NullInt64 `json:"updated_by"`
-	ID        int64         `json:"id"`
+	SetName      bool           `json:"set_name"`
+	Name         string         `json:"name"`
+	SetParent    bool           `json:"set_parent"`
+	Parent       int64          `json:"parent"`
+	SetUpSelling bool           `json:"set_up_selling"`
+	UpSelling    sql.NullString `json:"up_selling"`
+	UpdatedBy    sql.NullInt64  `json:"updated_by"`
+	ID           int64          `json:"id"`
 }
 
 func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error) {
@@ -153,6 +164,8 @@ func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) 
 		arg.Name,
 		arg.SetParent,
 		arg.Parent,
+		arg.SetUpSelling,
+		arg.UpSelling,
 		arg.UpdatedBy,
 		arg.ID,
 	)
@@ -160,6 +173,7 @@ func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) 
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UpSelling,
 		&i.Parent,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -173,7 +187,7 @@ func (q *Queries) UpdateCategory(ctx context.Context, arg UpdateCategoryParams) 
 
 const updateInactiveCategory = `-- name: UpdateInactiveCategory :one
 UPDATE categories SET deleted_by = $2, deleted_at = now() WHERE id = $1
-    RETURNING id, name, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+    RETURNING id, name, up_selling, parent, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateInactiveCategoryParams struct {
@@ -187,6 +201,7 @@ func (q *Queries) UpdateInactiveCategory(ctx context.Context, arg UpdateInactive
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.UpSelling,
 		&i.Parent,
 		&i.CreatedAt,
 		&i.UpdatedAt,

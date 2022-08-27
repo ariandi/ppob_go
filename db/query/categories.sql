@@ -1,8 +1,8 @@
 -- name: CreateCategory :one
 INSERT INTO categories (
-    name, parent, created_by
+    name, parent, created_by, up_selling
 ) values (
-             $1, 0, $2
+             $1, 0, $2, $3
          ) RETURNING *;
 
 -- name: GetCategory :one
@@ -29,6 +29,11 @@ SET
                 THEN sqlc.arg(parent)
               ELSE parent
               END,
+    up_selling = CASE
+                 WHEN sqlc.arg(set_up_selling)::bool
+                    THEN sqlc.arg(up_selling)
+                 ELSE up_selling
+                END,
     updated_by = sqlc.arg(updated_by),
     updated_at = now()
 WHERE
