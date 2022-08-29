@@ -12,26 +12,29 @@ import (
 	"net/http"
 )
 
-// CategoryService is
-type CategoryService struct {
+type RoleUserInterface interface {
+	CreateRoleUserService(ctx *gin.Context, in dto.CreateRoleUserReq) (dto.RoleUserRes, error)
+	GetRoleUserByUserIDService(ctx *gin.Context, in dto.GetRoleUserByUserID) ([]dto.RoleUserRes, error)
+	ListRoleUserService(ctx *gin.Context, in dto.ListRoleUserRequest) ([]dto.RoleUserRes, error)
+	UpdateRoleUserService(ctx *gin.Context, in dto.UpdateRoleUserRequest) (dto.RoleUserRes, error)
+	SoftDeleteRoleUserService(ctx *gin.Context, in dto.UpdateInactiveROleUserRequest) error
+	roleUserResponse(roleUser db.RoleUser) dto.RoleUserRes
+}
+
+type RoleUserService struct {
 	store db.Store
 }
 
-var categoryService *CategoryService
-
-// GetCategoryService is
-func GetCategoryService(store db.Store) *CategoryService {
-	if categoryService == nil {
-		categoryService = &CategoryService{
-			store: store,
-		}
+// GetRoleUserService is
+func GetRoleUserService(store db.Store) RoleUserInterface {
+	return &RoleUserService{
+		store: store,
 	}
-	return categoryService
 }
 
-func (o *CategoryService) CreateCategoryService(ctx *gin.Context, in dto.CreateCategoryReq) (dto.CategoryRes, error) {
-	logrus.Println("[CategoryService CreateCategoryService] start.")
-	var out dto.CategoryRes
+func (o *RoleUserService) CreateRoleUserService(ctx *gin.Context, in dto.CreateRoleUserReq) (dto.RoleUserRes, error) {
+	logrus.Println("[RoleUserService CreateRoleUserService] start.")
+	var out dto.RoleUserRes
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	userValid, err := userService.validator(ctx, authPayload)
@@ -39,16 +42,13 @@ func (o *CategoryService) CreateCategoryService(ctx *gin.Context, in dto.CreateC
 		return out, errors.New("error in user validator")
 	}
 
-	arg := db.CreateCategoryParams{
-		Name: in.Name,
-		UpSelling: sql.NullString{
-			String: in.UpSelling,
-			Valid:  true,
-		},
+	arg := db.CreateRoleUserParams{
+		RoleID:    in.RoleID,
+		UserID:    in.UserID,
 		CreatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	cat, err := o.store.CreateCategory(ctx, arg)
+	cat, err := o.store.CreateRoleUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -61,13 +61,13 @@ func (o *CategoryService) CreateCategoryService(ctx *gin.Context, in dto.CreateC
 		return out, err
 	}
 
-	out = o.CatResponse(cat)
+	out = o.roleUserResponse(cat)
 	return out, nil
 }
 
-func (o *CategoryService) GetCategoryService(ctx *gin.Context, in dto.GetCategoryReq) (dto.CategoryRes, error) {
-	logrus.Println("[CategoryService GetCategoryService] start.")
-	var out dto.CategoryRes
+func (o *RoleUserService) GetRoleUserByUserIDService(ctx *gin.Context, in dto.GetRoleUserByUserID) ([]dto.RoleUserRes, error) {
+	logrus.Println("[RoleUserService GetRoleUserService] start.")
+	var out []dto.RoleUserRes
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	_, err := userService.validator(ctx, authPayload)
@@ -75,7 +75,12 @@ func (o *CategoryService) GetCategoryService(ctx *gin.Context, in dto.GetCategor
 		return out, errors.New("error in user validator")
 	}
 
-	cat, err := o.store.GetCategory(ctx, in.ID)
+	arg := db.GetRoleUserByUserIDParams{
+		UserID: in.UserID,
+		Limit:  5,
+		Offset: 0,
+	}
+	getRolesByUserID, err := o.store.GetRoleUserByUserID(ctx, arg)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
@@ -86,13 +91,17 @@ func (o *CategoryService) GetCategoryService(ctx *gin.Context, in dto.GetCategor
 		return out, err
 	}
 
-	out = o.CatResponse(cat)
+	for _, roleUser := range getRolesByUserID {
+		resArg := o.roleUserResponse(roleUser)
+		out = append(out, resArg)
+	}
+
 	return out, nil
 }
 
-func (o *CategoryService) ListCategoryService(ctx *gin.Context, in dto.ListCategoryRequest) ([]dto.CategoryRes, error) {
-	logrus.Println("[CategoryService GetCategoryService] start.")
-	var out []dto.CategoryRes
+func (o *RoleUserService) ListRoleUserService(ctx *gin.Context, in dto.ListRoleUserRequest) ([]dto.RoleUserRes, error) {
+	logrus.Println("[RoleUserService GetRoleUserService] start.")
+	var out []dto.RoleUserRes
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	_, err := userService.validator(ctx, authPayload)
@@ -100,28 +109,28 @@ func (o *CategoryService) ListCategoryService(ctx *gin.Context, in dto.ListCateg
 		return out, errors.New("error in user validator")
 	}
 
-	arg := db.ListCategoryParams{
+	arg := db.ListRoleUserParams{
 		Limit:  in.PageSize,
 		Offset: (in.PageID - 1) * in.PageSize,
 	}
 
-	categories, err := o.store.ListCategory(ctx, arg)
+	roleUsers, err := o.store.ListRoleUser(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return out, err
 	}
 
-	for _, cat := range categories {
-		u := o.CatResponse(cat)
+	for _, roleUser := range roleUsers {
+		u := o.roleUserResponse(roleUser)
 		out = append(out, u)
 	}
 
 	return out, nil
 }
 
-func (o *CategoryService) UpdateCategoryService(ctx *gin.Context, in dto.UpdateCategoryRequest) (dto.CategoryRes, error) {
-	logrus.Println("[CategoryService UpdateCategoryService] start.")
-	var out dto.CategoryRes
+func (o *RoleUserService) UpdateRoleUserService(ctx *gin.Context, in dto.UpdateRoleUserRequest) (dto.RoleUserRes, error) {
+	logrus.Println("[RoleUserService UpdateRoleUserService] start.")
+	var out dto.RoleUserRes
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	userValid, err := userService.validator(ctx, authPayload)
@@ -129,19 +138,14 @@ func (o *CategoryService) UpdateCategoryService(ctx *gin.Context, in dto.UpdateC
 		return out, errors.New("error in user validator")
 	}
 
-	arg := db.UpdateCategoryParams{
-		ID:           in.ID,
-		SetName:      true,
-		Name:         in.Name,
-		SetUpSelling: true,
-		UpSelling: sql.NullString{
-			String: in.UpSelling,
-			Valid:  true,
-		},
+	arg := db.UpdateRoleUserParams{
+		ID:        in.ID,
+		UserID:    in.UserID,
+		RoleID:    in.RoleID,
 		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	cat, err := o.store.UpdateCategory(ctx, arg)
+	cat, err := o.store.UpdateRoleUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -154,13 +158,13 @@ func (o *CategoryService) UpdateCategoryService(ctx *gin.Context, in dto.UpdateC
 		return out, err
 	}
 
-	out = o.CatResponse(cat)
+	out = o.roleUserResponse(cat)
 
 	return out, nil
 }
 
-func (o *CategoryService) SoftDeleteCategoryService(ctx *gin.Context, in dto.UpdateInactiveCategoryRequest) error {
-	logrus.Println("[CategoryService SoftDeleteCategoryService] start.")
+func (o *RoleUserService) SoftDeleteRoleUserService(ctx *gin.Context, in dto.UpdateInactiveROleUserRequest) error {
+	logrus.Println("[RoleUserService SoftDeleteRoleUserService] start.")
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	userValid, err := userService.validator(ctx, authPayload)
@@ -168,12 +172,12 @@ func (o *CategoryService) SoftDeleteCategoryService(ctx *gin.Context, in dto.Upd
 		return errors.New("error in user validator")
 	}
 
-	arg := db.UpdateInactiveCategoryParams{
+	arg := db.UpdateInactiveRoleUserParams{
 		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	_, err = o.store.UpdateInactiveCategory(ctx, arg)
+	_, err = o.store.UpdateInactiveRoleUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -189,10 +193,10 @@ func (o *CategoryService) SoftDeleteCategoryService(ctx *gin.Context, in dto.Upd
 	return nil
 }
 
-func (o *CategoryService) CatResponse(cat db.Category) dto.CategoryRes {
-	return dto.CategoryRes{
-		ID:        cat.ID,
-		Name:      cat.Name,
-		UpSelling: cat.UpSelling.String,
+func (o *RoleUserService) roleUserResponse(roleUser db.RoleUser) dto.RoleUserRes {
+	return dto.RoleUserRes{
+		ID:     roleUser.ID,
+		UserID: roleUser.UserID,
+		RoleID: roleUser.RoleID,
 	}
 }

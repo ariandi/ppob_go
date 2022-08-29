@@ -17,16 +17,17 @@ var roleService *services.RoleService
 var categoryService *services.CategoryService
 var partnerService *services.PartnerService
 var providerService *services.ProviderService
-var productService *services.ProductService
+var productService services.ProductInterface
 var transactionService *services.TransactionService
 var sellingService *services.SellingService
+var roleUserService services.RoleUserInterface
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
-	store      db.Store
-	TokenMaker token.Maker
-	Router     *gin.Engine
-	config     util.Config
+	//store      db.Store
+	//TokenMaker token.Maker
+	Router *gin.Engine
+	config util.Config
 }
 
 // NewServer creates a new HTTP server and set up routing.
@@ -37,9 +38,9 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	}
 
 	server := &Server{
-		store:      store,
-		TokenMaker: tokenMaker,
-		config:     config,
+		//store:      store,
+		//TokenMaker: tokenMaker,
+		config: config,
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -54,15 +55,16 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		}
 	}
 
-	server.setupRouter()
-	services.GetUserService(config)
-	services.GetRoleService()
-	services.GetCategoryService()
-	services.GetPartnerService()
-	services.GetProviderService()
-	services.GetProductService()
-	services.GetTransactionService()
-	services.GetSellingService()
+	server.setupRouter(tokenMaker)
+	userService = services.GetUserService(config, store, tokenMaker)
+	roleService = services.GetRoleService(store)
+	categoryService = services.GetCategoryService(store)
+	partnerService = services.GetPartnerService(store)
+	providerService = services.GetProviderService(store)
+	productService = services.GetProductService(store)
+	transactionService = services.GetTransactionService(store)
+	sellingService = services.GetSellingService(store)
+	roleUserService = services.GetRoleUserService(store)
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)
@@ -70,7 +72,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	return server, nil
 }
 
-func (server *Server) setupRouter() {
+func (server *Server) setupRouter(tokenMaker token.Maker) {
 	router := gin.Default()
 	router.Use(CORSMiddleware())
 
@@ -78,7 +80,7 @@ func (server *Server) setupRouter() {
 	router.POST("/users/test-redis", server.testRedisMq)
 	router.POST("/users/test-create", server.createUsersFirst)
 
-	authRoutes := router.Group("/").Use(AuthMiddleware(server.TokenMaker))
+	authRoutes := router.Group("/").Use(AuthMiddleware(tokenMaker))
 	authRoutes.POST("/users", server.createUsers)
 	authRoutes.GET("/users/:id", server.getUser)
 	authRoutes.GET("/users", server.listUsers)

@@ -53,6 +53,7 @@ type TransactionRes struct {
 	ProviderID   int64  `json:"provider_id"`
 	ProviderName string `json:"provider_name"`
 	Status       string `json:"status"`
+	CreatedBy    string `json:"created_by"`
 	ReqInqParams string `json:"req_inq_params"`
 	ResInqParams string `json:"res_inq_params"`
 	ReqPayParams string `json:"req_pay_params"`
@@ -75,7 +76,7 @@ type GetTransactionByTxIDReq struct {
 
 type ListTransactionRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=500"`
 }
 
 type UpdateTransactionRequest struct {

@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createProvider(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := providerService.CreateProviderService(req, authPayload, ctx, server.store)
+	resp1, err := providerService.CreateProviderService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getProvider(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := providerService.GetProviderService(req, authPayload, ctx, server.store)
+	resp1, err := providerService.GetProviderService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listProvider(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := providerService.ListProviderService(req, authPayload, ctx, server.store)
+	resp1, err := providerService.ListProviderService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -82,8 +78,7 @@ func (server *Server) updateProvider(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := providerService.UpdateProviderService(req, authPayload, ctx, server.store)
+	resp1, err := providerService.UpdateProviderService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -106,8 +101,7 @@ func (server *Server) softDeleteProvider(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Providers softDeleteProvider] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := providerService.SoftDeleteProviderService(req, authPayload, ctx, server.store)
+	err := providerService.SoftDeleteProviderService(ctx, req)
 	if err != nil {
 		return
 	}

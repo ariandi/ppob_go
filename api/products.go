@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createProduct(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := productService.CreateProductService(req, authPayload, ctx, server.store)
+	resp1, err := productService.CreateProductService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getProduct(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := productService.GetProductService(req, authPayload, ctx, server.store)
+	resp1, err := productService.GetProductService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listProduct(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := productService.ListProductService(req, authPayload, ctx, server.store)
+	resp1, err := productService.ListProductService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -82,8 +78,7 @@ func (server *Server) updateProduct(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := productService.UpdateProductService(req, authPayload, ctx, server.store)
+	resp1, err := productService.UpdateProductService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -106,8 +101,7 @@ func (server *Server) softDeleteProduct(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Products softDeleteProduct] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := productService.SoftDeleteProductService(req, authPayload, ctx, server.store)
+	err := productService.SoftDeleteProductService(ctx, req)
 	if err != nil {
 		return
 	}

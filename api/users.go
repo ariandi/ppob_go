@@ -4,23 +4,21 @@ import (
 	"fmt"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/services"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
-func (server *Server) createUsers(c *gin.Context) {
+func (server *Server) createUsers(ctx *gin.Context) {
 	logrus.Println("[Users createUsers] start.")
 	var req dto.CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
-	authPayload := c.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := userService.CreateUserService(req, authPayload, c, server.store)
+	resp1, err := userService.CreateUserService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -29,18 +27,18 @@ func (server *Server) createUsers(c *gin.Context) {
 		Message: "Success",
 		Data:    resp1,
 	}
-	c.JSON(http.StatusOK, resp2)
+	ctx.JSON(http.StatusOK, resp2)
 }
 
-func (server *Server) createUsersFirst(c *gin.Context) {
+func (server *Server) createUsersFirst(ctx *gin.Context) {
 	logrus.Println("[Users createUsersFirst] start.")
 	var req dto.CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
 		return
 	}
 
-	resp1, err := userService.CreateUserFirstService(req, c, server.store)
+	resp1, err := userService.CreateUserFirstService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -50,7 +48,7 @@ func (server *Server) createUsersFirst(c *gin.Context) {
 		Message: "Success",
 		Data:    resp1,
 	}
-	c.JSON(http.StatusOK, resp2)
+	ctx.JSON(http.StatusOK, resp2)
 }
 
 func (server *Server) getUser(ctx *gin.Context) {
@@ -61,8 +59,8 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := userService.GetUserService(req, authPayload, ctx, server.store)
+	//authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	resp1, err := userService.GetUserService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -83,8 +81,7 @@ func (server *Server) listUsers(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := userService.ListUserService(req, authPayload, ctx, server.store)
+	resp1, err := userService.ListUserService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -111,9 +108,7 @@ func (server *Server) updateUsers(ctx *gin.Context) {
 	}
 
 	req.ID = reqID.ID
-
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := userService.UpdateUserService(req, authPayload, ctx, server.store)
+	resp1, err := userService.UpdateUserService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -136,8 +131,7 @@ func (server *Server) softDeleteUser(ctx *gin.Context) {
 	}
 
 	logrus.Println("start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := userService.SoftDeleteUserService(req, authPayload, ctx, server.store)
+	err := userService.SoftDeleteUserService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -189,7 +183,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	rsp, err := userService.LoginUserService(req, server.TokenMaker, ctx, server.store, server.config)
+	rsp, err := userService.LoginUserService(ctx, req)
 	if err != nil {
 		return
 	}

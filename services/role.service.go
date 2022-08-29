@@ -14,145 +14,158 @@ import (
 
 // RoleService is
 type RoleService struct {
+	store db.Store
 }
 
 var roleService *RoleService
 
 // GetRoleService is
-func GetRoleService() *RoleService {
+func GetRoleService(store db.Store) *RoleService {
 	if roleService == nil {
-		roleService = new(RoleService)
+		roleService = &RoleService{
+			store: store,
+		}
 	}
 	return roleService
 }
 
-func (o *RoleService) CreateRoleService(req dto.CreateRoleReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.RoleRes, error) {
+func (o *RoleService) CreateRoleService(ctx *gin.Context, in dto.CreateRoleReq) (dto.RoleRes, error) {
 	logrus.Println("[RoleService CreateRoleService] start.")
-	var result dto.RoleRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.RoleRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.CreateRoleParams{
-		Name:      req.Name,
-		Level:     req.Level,
+		Name:      in.Name,
+		Level:     in.Level,
 		CreatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	role, err := store.CreateRole(ctx, arg)
+	role, err := o.store.CreateRole(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.RoleResponse(role)
-	return result, nil
+	out = o.RoleResponse(role)
+	return out, nil
 }
 
-func (o *RoleService) GetRoleService(req dto.GetRoleReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.RoleRes, error) {
+func (o *RoleService) GetRoleService(ctx *gin.Context, in dto.GetRoleReq) (dto.RoleRes, error) {
 	logrus.Println("[RoleService GetRoleService] start.")
-	var result dto.RoleRes
-	_, err := validator(store, ctx, authPayload)
+	var out dto.RoleRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
-	role, err := store.GetRole(ctx, req.ID)
+	role, err := o.store.GetRole(ctx, in.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
-			return result, err
+			return out, err
 		}
 
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.RoleResponse(role)
-	return result, nil
+	out = o.RoleResponse(role)
+	return out, nil
 }
 
-func (o *RoleService) ListRoleService(req dto.ListRoleRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.RoleRes, error) {
+func (o *RoleService) ListRoleService(ctx *gin.Context, in dto.ListRoleRequest) ([]dto.RoleRes, error) {
 	logrus.Println("[RoleService ListRoleService] start.")
-	var result []dto.RoleRes
-	_, err := validator(store, ctx, authPayload)
+	var out []dto.RoleRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.ListRoleParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:  in.PageSize,
+		Offset: (in.PageID - 1) * in.PageSize,
 	}
 
-	roles, err := store.ListRole(ctx, arg)
+	roles, err := o.store.ListRole(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
 	for _, role := range roles {
 		u := o.RoleResponse(role)
-		result = append(result, u)
+		out = append(out, u)
 	}
 
-	return result, nil
+	return out, nil
 }
 
-func (o *RoleService) UpdateRoleService(req dto.UpdateRoleRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.RoleRes, error) {
+func (o *RoleService) UpdateRoleService(ctx *gin.Context, in dto.UpdateRoleRequest) (dto.RoleRes, error) {
 	logrus.Println("[RoleService UpdateRoleService] start.")
-	var result dto.RoleRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.RoleRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.UpdateRoleParams{
-		ID:        req.ID,
-		Name:      req.Name,
-		Level:     req.Level,
+		ID:        in.ID,
+		Name:      in.Name,
+		Level:     in.Level,
 		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	role, err := store.UpdateRole(ctx, arg)
+	role, err := o.store.UpdateRole(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.RoleResponse(role)
+	out = o.RoleResponse(role)
 
-	return result, nil
+	return out, nil
 }
 
-func (o *RoleService) SoftDeleteRoleService(req dto.UpdateInactiveRoleRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *RoleService) SoftDeleteRoleService(ctx *gin.Context, in dto.UpdateInactiveRoleRequest) error {
 	logrus.Println("[RoleService SoftDeleteRoleService] start.")
-	userValid, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
 		return errors.New("error in user validator")
 	}
 
 	arg := db.UpdateInactiveRoleParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	_, err = store.UpdateInactiveRole(ctx, arg)
+	_, err = o.store.UpdateInactiveRole(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {

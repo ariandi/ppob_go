@@ -15,156 +15,169 @@ import (
 
 // PartnerService is
 type PartnerService struct {
+	store db.Store
 }
 
 var partnerService *PartnerService
 
 // GetPartnerService is
-func GetPartnerService() *PartnerService {
+func GetPartnerService(store db.Store) *PartnerService {
 	if partnerService == nil {
-		partnerService = new(PartnerService)
+		partnerService = &PartnerService{
+			store: store,
+		}
 	}
 	return partnerService
 }
 
-func (o *PartnerService) CreatePartnerService(req dto.CreatePartnerReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.PartnerRes, error) {
+func (o *PartnerService) CreatePartnerService(ctx *gin.Context, in dto.CreatePartnerReq) (dto.PartnerRes, error) {
 	logrus.Println("[PartnerService CreatePartnerService] start.")
-	var result dto.PartnerRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.PartnerRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.CreatePartnerParams{
-		Name:        req.Name,
-		User:        req.User,
-		Secret:      req.Secret,
-		AddInfo1:    req.AddInfo1,
-		AddInfo2:    req.AddInfo2,
-		PaymentType: req.PaymentType,
-		Status:      req.Status,
+		Name:        in.Name,
+		User:        in.User,
+		Secret:      in.Secret,
+		AddInfo1:    in.AddInfo1,
+		AddInfo2:    in.AddInfo2,
+		PaymentType: in.PaymentType,
+		Status:      in.Status,
 		CreatedBy:   sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	arg, err = o.setFromDateToDate(arg, req)
+	arg, err = o.setFromDateToDate(arg, in)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	partner, err := store.CreatePartner(ctx, arg)
+	partner, err := o.store.CreatePartner(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.PartnerResponse(partner)
-	return result, nil
+	out = o.PartnerResponse(partner)
+	return out, nil
 }
 
-func (o *PartnerService) GetPartnerService(req dto.GetPartnerReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.PartnerRes, error) {
+func (o *PartnerService) GetPartnerService(ctx *gin.Context, in dto.GetPartnerReq) (dto.PartnerRes, error) {
 	logrus.Println("[CategoryService GetCategoryService] start.")
-	var result dto.PartnerRes
-	_, err := validator(store, ctx, authPayload)
+	var out dto.PartnerRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
-	partner, err := store.GetPartner(ctx, req.ID)
+	partner, err := o.store.GetPartner(ctx, in.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
-			return result, err
+			return out, err
 		}
 
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.PartnerResponse(partner)
-	return result, nil
+	out = o.PartnerResponse(partner)
+	return out, nil
 }
 
-func (o *PartnerService) ListPartnerService(req dto.ListPartnerRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.PartnerRes, error) {
+func (o *PartnerService) ListPartnerService(ctx *gin.Context, in dto.ListPartnerRequest) ([]dto.PartnerRes, error) {
 	logrus.Println("[CategoryService GetCategoryService] start.")
-	var result []dto.PartnerRes
-	_, err := validator(store, ctx, authPayload)
+	var out []dto.PartnerRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.ListPartnerParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:  in.PageSize,
+		Offset: (in.PageID - 1) * in.PageSize,
 	}
 
-	partners, err := store.ListPartner(ctx, arg)
+	partners, err := o.store.ListPartner(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
 	for _, partner := range partners {
 		u := o.PartnerResponse(partner)
-		result = append(result, u)
+		out = append(out, u)
 	}
 
-	return result, nil
+	return out, nil
 }
 
-func (o *PartnerService) UpdatePartnerService(req dto.UpdatePartnerRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.PartnerRes, error) {
+func (o *PartnerService) UpdatePartnerService(ctx *gin.Context, in dto.UpdatePartnerRequest) (dto.PartnerRes, error) {
 	logrus.Println("[PartnerService UpdatePartnerService] start.")
-	var result dto.PartnerRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.PartnerRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.UpdatePartnerParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		UpdatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	arg = o.setUpdateParamsService(arg, req)
+	arg = o.setUpdateParamsService(arg, in)
 
-	partner, err := store.UpdatePartner(ctx, arg)
+	partner, err := o.store.UpdatePartner(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.PartnerResponse(partner)
+	out = o.PartnerResponse(partner)
 
-	return result, nil
+	return out, nil
 }
 
-func (o *PartnerService) SoftDeletePartnerService(req dto.UpdateInactivePartnerRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *PartnerService) SoftDeletePartnerService(ctx *gin.Context, in dto.UpdateInactivePartnerRequest) error {
 	logrus.Println("[PartnerService SoftDeletePartnerService] start.")
-	userValid, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
 		return errors.New("error in user validator")
 	}
 
 	arg := db.UpdateInactivePartnerParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	_, err = store.UpdateInactivePartner(ctx, arg)
+	_, err = o.store.UpdateInactivePartner(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {

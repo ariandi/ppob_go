@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createCategory(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := categoryService.CreateCategoryService(req, authPayload, ctx, server.store)
+	resp1, err := categoryService.CreateCategoryService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getCategory(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := categoryService.GetCategoryService(req, authPayload, ctx, server.store)
+	resp1, err := categoryService.GetCategoryService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listCategory(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := categoryService.ListCategoryService(req, authPayload, ctx, server.store)
+	resp1, err := categoryService.ListCategoryService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -82,8 +78,7 @@ func (server *Server) updateCategory(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := categoryService.UpdateCategoryService(req, authPayload, ctx, server.store)
+	resp1, err := categoryService.UpdateCategoryService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -106,8 +101,7 @@ func (server *Server) softDeleteCategory(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Categories softDeleteCategory] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := categoryService.SoftDeleteCategoryService(req, authPayload, ctx, server.store)
+	err := categoryService.SoftDeleteCategoryService(ctx, req)
 	if err != nil {
 		return
 	}

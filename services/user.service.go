@@ -19,17 +19,28 @@ import (
 
 // UserService is
 type UserService struct {
+	Store      db.Store
+	Config     util.Config
+	TokenMaker token.Maker
 }
 
 var userService *UserService
 var redisConn rmq.Connection
 
+const (
+	AuthorizationPayloadKey = "authorization_payload"
+)
+
 // GetUserService is
-func GetUserService(config util.Config) *UserService {
+func GetUserService(config util.Config, store db.Store, TokenMaker token.Maker) *UserService {
 
 	if userService == nil {
 
-		userService = new(UserService)
+		userService = &UserService{
+			Store:      store,
+			Config:     config,
+			TokenMaker: TokenMaker,
+		}
 
 		redisDb, errRedisDb := strconv.Atoi(config.RedisDB)
 		if errRedisDb != nil {
@@ -72,26 +83,28 @@ func (o *UserService) TestRedisMq(msg dto.LoginUserRequest) ([]string, error) {
 	return ret, nil
 }
 
-func (o *UserService) CreateUserService(req dto.CreateUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.UserResponse, error) {
+func (o *UserService) CreateUserService(ctx *gin.Context, in dto.CreateUserRequest) (dto.UserResponse, error) {
 	logrus.Println("[UserService CreateUserService] start.")
 	var result dto.UserResponse
-	user, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	user, err := o.validator(ctx, authPayload)
 	if err != nil {
 		return result, errors.New("error in user validator")
 	}
 
 	arg := db.CreateUserParams{
-		Name:           req.Name,
-		Email:          req.Email,
-		Username:       req.Username,
+		Name:           in.Name,
+		Email:          in.Email,
+		Username:       in.Username,
 		CreatedBy:      sql.NullInt64{Int64: user.ID, Valid: true},
-		Phone:          req.Phone,
+		Phone:          in.Phone,
 		Balance:        sql.NullString{String: "0.00", Valid: true},
-		IdentityNumber: req.IdentityNumber,
+		IdentityNumber: in.IdentityNumber,
 	}
 
-	if req.Password != "" {
-		password, errHash := util.HashPassword(req.Password)
+	if in.Password != "" {
+		password, errHash := util.HashPassword(in.Password)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 			return result, errHash
@@ -99,7 +112,7 @@ func (o *UserService) CreateUserService(req dto.CreateUserRequest, authPayload *
 		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
-	users, err := store.CreateUserTx(ctx, arg, authPayload, req.RoleID)
+	out, err := o.Store.CreateUserTx(ctx, arg, authPayload, in.RoleID)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -112,19 +125,20 @@ func (o *UserService) CreateUserService(req dto.CreateUserRequest, authPayload *
 		return result, err
 	}
 
-	return users, nil
+	return out, nil
 }
 
-func (o *UserService) CreateUserFirstService(req dto.CreateUserRequest, ctx *gin.Context, store db.Store) (dto.UserResponse, error) {
+func (o *UserService) CreateUserFirstService(ctx *gin.Context, in dto.CreateUserRequest) (dto.UserResponse, error) {
 	logrus.Println("[UserService CreateUserFirstService] start.")
 	var result dto.UserResponse
-	if req.Username != "dbduabelas" {
+
+	if in.Username != "dbduabelas" {
 		logrus.Println("[UserService CreateUserFirstService] error username not allow.")
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponseString("error username not allow"))
 		return result, errors.New("error username not allow")
 	}
 
-	userPayload, err := store.GetUserByUsername(ctx, "dbduabelas")
+	userPayload, err := o.Store.GetUserByUsername(ctx, "dbduabelas")
 	if err == nil {
 		logrus.Println("[UserService CreateUserFirstService] user already exist.")
 		ctx.JSON(http.StatusNotFound, dto.ErrorResponseString("user already exist"))
@@ -141,8 +155,8 @@ func (o *UserService) CreateUserFirstService(req dto.CreateUserRequest, ctx *gin
 		IdentityNumber: "3201011411870003",
 	}
 
-	if req.Password != "" {
-		password, errPswd := util.HashPassword(req.Password)
+	if in.Password != "" {
+		password, errPswd := util.HashPassword(in.Password)
 		if errPswd != nil {
 			ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(errPswd))
 			return result, errPswd
@@ -150,7 +164,7 @@ func (o *UserService) CreateUserFirstService(req dto.CreateUserRequest, ctx *gin
 		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
-	users, err := store.CreateUser(ctx, arg)
+	users, err := o.Store.CreateUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -163,19 +177,21 @@ func (o *UserService) CreateUserFirstService(req dto.CreateUserRequest, ctx *gin
 		return result, err
 	}
 
-	result = o.newUserResponse(users, []dto.RoleUser{})
-	return result, nil
+	out := o.newUserResponse(users, []dto.RoleUser{})
+	return out, nil
 }
 
-func (o *UserService) GetUserService(req dto.GetUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.UserResponse, error) {
+func (o *UserService) GetUserService(ctx *gin.Context, in dto.GetUserRequest) (dto.UserResponse, error) {
 	logrus.Println("[UserService GetUserService] start.")
 	var result dto.UserResponse
-	_, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := o.validator(ctx, authPayload)
 	if err != nil {
 		return result, errors.New("error in user validator")
 	}
 
-	user, err := store.GetUser(ctx, req.ID)
+	user, err := o.Store.GetUser(ctx, in.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
@@ -189,7 +205,7 @@ func (o *UserService) GetUserService(req dto.GetUserRequest, authPayload *token.
 	argUser := db.User{
 		ID: user.ID,
 	}
-	roleUsers := getRoleByUser(argUser, ctx, store)
+	roleUsers := o.getRoleByUser(ctx, argUser)
 	userArg := db.User{
 		ID:             user.ID,
 		Name:           user.Name,
@@ -199,31 +215,33 @@ func (o *UserService) GetUserService(req dto.GetUserRequest, authPayload *token.
 		Phone:          user.Phone,
 		IdentityNumber: user.IdentityNumber,
 	}
-	resp1 := o.newUserResponse(userArg, roleUsers)
+	out := o.newUserResponse(userArg, roleUsers)
 
-	return resp1, nil
+	return out, nil
 }
 
-func (o *UserService) ListUserService(req dto.ListUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.UserResponse, error) {
+func (o *UserService) ListUserService(ctx *gin.Context, in dto.ListUserRequest) ([]dto.UserResponse, error) {
 	logrus.Println("[UserService ListUserService] start.")
 	var result []dto.UserResponse
-	_, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := o.validator(ctx, authPayload)
 	if err != nil {
 		return result, errors.New("error in user validator")
 	}
 
 	arg := db.ListUserParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:  in.PageSize,
+		Offset: (in.PageID - 1) * in.PageSize,
 	}
 
-	users, err := store.ListUser(ctx, arg)
+	users, err := o.Store.ListUser(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return result, err
 	}
 
-	var resp1 []dto.UserResponse
+	var out []dto.UserResponse
 	for _, user := range users {
 		dbUser := db.User{
 			ID:             user.ID,
@@ -243,33 +261,35 @@ func (o *UserService) ListUserService(req dto.ListUserRequest, authPayload *toke
 		argUser := db.User{
 			ID: user.ID,
 		}
-		roleUserResponse := getRoleByUser(argUser, ctx, store)
+		roleUserResponse := o.getRoleByUser(ctx, argUser)
 
 		u := o.newUserResponse(dbUser, roleUserResponse)
-		resp1 = append(resp1, u)
+		out = append(out, u)
 	}
-	return resp1, nil
+	return out, nil
 }
 
-func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.UserResponse, error) {
+func (o *UserService) UpdateUserService(ctx *gin.Context, in dto.UpdateUserRequest) (dto.UserResponse, error) {
 	logrus.Println("[UserService UpdateUserService] start.")
 	var result dto.UserResponse
-	user, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	user, err := o.validator(ctx, authPayload)
 	if err != nil {
 		return result, errors.New("error in user validator")
 	}
 
 	arg := db.UpdateUserParams{
-		ID:             req.ID,
-		Email:          req.Email,
-		Name:           req.Name,
-		Phone:          req.Phone,
-		IdentityNumber: req.IdentityNumber,
+		ID:             in.ID,
+		Email:          in.Email,
+		Name:           in.Name,
+		Phone:          in.Phone,
+		IdentityNumber: in.IdentityNumber,
 		UpdatedBy:      sql.NullInt64{Int64: user.ID, Valid: true},
 	}
 
-	if req.Password != "" {
-		password, errPasswd := util.HashPassword(req.Password)
+	if in.Password != "" {
+		password, errPasswd := util.HashPassword(in.Password)
 		if errPasswd != nil {
 			ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(errPasswd))
 			return result, errPasswd
@@ -277,7 +297,7 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 		arg.Password = sql.NullString{String: password, Valid: true}
 	}
 
-	users, err := store.UpdateUserTx(ctx, arg, authPayload, req.RoleID)
+	out, err := o.Store.UpdateUserTx(ctx, arg, authPayload, in.RoleID)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -290,22 +310,24 @@ func (o *UserService) UpdateUserService(req dto.UpdateUserRequest, authPayload *
 		return result, err
 	}
 
-	return users, nil
+	return out, nil
 }
 
-func (o *UserService) SoftDeleteUserService(req dto.UpdateInactiveUserRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *UserService) SoftDeleteUserService(ctx *gin.Context, in dto.UpdateInactiveUserRequest) error {
 	logrus.Println("[UserService SoftDeleteUserService] start.")
-	user, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	user, err := o.validator(ctx, authPayload)
 	if err != nil {
 		return errors.New("error in user validator")
 	}
 
 	arg := db.UpdateInactiveUserParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: user.ID, Valid: true},
 	}
 
-	_, err = store.UpdateInactiveUser(ctx, arg)
+	_, err = o.Store.UpdateInactiveUser(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -321,10 +343,11 @@ func (o *UserService) SoftDeleteUserService(req dto.UpdateInactiveUserRequest, a
 	return nil
 }
 
-func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker token.Maker, ctx *gin.Context, store db.Store, config util.Config) (dto.LoginUserResponse, error) {
+func (o *UserService) LoginUserService(ctx *gin.Context, in dto.LoginUserRequest) (dto.LoginUserResponse, error) {
 	logrus.Println("[UserService LoginUserService] start.")
 	var result dto.LoginUserResponse
-	user, err := store.GetUserByUsername(ctx, req.Username)
+
+	user, err := o.Store.GetUserByUsername(ctx, in.Username)
 	if err != nil {
 		logrus.Println("[UserService loginUser] error get username is : ", err.Error())
 		if err == sql.ErrNoRows {
@@ -335,25 +358,25 @@ func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker toke
 		return result, err
 	}
 
-	err = util.CheckPassword(req.Password, user.Password.String)
+	err = util.CheckPassword(in.Password, user.Password.String)
 	if err != nil {
 		logrus.Println("[UserService loginUser] password not same : ", err.Error())
 		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponseString("password is incorrect"))
 		return result, err
 	}
 
-	accessToken, accessPayload, err := tokenMaker.CreateToken(
+	accessToken, accessPayload, err := o.TokenMaker.CreateToken(
 		user.Username,
-		config.AccessTokenDuration,
+		o.Config.AccessTokenDuration,
 	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return result, err
 	}
 
-	refreshToken, refreshPayload, err := tokenMaker.CreateToken(
+	refreshToken, refreshPayload, err := o.TokenMaker.CreateToken(
 		user.Username,
-		config.AccessTokenDuration,
+		o.Config.AccessTokenDuration,
 	)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
@@ -363,10 +386,10 @@ func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker toke
 	argUser := db.User{
 		ID: user.ID,
 	}
-	roleUsers := getRoleByUser(argUser, ctx, store)
-	userRes := userRowToUserType(user)
+	roleUsers := o.getRoleByUser(ctx, argUser)
+	userRes := o.userRowToUserType(user)
 
-	result = dto.LoginUserResponse{
+	out := dto.LoginUserResponse{
 		//SessionID:             session.ID,
 		AccessToken:           accessToken,
 		AccessTokenExpiresAt:  accessPayload.ExpiredAt,
@@ -374,7 +397,7 @@ func (o *UserService) LoginUserService(req dto.LoginUserRequest, tokenMaker toke
 		RefreshTokenExpiresAt: refreshPayload.ExpiredAt,
 		User:                  o.newUserResponse(userRes, roleUsers),
 	}
-	return result, nil
+	return out, nil
 }
 
 func (o *UserService) newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse {
@@ -391,7 +414,7 @@ func (o *UserService) newUserResponse(user db.User, roleUsers []dto.RoleUser) dt
 	}
 }
 
-func userRowToUserType(user db.GetUserByUsernameRow) db.User {
+func (o *UserService) userRowToUserType(user db.GetUserByUsernameRow) db.User {
 	return db.User{
 		ID:             user.ID,
 		Name:           user.Name,
@@ -411,16 +434,16 @@ func (o *UserService) ValidateUserRole(user db.GetUserByUsernameRow) error {
 	return nil
 }
 
-func getRoleByUser(user db.User, ctx *gin.Context, store db.Store) []dto.RoleUser {
+func (o *UserService) getRoleByUser(ctx *gin.Context, in db.User) []dto.RoleUser {
 	roleUserArg := db.GetRoleUserByUserIDParams{
-		UserID: user.ID,
+		UserID: in.ID,
 		Limit:  5,
 		Offset: 0,
 	}
-	roleUsers, _ := store.GetRoleUserByUserID(ctx, roleUserArg)
+	roleUsers, _ := o.Store.GetRoleUserByUserID(ctx, roleUserArg)
 	var roleUserResponse []dto.RoleUser
 	for _, roleUser := range roleUsers {
-		if roleUser.UserID == user.ID {
+		if roleUser.UserID == in.ID {
 			roleUserDto := dto.RoleUser{
 				ID:        roleUser.ID,
 				RoleID:    roleUser.RoleID,
@@ -441,10 +464,10 @@ func getRoleByUser(user db.User, ctx *gin.Context, store db.Store) []dto.RoleUse
 	return roleUserResponse
 }
 
-func validator(store db.Store, ctx *gin.Context, authPayload *token.Payload) (db.GetUserByUsernameRow, error) {
+func (o *UserService) validator(ctx *gin.Context, authPayload *token.Payload) (db.GetUserByUsernameRow, error) {
 	logrus.Println("[UserService validator] start.")
 	var res db.GetUserByUsernameRow
-	userPayload, err := store.GetUserByUsername(ctx, authPayload.Username)
+	userPayload, err := o.Store.GetUserByUsername(ctx, authPayload.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))

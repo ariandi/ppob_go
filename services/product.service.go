@@ -13,182 +13,192 @@ import (
 )
 
 type ProductInterface interface {
-	CreateProductService(req dto.CreateProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
-	GetProductService(req dto.GetProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
-	ListProductService(req dto.ListProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.ProductRes, error)
-	UpdateProductService(req dto.UpdateProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error)
-	SoftDeleteProductService(req dto.UpdateInactiveProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error
+	CreateProductService(ctx *gin.Context, in dto.CreateProductReq) (dto.ProductRes, error)
+	GetProductService(ctx *gin.Context, in dto.GetProductReq) (dto.ProductRes, error)
+	ListProductService(ctx *gin.Context, in dto.ListProductRequest) ([]dto.ProductRes, error)
+	UpdateProductService(ctx *gin.Context, in dto.UpdateProductRequest) (dto.ProductRes, error)
+	SoftDeleteProductService(ctx *gin.Context, in dto.UpdateInactiveProductRequest) error
 	setUpdateProd(arg db.UpdateProductParams, req dto.UpdateProductRequest) db.UpdateProductParams
 	ProductRes(prod db.Product) dto.ProductRes
 }
 
 // ProductService is
 type ProductService struct {
-	//store db.Store
+	store db.Store
 }
 
 //var productService *ProductService
 
 // GetProductService is
-func GetProductService() ProductInterface {
-	return &ProductService{}
+func GetProductService(store db.Store) ProductInterface {
+	return &ProductService{
+		store: store,
+	}
 }
 
-func (o *ProductService) CreateProductService(req dto.CreateProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error) {
+func (o *ProductService) CreateProductService(ctx *gin.Context, in dto.CreateProductReq) (dto.ProductRes, error) {
 	logrus.Println("[ProductService CreateProductService] start.")
-	var result dto.ProductRes
+	var out dto.ProductRes
 
-	userValid, err := validator(store, ctx, authPayload)
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.CreateProductParams{
-		CatID:        req.CatID,
-		Name:         req.Name,
-		Amount:       req.Amount,
-		ProviderID:   req.ProviderID,
-		ProviderCode: req.ProviderCode,
-		Status:       req.Status,
-		Parent:       req.Parent,
+		CatID:        in.CatID,
+		Name:         in.Name,
+		Amount:       in.Amount,
+		ProviderID:   in.ProviderID,
+		ProviderCode: in.ProviderCode,
+		Status:       in.Status,
+		Parent:       in.Parent,
 		CreatedBy:    sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	if req.Status == "" {
+	if in.Status == "" {
 		arg.Status = "active"
 	}
 
-	prod, err := store.CreateProduct(ctx, arg)
+	prod, err := o.store.CreateProduct(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProductRes(prod)
-	return result, nil
+	out = o.ProductRes(prod)
+	return out, nil
 }
 
-func (o *ProductService) GetProductService(req dto.GetProductReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error) {
+func (o *ProductService) GetProductService(ctx *gin.Context, in dto.GetProductReq) (dto.ProductRes, error) {
 	logrus.Println("[ProductService GetProductService] start.")
-	var result dto.ProductRes
-	_, err := validator(store, ctx, authPayload)
+	var out dto.ProductRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
-	prod, err := store.GetProduct(ctx, req.ID)
+	prod, err := o.store.GetProduct(ctx, in.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
-			return result, err
+			return out, err
 		}
 
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProductRes(prod)
-	return result, nil
+	out = o.ProductRes(prod)
+	return out, nil
 }
 
-func (o *ProductService) ListProductService(req dto.ListProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.ProductRes, error) {
+func (o *ProductService) ListProductService(ctx *gin.Context, in dto.ListProductRequest) ([]dto.ProductRes, error) {
 	logrus.Println("[ProductService ListProductService] start.")
-	var result []dto.ProductRes
-	_, err := validator(store, ctx, authPayload)
+	var out []dto.ProductRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.ListProductParams{
-		Limit:      req.PageSize,
-		Offset:     (req.PageID - 1) * req.PageSize,
-		CatID:      req.CatID,
-		ProviderID: req.ProviderID,
+		Limit:      in.PageSize,
+		Offset:     (in.PageID - 1) * in.PageSize,
+		CatID:      in.CatID,
+		ProviderID: in.ProviderID,
 	}
 
-	if req.CatID > 0 {
+	if in.CatID > 0 {
 		arg.IsCat = true
 	}
 
-	if req.ProviderID > 0 {
+	if in.ProviderID > 0 {
 		arg.IsProv = true
 	}
 
-	products, err := store.ListProduct(ctx, arg)
+	products, err := o.store.ListProduct(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
 	for _, prod := range products {
-		logrus.Println("prov code", prod.ProviderCode)
 		u := o.ProductRes(prod)
-		result = append(result, u)
+		out = append(out, u)
 	}
 
-	return result, nil
+	return out, nil
 }
 
-func (o *ProductService) UpdateProductService(req dto.UpdateProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProductRes, error) {
+func (o *ProductService) UpdateProductService(ctx *gin.Context, in dto.UpdateProductRequest) (dto.ProductRes, error) {
 	logrus.Println("[ProductService UpdateProductService] start.")
-	var result dto.ProductRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.ProductRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	var arg = db.UpdateProductParams{
-		ID:           req.ID,
-		Name:         req.Name,
-		CatID:        req.CatID,
-		Amount:       req.Amount,
-		ProviderID:   req.ProviderID,
-		ProviderCode: req.ProviderCode,
-		Status:       req.Status,
-		Parent:       req.Parent,
+		ID:           in.ID,
+		Name:         in.Name,
+		CatID:        in.CatID,
+		Amount:       in.Amount,
+		ProviderID:   in.ProviderID,
+		ProviderCode: in.ProviderCode,
+		Status:       in.Status,
+		Parent:       in.Parent,
 		UpdatedBy:    sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	arg = o.setUpdateProd(arg, req)
+	arg = o.setUpdateProd(arg, in)
 
-	prod, err := store.UpdateProduct(ctx, arg)
+	prod, err := o.store.UpdateProduct(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProductRes(prod)
+	out = o.ProductRes(prod)
 
-	return result, nil
+	return out, nil
 }
 
-func (o *ProductService) SoftDeleteProductService(req dto.UpdateInactiveProductRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *ProductService) SoftDeleteProductService(ctx *gin.Context, in dto.UpdateInactiveProductRequest) error {
 	logrus.Println("[ProductService SoftDeleteProviderService] start.")
-	userValid, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
 		return errors.New("error in user validator")
 	}
 
 	arg := db.UpdateInactiveProductParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	_, err = store.UpdateInactiveProduct(ctx, arg)
+	_, err = o.store.UpdateInactiveProduct(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -204,27 +214,27 @@ func (o *ProductService) SoftDeleteProductService(req dto.UpdateInactiveProductR
 	return nil
 }
 
-func (o *ProductService) setUpdateProd(arg db.UpdateProductParams, req dto.UpdateProductRequest) db.UpdateProductParams {
+func (o *ProductService) setUpdateProd(arg db.UpdateProductParams, in dto.UpdateProductRequest) db.UpdateProductParams {
 
-	if req.Name != "" {
+	if in.Name != "" {
 		arg.SetName = true
 	}
-	if req.CatID > 0 {
+	if in.CatID > 0 {
 		arg.SetCat = true
 	}
-	if req.Amount != "" {
+	if in.Amount != "" {
 		arg.SetAmount = true
 	}
-	if req.ProviderID > 0 {
+	if in.ProviderID > 0 {
 		arg.SetProvider = true
 	}
-	if req.ProviderCode != "" {
+	if in.ProviderCode != "" {
 		arg.SetProviderCode = true
 	}
-	if req.Status != "" {
+	if in.Status != "" {
 		arg.SetStatus = true
 	}
-	if req.Parent > 0 {
+	if in.Parent > 0 {
 		arg.SetParent = true
 	}
 

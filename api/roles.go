@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createRole(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := roleService.CreateRoleService(req, authPayload, ctx, server.store)
+	resp1, err := roleService.CreateRoleService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getRole(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := roleService.GetRoleService(req, authPayload, ctx, server.store)
+	resp1, err := roleService.GetRoleService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listRole(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := roleService.ListRoleService(req, authPayload, ctx, server.store)
+	resp1, err := roleService.ListRoleService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -82,8 +78,7 @@ func (server *Server) updateRole(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := roleService.UpdateRoleService(req, authPayload, ctx, server.store)
+	resp1, err := roleService.UpdateRoleService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -106,8 +101,7 @@ func (server *Server) softDeleteRole(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Roles softDeleteRole] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := roleService.SoftDeleteRoleService(req, authPayload, ctx, server.store)
+	err := roleService.SoftDeleteRoleService(ctx, req)
 	if err != nil {
 		return
 	}

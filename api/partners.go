@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createPartner(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := partnerService.CreatePartnerService(req, authPayload, ctx, server.store)
+	resp1, err := partnerService.CreatePartnerService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getPartner(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := partnerService.GetPartnerService(req, authPayload, ctx, server.store)
+	resp1, err := partnerService.GetPartnerService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listPartner(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := partnerService.ListPartnerService(req, authPayload, ctx, server.store)
+	resp1, err := partnerService.ListPartnerService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -82,8 +78,7 @@ func (server *Server) updatePartner(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := partnerService.UpdatePartnerService(req, authPayload, ctx, server.store)
+	resp1, err := partnerService.UpdatePartnerService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -106,8 +101,7 @@ func (server *Server) softDeletePartner(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Partners softDeletePartner] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := partnerService.SoftDeletePartnerService(req, authPayload, ctx, server.store)
+	err := partnerService.SoftDeletePartnerService(ctx, req)
 	if err != nil {
 		return
 	}

@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
@@ -18,8 +17,7 @@ func (server *Server) createTrx(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := transactionService.CreateTransactionService(req, authPayload, ctx, server.store)
+	resp1, err := transactionService.CreateTransactionService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -39,8 +37,7 @@ func (server *Server) getTrx(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := transactionService.GetTransactionService(req, authPayload, ctx, server.store)
+	resp1, err := transactionService.GetTransactionService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -62,8 +59,7 @@ func (server *Server) listTrx(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := transactionService.ListTransactionService(req, authPayload, ctx, server.store)
+	resp1, err := transactionService.ListTransactionService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -84,8 +80,7 @@ func (server *Server) updateTrx(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := transactionService.UpdateTransactionService(req, authPayload, ctx, server.store)
+	resp1, err := transactionService.UpdateTransactionService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -108,8 +103,7 @@ func (server *Server) softDeleteTrx(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Transactions softDeleteTrx] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := transactionService.SoftDeleteTransactionService(req, authPayload, ctx, server.store)
+	err := transactionService.SoftDeleteTransactionService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -139,8 +133,7 @@ func (server *Server) inquiry(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := transactionService.InqService(req, authPayload, ctx, server.store)
+	resp1, err := transactionService.InqService(ctx, req)
 	if err != nil {
 		ctx.JSON(http.StatusOK, resp1)
 		return

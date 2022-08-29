@@ -15,33 +15,37 @@ import (
 
 // ProviderService is
 type ProviderService struct {
+	store db.Store
 }
 
 var providerService *ProviderService
 
 // GetProviderService is
-func GetProviderService() *ProviderService {
+func GetProviderService(store db.Store) *ProviderService {
 	if providerService == nil {
-		providerService = new(ProviderService)
+		providerService = &ProviderService{
+			store: store,
+		}
 	}
 	return providerService
 }
 
-func (o *ProviderService) CreateProviderService(req dto.CreateProviderReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProviderRes, error) {
+func (o *ProviderService) CreateProviderService(ctx *gin.Context, in dto.CreateProviderReq) (dto.ProviderRes, error) {
 	logrus.Println("[ProviderService CreateProviderService] start.")
-	var result dto.ProviderRes
+	var out dto.ProviderRes
 
-	userValid, err := validator(store, ctx, authPayload)
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.CreateProviderParams{
-		Name:      req.Name,
-		User:      req.User,
-		Secret:    req.Secret,
-		AddInfo1:  req.AddInfo1,
-		AddInfo2:  req.AddInfo2,
+		Name:      in.Name,
+		User:      in.User,
+		Secret:    in.Secret,
+		AddInfo1:  in.AddInfo1,
+		AddInfo2:  in.AddInfo2,
 		BaseUrl:   sql.NullString{},
 		Method:    sql.NullString{},
 		Inq:       sql.NullString{},
@@ -49,138 +53,146 @@ func (o *ProviderService) CreateProviderService(req dto.CreateProviderReq, authP
 		Adv:       sql.NullString{},
 		Cmt:       sql.NullString{},
 		Rev:       sql.NullString{},
-		Status:    req.Status,
+		Status:    in.Status,
 		CreatedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	arg, err = o.setCreateProvider(arg, req)
+	arg, err = o.setCreateProvider(arg, in)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	provider, err := store.CreateProvider(ctx, arg)
+	provider, err := o.store.CreateProvider(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProviderRes(provider)
-	return result, nil
+	out = o.ProviderRes(provider)
+	return out, nil
 }
 
-func (o *ProviderService) GetProviderService(req dto.GetProviderReq, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProviderRes, error) {
+func (o *ProviderService) GetProviderService(ctx *gin.Context, in dto.GetProviderReq) (dto.ProviderRes, error) {
 	logrus.Println("[ProviderService GetProviderService] start.")
-	var result dto.ProviderRes
-	_, err := validator(store, ctx, authPayload)
+	var out dto.ProviderRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
-	prov, err := store.GetProvider(ctx, req.ID)
+	prov, err := o.store.GetProvider(ctx, in.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
-			return result, err
+			return out, err
 		}
 
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProviderRes(prov)
-	return result, nil
+	out = o.ProviderRes(prov)
+	return out, nil
 }
 
-func (o *ProviderService) ListProviderService(req dto.ListProviderRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) ([]dto.ProviderRes, error) {
+func (o *ProviderService) ListProviderService(ctx *gin.Context, in dto.ListProviderRequest) ([]dto.ProviderRes, error) {
 	logrus.Println("[ProviderService ListProviderService] start.")
-	var result []dto.ProviderRes
-	_, err := validator(store, ctx, authPayload)
+	var out []dto.ProviderRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.ListProviderParams{
-		Limit:  req.PageSize,
-		Offset: (req.PageID - 1) * req.PageSize,
+		Limit:  in.PageSize,
+		Offset: (in.PageID - 1) * in.PageSize,
 	}
 
-	providers, err := store.ListProvider(ctx, arg)
+	providers, err := o.store.ListProvider(ctx, arg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
 	for _, provider := range providers {
 		u := o.ProviderRes(provider)
-		result = append(result, u)
+		out = append(out, u)
 	}
 
-	return result, nil
+	return out, nil
 }
 
-func (o *ProviderService) UpdateProviderService(req dto.UpdateProviderRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) (dto.ProviderRes, error) {
+func (o *ProviderService) UpdateProviderService(ctx *gin.Context, in dto.UpdateProviderRequest) (dto.ProviderRes, error) {
 	logrus.Println("[ProviderService UpdateProviderService] start.")
-	var result dto.ProviderRes
-	userValid, err := validator(store, ctx, authPayload)
+	var out dto.ProviderRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
-		return result, errors.New("error in user validator")
+		return out, errors.New("error in user validator")
 	}
 
 	arg := db.UpdateProviderParams{
-		ID:         req.ID,
-		Name:       req.Name,
-		UserParams: req.User,
-		Secret:     req.Secret,
-		AddInfo1:   req.AddInfo1,
-		AddInfo2:   req.AddInfo2,
+		ID:         in.ID,
+		Name:       in.Name,
+		UserParams: in.User,
+		Secret:     in.Secret,
+		AddInfo1:   in.AddInfo1,
+		AddInfo2:   in.AddInfo2,
 		UpdatedBy:  sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	arg, err = o.setUpdateProvider(arg, req)
+	arg, err = o.setUpdateProvider(arg, in)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	prov, err := store.UpdateProvider(ctx, arg)
+	prov, err := o.store.UpdateProvider(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
 			case "foreign_key_violation", "unique_violation":
 				ctx.JSON(http.StatusForbidden, dto.ErrorResponse(err))
-				return result, err
+				return out, err
 			}
 		}
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return result, err
+		return out, err
 	}
 
-	result = o.ProviderRes(prov)
+	out = o.ProviderRes(prov)
 
-	return result, nil
+	return out, nil
 }
 
-func (o *ProviderService) SoftDeleteProviderService(req dto.UpdateInactiveProviderRequest, authPayload *token.Payload, ctx *gin.Context, store db.Store) error {
+func (o *ProviderService) SoftDeleteProviderService(ctx *gin.Context, in dto.UpdateInactiveProviderRequest) error {
 	logrus.Println("[ProviderService SoftDeleteProviderService] start.")
-	userValid, err := validator(store, ctx, authPayload)
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userValid, err := userService.validator(ctx, authPayload)
 	if err != nil {
 		return errors.New("error in user validator")
 	}
 
 	arg := db.UpdateInactiveProviderParams{
-		ID:        req.ID,
+		ID:        in.ID,
 		DeletedBy: sql.NullInt64{Int64: userValid.ID, Valid: true},
 	}
 
-	_, err = store.UpdateInactiveProvider(ctx, arg)
+	_, err = o.store.UpdateInactiveProvider(ctx, arg)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok {
 			switch pqErr.Code.Name() {
@@ -196,10 +208,10 @@ func (o *ProviderService) SoftDeleteProviderService(req dto.UpdateInactiveProvid
 	return nil
 }
 
-func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto.CreateProviderReq) (db.CreateProviderParams, error) {
+func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, in dto.CreateProviderReq) (db.CreateProviderParams, error) {
 	layoutFormat := "2006-01-02 15:04:05"
-	if req.ValidFrom != "" {
-		fromDate, err := time.Parse(layoutFormat, req.ValidFrom)
+	if in.ValidFrom != "" {
+		fromDate, err := time.Parse(layoutFormat, in.ValidFrom)
 		if err != nil {
 			return arg, errors.New("from date is not format")
 		}
@@ -210,8 +222,8 @@ func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto
 		}
 	}
 
-	if req.ValidTo != "" {
-		toDate, err := time.Parse(layoutFormat, req.ValidTo)
+	if in.ValidTo != "" {
+		toDate, err := time.Parse(layoutFormat, in.ValidTo)
 		if err != nil {
 			return arg, errors.New("to date is not format")
 		}
@@ -222,66 +234,66 @@ func (o *ProviderService) setCreateProvider(arg db.CreateProviderParams, req dto
 		}
 	}
 
-	if req.BaseUrl != "" {
+	if in.BaseUrl != "" {
 		arg.BaseUrl = sql.NullString{
-			String: req.BaseUrl,
+			String: in.BaseUrl,
 			Valid:  true,
 		}
 	}
 
-	if req.Method != "" {
+	if in.Method != "" {
 		arg.Method = sql.NullString{
-			String: req.Method,
+			String: in.Method,
 			Valid:  true,
 		}
 	}
 
-	if req.Inq != "" {
+	if in.Inq != "" {
 		arg.Inq = sql.NullString{
-			String: req.Inq,
+			String: in.Inq,
 			Valid:  true,
 		}
 	}
 
-	if req.Pay != "" {
+	if in.Pay != "" {
 		arg.Pay = sql.NullString{
-			String: req.Pay,
+			String: in.Pay,
 			Valid:  true,
 		}
 	}
 
-	if req.Adv != "" {
+	if in.Adv != "" {
 		arg.Adv = sql.NullString{
-			String: req.Adv,
+			String: in.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Cmt != "" {
+	if in.Cmt != "" {
 		arg.Cmt = sql.NullString{
-			String: req.Adv,
+			String: in.Adv,
 			Valid:  true,
 		}
 	}
 
-	if req.Rev != "" {
+	if in.Rev != "" {
 		arg.Rev = sql.NullString{
-			String: req.Rev,
+			String: in.Rev,
 			Valid:  true,
 		}
 	}
 
-	if req.Status == "" {
+	if in.Status == "" {
 		arg.Status = "Active"
 	}
 
 	return arg, nil
 }
 
-func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto.UpdateProviderRequest) (db.UpdateProviderParams, error) {
+func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, in dto.UpdateProviderRequest) (db.UpdateProviderParams, error) {
 	layoutFormat := "2006-01-02 15:04:05"
-	if req.ValidFrom != "" {
-		fromDate, err := time.Parse(layoutFormat, req.ValidFrom)
+	if in.ValidFrom != "" {
+		fromDate, err := time.Parse(layoutFormat, in.ValidFrom)
 		if err != nil {
 			return arg, errors.New("from date is not format")
 		}
@@ -293,8 +305,8 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 		arg.SetValidFrom = true
 	}
 
-	if req.ValidTo != "" {
-		toDate, err := time.Parse(layoutFormat, req.ValidTo)
+	if in.ValidTo != "" {
+		toDate, err := time.Parse(layoutFormat, in.ValidTo)
 		if err != nil {
 			return arg, errors.New("to date is not format")
 		}
@@ -306,92 +318,92 @@ func (o *ProviderService) setUpdateProvider(arg db.UpdateProviderParams, req dto
 		arg.SetValidTo = true
 	}
 
-	if req.Name != "" {
+	if in.Name != "" {
 		arg.SetName = true
 	}
 
-	if req.User != "" {
+	if in.User != "" {
 		arg.SetUser = true
 	}
 
-	if req.Secret != "" {
+	if in.Secret != "" {
 		arg.SetSecret = true
 	}
 
-	if req.AddInfo1 != "" {
+	if in.AddInfo1 != "" {
 		arg.SetAddInfo1 = true
 	}
 
-	if req.AddInfo2 != "" {
+	if in.AddInfo2 != "" {
 		arg.SetAddInfo2 = true
 	}
 
-	if req.BaseUrl != "" {
+	if in.BaseUrl != "" {
 		arg.BaseUrl = sql.NullString{
-			String: req.BaseUrl,
+			String: in.BaseUrl,
 			Valid:  true,
 		}
 		arg.SetBaseUrl = true
 	}
 
-	if req.Method != "" {
+	if in.Method != "" {
 		arg.Method = sql.NullString{
-			String: req.Method,
+			String: in.Method,
 			Valid:  true,
 		}
 		arg.SetMethod = true
 	}
 
-	if req.Inq != "" {
+	if in.Inq != "" {
 		arg.Inq = sql.NullString{
-			String: req.Inq,
+			String: in.Inq,
 			Valid:  true,
 		}
 		arg.SetInq = true
 	}
 
-	if req.Pay != "" {
+	if in.Pay != "" {
 		arg.Pay = sql.NullString{
-			String: req.Pay,
+			String: in.Pay,
 			Valid:  true,
 		}
 		arg.SetPay = true
 	}
 
-	if req.Adv != "" {
+	if in.Adv != "" {
 		arg.Adv = sql.NullString{
-			String: req.Adv,
+			String: in.Adv,
 			Valid:  true,
 		}
 		arg.SetAdv = true
 	}
 
-	if req.Rev != "" {
+	if in.Rev != "" {
 		arg.Rev = sql.NullString{
-			String: req.Rev,
+			String: in.Rev,
 			Valid:  true,
 		}
 		arg.SetRev = true
 	}
 
-	if req.Cmt != "" {
+	if in.Cmt != "" {
 		arg.Cmt = sql.NullString{
-			String: req.Rev,
+			String: in.Rev,
 			Valid:  true,
 		}
 		arg.SetCmt = true
 	}
 
-	if req.Cmt != "" {
+	if in.Cmt != "" {
 		arg.Cmt = sql.NullString{
-			String: req.Cmt,
+			String: in.Cmt,
 			Valid:  true,
 		}
 		arg.SetCmt = true
 	}
 
-	if req.Status != "" {
-		arg.Status = req.Status
+	if in.Status != "" {
+		arg.Status = in.Status
 		arg.SetStatus = true
 	}
 

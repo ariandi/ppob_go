@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/ariandi/ppob_go/dto"
-	"github.com/ariandi/ppob_go/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -16,8 +15,7 @@ func (server *Server) createSelling(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := sellingService.CreateSellingService(req, authPayload, ctx, server.store)
+	resp1, err := sellingService.CreateSellingService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -37,8 +35,7 @@ func (server *Server) getSelling(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := sellingService.GetSellingService(req, authPayload, ctx, server.store)
+	resp1, err := sellingService.GetSellingService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -60,8 +57,7 @@ func (server *Server) listSelling(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := sellingService.ListSellingService(req, authPayload, ctx, server.store)
+	resp1, err := sellingService.ListSellingService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -83,8 +79,7 @@ func (server *Server) updateSelling(ctx *gin.Context) {
 		return
 	}
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	resp1, err := sellingService.UpdateSellingService(req, authPayload, ctx, server.store)
+	resp1, err := sellingService.UpdateSellingService(ctx, req)
 	if err != nil {
 		return
 	}
@@ -107,8 +102,7 @@ func (server *Server) softDeleteSelling(ctx *gin.Context) {
 	}
 
 	logrus.Println("[Selling softDeleteSelling] start get payload")
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	err := sellingService.SoftDeleteSellingService(req, authPayload, ctx, server.store)
+	err := sellingService.SoftDeleteSellingService(ctx, req)
 	if err != nil {
 		return
 	}
