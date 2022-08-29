@@ -195,24 +195,6 @@ func (o *TransactionService) InqService(req dto.InqRequest, authPayload *token.P
 	}
 
 	txID := o.setTxID()
-	reqInqConsume := dto.InqRequestConsume{
-		InqRequest: req,
-		TxID:       txID,
-	}
-
-	queueName := "transactions"
-	redisQueue, err := redisConn.OpenQueue(queueName)
-	if err != nil {
-		return ret, err
-	}
-
-	byt, err := json.Marshal(reqInqConsume)
-	if err != nil {
-		return ret, err
-	}
-
-	err = redisQueue.Publish(string(byt))
-
 	prodID, err := strconv.Atoi(req.ProductCode)
 	prod, _ := store.GetProduct(ctx, int64(prodID))
 	category, _ := store.GetCategory(ctx, prod.CatID)
@@ -258,6 +240,23 @@ func (o *TransactionService) InqService(req dto.InqRequest, authPayload *token.P
 		TxID:        txID,
 	}
 	ret = o.InqResult(in)
+
+	reqInqConsume := dto.InqRequestConsume{
+		InqRequest:  req,
+		InqResponse: ret,
+	}
+	queueName := "transactions"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	byt, err := json.Marshal(reqInqConsume)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
 
 	return ret, nil
 }

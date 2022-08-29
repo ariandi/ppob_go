@@ -107,8 +107,8 @@ type InqRequest struct {
 }
 
 type InqRequestConsume struct {
-	InqRequest InqRequest
-	TxID       string
+	InqRequest  InqRequest
+	InqResponse InqResponse
 }
 
 type InqResponse struct {
