@@ -15,6 +15,10 @@ func CreateRandomCategory(t *testing.T) Category {
 
 	arg := CreateCategoryParams{
 		Name: util.RandomUsername(),
+		UpSelling: sql.NullString{
+			String: "100",
+			Valid:  true,
+		},
 		CreatedBy: sql.NullInt64{
 			Int64: user1.ID,
 			Valid: true,

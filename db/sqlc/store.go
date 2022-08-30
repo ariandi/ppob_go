@@ -144,30 +144,62 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 		}
 
 		logrus.Println("[Store UpdateUserTx] get role user is", getRoleID)
+		var roleUser RoleUser
 		defaultRoleID := int64(0)
 		if len(getRoleID) == 0 {
 			defaultRoleID = roleId
 			logrus.Println("[Store UpdateUserTx] get role id is null ", defaultRoleID)
+
+			roleUserParams := CreateRoleUserParams{
+				UserID: req.ID,
+				RoleID: roleId,
+				CreatedBy: sql.NullInt64{
+					Int64: userPayload.ID,
+					Valid: true,
+				},
+			}
+
+			roleUser, err = q.CreateRoleUser(ctx, roleUserParams)
+			if err != nil {
+				logrus.Println("[Store UpdateUserTx] error create user role is ", err)
+				return err
+			}
 		} else {
 			defaultRoleID = getRoleID[len(getRoleID)-1].ID
 			logrus.Println("[Store UpdateUserTx] get role id is not null ", defaultRoleID)
+
+			roleUserParams := UpdateRoleUserParams{
+				ID:     defaultRoleID,
+				UserID: req.ID,
+				RoleID: roleId,
+				UpdatedBy: sql.NullInt64{
+					Int64: userPayload.ID,
+					Valid: true,
+				},
+			}
+
+			roleUser, err = q.UpdateRoleUser(ctx, roleUserParams)
+			if err != nil {
+				logrus.Println("[Store UpdateUserTx] error update role is ", err)
+				return err
+			}
 		}
 
-		roleUserParams := UpdateRoleUserParams{
-			ID:     defaultRoleID,
-			UserID: req.ID,
-			RoleID: roleId,
-			UpdatedBy: sql.NullInt64{
-				Int64: userPayload.ID,
-				Valid: true,
-			},
-		}
-
-		roleUser, err := q.UpdateRoleUser(ctx, roleUserParams)
-		if err != nil {
-			logrus.Println("[Store UpdateUserTx] error update role is ", err)
-			return err
-		}
+		//roleUserParams := UpdateRoleUserParams{
+		//	ID:     defaultRoleID,
+		//	UserID: req.ID,
+		//	RoleID: roleId,
+		//	UpdatedBy: sql.NullInt64{
+		//		Int64: userPayload.ID,
+		//		Valid: true,
+		//	},
+		//}
+		//
+		//roleUser, err := q.UpdateRoleUser(ctx, roleUserParams)
+		//if err != nil {
+		//	logrus.Println("[Store UpdateUserTx] error update role is ", err)
+		//	return err
+		//}
 
 		result.Name = user.Name
 		result.ID = user.ID

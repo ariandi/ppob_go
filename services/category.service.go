@@ -12,6 +12,15 @@ import (
 	"net/http"
 )
 
+type CategoryInterface interface {
+	CreateCategoryService(ctx *gin.Context, in dto.CreateCategoryReq) (dto.CategoryRes, error)
+	GetCategoryService(ctx *gin.Context, in dto.GetCategoryReq) (dto.CategoryRes, error)
+	ListCategoryService(ctx *gin.Context, in dto.ListCategoryRequest) ([]dto.CategoryRes, error)
+	UpdateCategoryService(ctx *gin.Context, in dto.UpdateCategoryRequest) (dto.CategoryRes, error)
+	SoftDeleteCategoryService(ctx *gin.Context, in dto.UpdateInactiveCategoryRequest) error
+	CatResponse(cat db.Category) dto.CategoryRes
+}
+
 // CategoryService is
 type CategoryService struct {
 	store db.Store
@@ -20,7 +29,7 @@ type CategoryService struct {
 var categoryService *CategoryService
 
 // GetCategoryService is
-func GetCategoryService(store db.Store) *CategoryService {
+func GetCategoryService(store db.Store) CategoryInterface {
 	if categoryService == nil {
 		categoryService = &CategoryService{
 			store: store,

@@ -20,14 +20,13 @@ func CreateRandomTransaction(t *testing.T) Transaction {
 
 	arg := CreateTransactionParams{
 		TxID:       util.SetTxID(),
-		Status:     util.RandomTrxStatus(),
 		BillID:     util.RandomNumberStr(),
+		CustName:   sql.NullString{String: user1.Name, Valid: true},
 		Amount:     sql.NullString{String: strconv.FormatFloat(100000.00, 'f', 2, 64), Valid: true},
 		Admin:      sql.NullString{String: strconv.FormatFloat(100.00, 'f', 2, 64), Valid: true},
 		TotAmount:  sql.NullString{String: strconv.FormatFloat(100100.00, 'f', 2, 64), Valid: true},
 		FeePartner: sql.NullString{String: strconv.FormatFloat(100.00, 'f', 2, 64), Valid: true},
 		FeePpob:    sql.NullString{String: strconv.FormatFloat(100.00, 'f', 2, 64), Valid: true},
-		CustName:   sql.NullString{String: user1.Name, Valid: true},
 		CatID: sql.NullInt64{
 			Int64: cat1.ID,
 			Valid: true,
@@ -60,6 +59,7 @@ func CreateRandomTransaction(t *testing.T) Transaction {
 			String: prov1.Name,
 			Valid:  true,
 		},
+		Status: util.RandomTrxStatus(),
 		ReqInqParams: sql.NullString{
 			String: "{}",
 			Valid:  true,
@@ -67,6 +67,15 @@ func CreateRandomTransaction(t *testing.T) Transaction {
 		CreatedBy: sql.NullInt64{
 			Int64: user1.ID,
 			Valid: true,
+		},
+		RefID: "1234567890",
+		FirstBalance: sql.NullString{
+			String: "1000",
+			Valid:  true,
+		},
+		LastBalance: sql.NullString{
+			String: "1000",
+			Valid:  true,
 		},
 	}
 

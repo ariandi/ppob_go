@@ -12,22 +12,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var userService *services.UserService
-var roleService *services.RoleService
-var categoryService *services.CategoryService
-var partnerService *services.PartnerService
-var providerService *services.ProviderService
+var userService services.UserInterface
+var roleService services.RoleInterface
+var categoryService services.CategoryInterface
+var partnerService services.PartnerInterface
+var providerService services.ProviderInterface
 var productService services.ProductInterface
-var transactionService *services.TransactionService
+var transactionService services.TransactionInterface
 var sellingService *services.SellingService
 var roleUserService services.RoleUserInterface
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
 	//store      db.Store
-	//TokenMaker token.Maker
-	Router *gin.Engine
-	config util.Config
+	tokenMaker token.Maker
+	Router     *gin.Engine
+	config     util.Config
 }
 
 // NewServer creates a new HTTP server and set up routing.
@@ -39,8 +39,8 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 
 	server := &Server{
 		//store:      store,
-		//TokenMaker: tokenMaker,
-		config: config,
+		tokenMaker: tokenMaker,
+		config:     config,
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {

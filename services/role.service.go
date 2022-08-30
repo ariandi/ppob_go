@@ -12,6 +12,15 @@ import (
 	"net/http"
 )
 
+type RoleInterface interface {
+	CreateRoleService(ctx *gin.Context, in dto.CreateRoleReq) (dto.RoleRes, error)
+	GetRoleService(ctx *gin.Context, in dto.GetRoleReq) (dto.RoleRes, error)
+	ListRoleService(ctx *gin.Context, in dto.ListRoleRequest) ([]dto.RoleRes, error)
+	UpdateRoleService(ctx *gin.Context, in dto.UpdateRoleRequest) (dto.RoleRes, error)
+	SoftDeleteRoleService(ctx *gin.Context, in dto.UpdateInactiveRoleRequest) error
+	RoleResponse(role db.Role) dto.RoleRes
+}
+
 // RoleService is
 type RoleService struct {
 	store db.Store
@@ -20,7 +29,7 @@ type RoleService struct {
 var roleService *RoleService
 
 // GetRoleService is
-func GetRoleService(store db.Store) *RoleService {
+func GetRoleService(store db.Store) RoleInterface {
 	if roleService == nil {
 		roleService = &RoleService{
 			store: store,

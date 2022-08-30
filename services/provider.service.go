@@ -13,6 +13,17 @@ import (
 	"time"
 )
 
+type ProviderInterface interface {
+	CreateProviderService(ctx *gin.Context, in dto.CreateProviderReq) (dto.ProviderRes, error)
+	GetProviderService(ctx *gin.Context, in dto.GetProviderReq) (dto.ProviderRes, error)
+	ListProviderService(ctx *gin.Context, in dto.ListProviderRequest) ([]dto.ProviderRes, error)
+	UpdateProviderService(ctx *gin.Context, in dto.UpdateProviderRequest) (dto.ProviderRes, error)
+	SoftDeleteProviderService(ctx *gin.Context, in dto.UpdateInactiveProviderRequest) error
+	setCreateProvider(arg db.CreateProviderParams, in dto.CreateProviderReq) (db.CreateProviderParams, error)
+	setUpdateProvider(arg db.UpdateProviderParams, in dto.UpdateProviderRequest) (db.UpdateProviderParams, error)
+	ProviderRes(provider db.Provider) dto.ProviderRes
+}
+
 // ProviderService is
 type ProviderService struct {
 	store db.Store

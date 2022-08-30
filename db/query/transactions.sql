@@ -38,6 +38,10 @@ WHERE bill_id = $1
 -- name: ListTransaction :many
 SELECT * FROM "transactions"
 WHERE deleted_at is null
+AND DATE(created_at) >= to_date(@from_date,'YYYY-MM-DD')
+AND DATE(created_at) <= to_date(@to_date,'YYYY-MM-DD')
+AND (CASE WHEN @is_status::bool THEN status = @status ELSE TRUE END)
+AND (CASE WHEN @is_cat::bool THEN cat_id = @cat_id ELSE TRUE END)
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;

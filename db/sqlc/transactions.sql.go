@@ -375,18 +375,37 @@ func (q *Queries) GetTransactionPending(ctx context.Context, billID string) (Tra
 const listTransaction = `-- name: ListTransaction :many
 SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE deleted_at is null
+AND DATE(created_at) >= to_date($3,'YYYY-MM-DD')
+AND DATE(created_at) <= to_date($4,'YYYY-MM-DD')
+AND (CASE WHEN $5::bool THEN status = $6 ELSE TRUE END)
+AND (CASE WHEN $7::bool THEN cat_id = $8 ELSE TRUE END)
 ORDER BY created_at
 LIMIT $1
 OFFSET $2
 `
 
 type ListTransactionParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit    int32         `json:"limit"`
+	Offset   int32         `json:"offset"`
+	FromDate string        `json:"from_date"`
+	ToDate   string        `json:"to_date"`
+	IsStatus bool          `json:"is_status"`
+	Status   string        `json:"status"`
+	IsCat    bool          `json:"is_cat"`
+	CatID    sql.NullInt64 `json:"cat_id"`
 }
 
 func (q *Queries) ListTransaction(ctx context.Context, arg ListTransactionParams) ([]Transaction, error) {
-	rows, err := q.db.QueryContext(ctx, listTransaction, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listTransaction,
+		arg.Limit,
+		arg.Offset,
+		arg.FromDate,
+		arg.ToDate,
+		arg.IsStatus,
+		arg.Status,
+		arg.IsCat,
+		arg.CatID,
+	)
 	if err != nil {
 		return nil, err
 	}

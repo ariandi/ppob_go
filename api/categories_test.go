@@ -28,10 +28,8 @@ func TestServer_softDeleteCategory(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server := &Server{
-				store:      tt.fields.store,
-				TokenMaker: tt.fields.TokenMaker,
-				Router:     tt.fields.Router,
-				config:     tt.fields.config,
+				Router: tt.fields.Router,
+				config: tt.fields.config,
 			}
 			server.softDeleteCategory(tt.args.ctx)
 		})

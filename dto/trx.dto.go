@@ -75,8 +75,10 @@ type GetTransactionByTxIDReq struct {
 }
 
 type ListTransactionRequest struct {
-	PageID   int32 `form:"page_id" binding:"required,min=1"`
-	PageSize int32 `form:"page_size" binding:"required,min=5,max=500"`
+	PageID   int32  `form:"page_id" binding:"required,min=1"`
+	PageSize int32  `form:"page_size" binding:"required,min=5,max=500"`
+	FromDate string `form:"from_date" binding:"required"`
+	ToDate   string `form:"to_date" binding:"required"`
 }
 
 type UpdateTransactionRequest struct {

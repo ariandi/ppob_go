@@ -294,9 +294,9 @@ ALTER TABLE "transactions" ADD FOREIGN KEY ("cat_id") REFERENCES "categories" ("
 
 ALTER TABLE "transactions" ADD FOREIGN KEY ("prod_id") REFERENCES "products" ("id");
 
-ALTER TABLE "transactions" ADD FOREIGN KEY ("partner_id") REFERENCES "products" ("id");
+ALTER TABLE "transactions" ADD FOREIGN KEY ("partner_id") REFERENCES "partners" ("id");
 
-ALTER TABLE "transactions" ADD FOREIGN KEY ("provider_id") REFERENCES "partners" ("id");
+ALTER TABLE "transactions" ADD FOREIGN KEY ("provider_id") REFERENCES "providers" ("id");
 
 ALTER TABLE "transactions" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
 

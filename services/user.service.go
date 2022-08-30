@@ -17,6 +17,22 @@ import (
 	"strconv"
 )
 
+type UserInterface interface {
+	TestRedisMq(msg dto.LoginUserRequest) ([]string, error)
+	CreateUserService(ctx *gin.Context, in dto.CreateUserRequest) (dto.UserResponse, error)
+	CreateUserFirstService(ctx *gin.Context, in dto.CreateUserRequest) (dto.UserResponse, error)
+	GetUserService(ctx *gin.Context, in dto.GetUserRequest) (dto.UserResponse, error)
+	ListUserService(ctx *gin.Context, in dto.ListUserRequest) ([]dto.UserResponse, error)
+	UpdateUserService(ctx *gin.Context, in dto.UpdateUserRequest) (dto.UserResponse, error)
+	SoftDeleteUserService(ctx *gin.Context, in dto.UpdateInactiveUserRequest) error
+	LoginUserService(ctx *gin.Context, in dto.LoginUserRequest) (dto.LoginUserResponse, error)
+	newUserResponse(user db.User, roleUsers []dto.RoleUser) dto.UserResponse
+	userRowToUserType(user db.GetUserByUsernameRow) db.User
+	ValidateUserRole(user db.GetUserByUsernameRow) error
+	getRoleByUser(ctx *gin.Context, in db.User) []dto.RoleUser
+	validator(ctx *gin.Context, authPayload *token.Payload) (db.GetUserByUsernameRow, error)
+}
+
 // UserService is
 type UserService struct {
 	Store      db.Store
@@ -32,7 +48,7 @@ const (
 )
 
 // GetUserService is
-func GetUserService(config util.Config, store db.Store, TokenMaker token.Maker) *UserService {
+func GetUserService(config util.Config, store db.Store, TokenMaker token.Maker) UserInterface {
 
 	if userService == nil {
 

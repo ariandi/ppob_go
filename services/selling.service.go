@@ -12,6 +12,15 @@ import (
 	"net/http"
 )
 
+type SellingInterface interface {
+	CreateSellingService(ctx *gin.Context, in dto.CreateSellingReq) (dto.SellingRes, error)
+	GetSellingService(ctx *gin.Context, in dto.GetSellingReq) (dto.SellingRes, error)
+	ListSellingService(ctx *gin.Context, in dto.ListSellingRequest) ([]dto.SellingRes, error)
+	UpdateSellingService(ctx *gin.Context, in dto.UpdateSellingRequest) (dto.SellingRes, error)
+	SoftDeleteSellingService(ctx *gin.Context, in dto.UpdateInactiveSellingRequest) error
+	SellingRes(sell db.Selling) dto.SellingRes
+}
+
 // SellingService is
 type SellingService struct {
 	store db.Store

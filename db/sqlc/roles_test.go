@@ -161,7 +161,7 @@ func TestListRoles(t *testing.T) {
 
 	roles, err := testQueries.ListRole(context.Background(), arg)
 	require.NoError(t, err)
-	require.Len(t, roles, 3)
+	require.Len(t, roles, 5)
 
 	for _, role := range roles {
 		require.NotEmpty(t, role)

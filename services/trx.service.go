@@ -18,6 +18,22 @@ import (
 	"time"
 )
 
+type TransactionInterface interface {
+	CreateTransactionService(ctx *gin.Context, in dto.CreateTransactionReq) (dto.TransactionRes, error)
+	GetTransactionService(ctx *gin.Context, in dto.GetTransactionByTxIDReq) (dto.TransactionRes, error)
+	ListTransactionService(ctx *gin.Context, in dto.ListTransactionRequest) ([]dto.TransactionRes, error)
+	UpdateTransactionService(ctx *gin.Context, in dto.UpdateTransactionRequest) (dto.TransactionRes, error)
+	SoftDeleteTransactionService(ctx *gin.Context, in dto.UpdateInactiveTransactionRequest) error
+	setCreateParams(arg db.CreateTransactionParams, in dto.CreateTransactionReq) db.CreateTransactionParams
+	setUpdateParams(arg db.UpdateTransactionParams, in dto.UpdateTransactionRequest) db.UpdateTransactionParams
+	InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
+	setTxID() string
+	validateTrx(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
+	TransactionRes(trx db.Transaction) dto.TransactionRes
+	InqResult(in dto.InqSetResponse) dto.InqResponse
+	InqResultSet(in dto.InqRequest, resultCd string, resultMsg string) dto.InqResponse
+}
+
 // TransactionService is
 type TransactionService struct {
 	store db.Store
@@ -26,7 +42,7 @@ type TransactionService struct {
 var transactionService *TransactionService
 
 // GetTransactionService is
-func GetTransactionService(store db.Store) *TransactionService {
+func GetTransactionService(store db.Store) TransactionInterface {
 	if transactionService == nil {
 		transactionService = &TransactionService{
 			store: store,
@@ -107,8 +123,14 @@ func (o *TransactionService) ListTransactionService(ctx *gin.Context, in dto.Lis
 	}
 
 	arg := db.ListTransactionParams{
-		Limit:  in.PageSize,
-		Offset: (in.PageID - 1) * in.PageSize,
+		Limit:    in.PageSize,
+		Offset:   (in.PageID - 1) * in.PageSize,
+		FromDate: in.FromDate,
+		ToDate:   in.ToDate,
+		//IsStatus: false,
+		//Status:   "",
+		//IsCat:    false,
+		//CatID:    sql.NullInt64{},
 	}
 
 	trxList, err := o.store.ListTransaction(ctx, arg)
@@ -189,89 +211,6 @@ func (o *TransactionService) SoftDeleteTransactionService(ctx *gin.Context, in d
 	}
 
 	return nil
-}
-
-func (o *TransactionService) InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error) {
-	logrus.Println("[TransactionService InqService] start.")
-	var ret dto.InqResponse
-
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	_, err := userService.validator(ctx, authPayload)
-	if err != nil {
-		return ret, errors.New("error in user validator")
-	}
-
-	logrus.Println("[TransactionService InqService] begin validate trx.")
-	respValidErr, err := o.validateTrx(ctx, in)
-	if err != nil {
-		return respValidErr, err
-	}
-
-	txID := o.setTxID()
-	prodID, err := strconv.Atoi(in.ProductCode)
-	prod, _ := o.store.GetProduct(ctx, int64(prodID))
-	category, _ := o.store.GetCategory(ctx, prod.CatID)
-	partnerArg := db.GetPartnerByParamsParams{
-		IsUser:     true,
-		UserParams: in.AppName,
-	}
-	partner, _ := o.store.GetPartnerByParams(ctx, partnerArg)
-	sellingArg := db.ListSellingByParamsParams{
-		Limit:     1,
-		Offset:    0,
-		IsPartner: true,
-		PartnerID: sql.NullInt64{
-			Int64: partner.ID,
-			Valid: true,
-		},
-		IsCategory: true,
-		CategoryID: sql.NullInt64{
-			Int64: prod.CatID,
-			Valid: true,
-		},
-	}
-	var selling db.Selling
-	sellings, _ := o.store.ListSellingByParams(ctx, sellingArg)
-	for _, sell := range sellings {
-		selling = sell
-	}
-
-	prodAmount, _ := strconv.ParseFloat(prod.Amount, 64)
-	amountF, _ := strconv.ParseFloat(selling.Amount.String, 64)
-	upSellingF, _ := strconv.ParseFloat(category.UpSelling.String, 64)
-	amount := int(amountF)
-	upSelling := int(upSellingF)
-	totAmount := int(prodAmount) + amount + upSelling
-	inInqSetResponse := dto.InqSetResponse{
-		InqData:     in,
-		ProductName: prod.Name,
-		Amount:      int64(prodAmount + upSellingF),
-		Admin:       int64(amountF),
-		TotalAmount: int64(totAmount),
-		ResultCd:    util.SuccessCd,
-		ResultMsg:   util.SuccessMsg,
-		TxID:        txID,
-	}
-	ret = o.InqResult(inInqSetResponse)
-
-	reqInqConsume := dto.InqRequestConsume{
-		InqRequest:  in,
-		InqResponse: ret,
-	}
-	queueName := "transactions"
-	redisQueue, err := redisConn.OpenQueue(queueName)
-	if err != nil {
-		return ret, err
-	}
-
-	byt, err := json.Marshal(reqInqConsume)
-	if err != nil {
-		return ret, err
-	}
-
-	err = redisQueue.Publish(string(byt))
-
-	return ret, nil
 }
 
 func (o *TransactionService) setCreateParams(arg db.CreateTransactionParams, in dto.CreateTransactionReq) db.CreateTransactionParams {
@@ -404,6 +343,89 @@ func (o *TransactionService) setUpdateParams(arg db.UpdateTransactionParams, in 
 	}
 
 	return arg
+}
+
+func (o *TransactionService) InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error) {
+	logrus.Println("[TransactionService InqService] start.")
+	var ret dto.InqResponse
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
+	if err != nil {
+		return ret, errors.New("error in user validator")
+	}
+
+	logrus.Println("[TransactionService InqService] begin validate trx.")
+	respValidErr, err := o.validateTrx(ctx, in)
+	if err != nil {
+		return respValidErr, err
+	}
+
+	txID := o.setTxID()
+	prodID, err := strconv.Atoi(in.ProductCode)
+	prod, _ := o.store.GetProduct(ctx, int64(prodID))
+	category, _ := o.store.GetCategory(ctx, prod.CatID)
+	partnerArg := db.GetPartnerByParamsParams{
+		IsUser:     true,
+		UserParams: in.AppName,
+	}
+	partner, _ := o.store.GetPartnerByParams(ctx, partnerArg)
+	sellingArg := db.ListSellingByParamsParams{
+		Limit:     1,
+		Offset:    0,
+		IsPartner: true,
+		PartnerID: sql.NullInt64{
+			Int64: partner.ID,
+			Valid: true,
+		},
+		IsCategory: true,
+		CategoryID: sql.NullInt64{
+			Int64: prod.CatID,
+			Valid: true,
+		},
+	}
+	var selling db.Selling
+	sellings, _ := o.store.ListSellingByParams(ctx, sellingArg)
+	for _, sell := range sellings {
+		selling = sell
+	}
+
+	prodAmount, _ := strconv.ParseFloat(prod.Amount, 64)
+	amountF, _ := strconv.ParseFloat(selling.Amount.String, 64)
+	upSellingF, _ := strconv.ParseFloat(category.UpSelling.String, 64)
+	amount := int(amountF)
+	upSelling := int(upSellingF)
+	totAmount := int(prodAmount) + amount + upSelling
+	inInqSetResponse := dto.InqSetResponse{
+		InqData:     in,
+		ProductName: prod.Name,
+		Amount:      int64(prodAmount + upSellingF),
+		Admin:       int64(amountF),
+		TotalAmount: int64(totAmount),
+		ResultCd:    util.SuccessCd,
+		ResultMsg:   util.SuccessMsg,
+		TxID:        txID,
+	}
+	ret = o.InqResult(inInqSetResponse)
+
+	reqInqConsume := dto.InqRequestConsume{
+		InqRequest:  in,
+		InqResponse: ret,
+	}
+	queueName := "transactions"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	byt, err := json.Marshal(reqInqConsume)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
+
+	return ret, nil
 }
 
 func (o *TransactionService) setTxID() string {

@@ -13,6 +13,17 @@ import (
 	"time"
 )
 
+type PartnerInterface interface {
+	CreatePartnerService(ctx *gin.Context, in dto.CreatePartnerReq) (dto.PartnerRes, error)
+	GetPartnerService(ctx *gin.Context, in dto.GetPartnerReq) (dto.PartnerRes, error)
+	ListPartnerService(ctx *gin.Context, in dto.ListPartnerRequest) ([]dto.PartnerRes, error)
+	UpdatePartnerService(ctx *gin.Context, in dto.UpdatePartnerRequest) (dto.PartnerRes, error)
+	SoftDeletePartnerService(ctx *gin.Context, in dto.UpdateInactivePartnerRequest) error
+	PartnerResponse(partner db.Partner) dto.PartnerRes
+	setUpdateParamsService(arg db.UpdatePartnerParams, req dto.UpdatePartnerRequest) db.UpdatePartnerParams
+	setFromDateToDate(arg db.CreatePartnerParams, req dto.CreatePartnerReq) (db.CreatePartnerParams, error)
+}
+
 // PartnerService is
 type PartnerService struct {
 	store db.Store
@@ -21,7 +32,7 @@ type PartnerService struct {
 var partnerService *PartnerService
 
 // GetPartnerService is
-func GetPartnerService(store db.Store) *PartnerService {
+func GetPartnerService(store db.Store) PartnerInterface {
 	if partnerService == nil {
 		partnerService = &PartnerService{
 			store: store,
