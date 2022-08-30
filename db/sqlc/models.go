@@ -124,6 +124,10 @@ type Transaction struct {
 	TxID         string         `json:"tx_id"`
 	RefID        string         `json:"ref_id"`
 	BillID       string         `json:"bill_id"`
+	Sn           sql.NullString `json:"sn"`
+	AddInfo1     sql.NullString `json:"add_info1"`
+	AddInfo2     sql.NullString `json:"add_info2"`
+	AddInfo3     sql.NullString `json:"add_info3"`
 	CustName     sql.NullString `json:"cust_name"`
 	Amount       sql.NullString `json:"amount"`
 	Admin        sql.NullString `json:"admin"`

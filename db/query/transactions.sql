@@ -42,6 +42,8 @@ AND DATE(created_at) >= to_date(@from_date,'YYYY-MM-DD')
 AND DATE(created_at) <= to_date(@to_date,'YYYY-MM-DD')
 AND (CASE WHEN @is_status::bool THEN status = @status ELSE TRUE END)
 AND (CASE WHEN @is_cat::bool THEN cat_id = @cat_id ELSE TRUE END)
+AND (CASE WHEN @is_partner::bool THEN partner_id = @partner_id ELSE TRUE END)
+AND (CASE WHEN @is_created::bool THEN created_by = @created_by ELSE TRUE END)
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;
@@ -103,6 +105,26 @@ SET
                    WHEN sqlc.arg(set_req_rev_params)::bool
                     THEN sqlc.arg(req_rev_params)
                    ELSE req_rev_params
+        END,
+    sn = CASE
+            WHEN sqlc.arg(set_sn)::bool
+                THEN sqlc.arg(sn)
+            ELSE sn
+        END,
+    add_info1 = CASE
+                         WHEN sqlc.arg(set_info1)::bool
+                    THEN sqlc.arg(add_info1)
+                         ELSE add_info1
+        END,
+    add_info2 = CASE
+                         WHEN sqlc.arg(set_info2)::bool
+                    THEN sqlc.arg(add_info2)
+                         ELSE add_info2
+        END,
+    add_info3 = CASE
+                         WHEN sqlc.arg(set_info3)::bool
+                    THEN sqlc.arg(add_info3)
+                         ELSE add_info3
         END,
     updated_by = sqlc.arg(updated_by),
     updated_at = now()

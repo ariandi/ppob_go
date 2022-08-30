@@ -20,7 +20,7 @@ INSERT INTO "transactions" (
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
             $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33
-         ) RETURNING id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+         ) RETURNING id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type CreateTransactionParams struct {
@@ -101,6 +101,10 @@ func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionPa
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -151,7 +155,7 @@ func (q *Queries) DeleteTransaction(ctx context.Context, id int64) error {
 }
 
 const getTransaction = `-- name: GetTransaction :one
-SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+SELECT id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE id = $1 AND deleted_at is null LIMIT 1
 `
 
@@ -163,6 +167,10 @@ func (q *Queries) GetTransaction(ctx context.Context, id int64) (Transaction, er
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -203,7 +211,7 @@ func (q *Queries) GetTransaction(ctx context.Context, id int64) (Transaction, er
 }
 
 const getTransactionByRefID = `-- name: GetTransactionByRefID :one
-SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+SELECT id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE ref_id = $1
 AND status = '0'
 AND partner_id = $2
@@ -225,6 +233,10 @@ func (q *Queries) GetTransactionByRefID(ctx context.Context, arg GetTransactionB
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -265,7 +277,7 @@ func (q *Queries) GetTransactionByRefID(ctx context.Context, arg GetTransactionB
 }
 
 const getTransactionByTxID = `-- name: GetTransactionByTxID :one
-SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+SELECT id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE tx_id = $1 AND deleted_at is null LIMIT 1
 `
 
@@ -277,6 +289,10 @@ func (q *Queries) GetTransactionByTxID(ctx context.Context, txID string) (Transa
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -317,7 +333,7 @@ func (q *Queries) GetTransactionByTxID(ctx context.Context, txID string) (Transa
 }
 
 const getTransactionPending = `-- name: GetTransactionPending :one
-SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+SELECT id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE bill_id = $1
   AND status = '4'
   AND to_char(created_at,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
@@ -333,6 +349,10 @@ func (q *Queries) GetTransactionPending(ctx context.Context, billID string) (Tra
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -373,26 +393,32 @@ func (q *Queries) GetTransactionPending(ctx context.Context, billID string) (Tra
 }
 
 const listTransaction = `-- name: ListTransaction :many
-SELECT id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
+SELECT id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE deleted_at is null
 AND DATE(created_at) >= to_date($3,'YYYY-MM-DD')
 AND DATE(created_at) <= to_date($4,'YYYY-MM-DD')
 AND (CASE WHEN $5::bool THEN status = $6 ELSE TRUE END)
 AND (CASE WHEN $7::bool THEN cat_id = $8 ELSE TRUE END)
+AND (CASE WHEN $9::bool THEN partner_id = $10 ELSE TRUE END)
+AND (CASE WHEN $11::bool THEN created_by = $12 ELSE TRUE END)
 ORDER BY created_at
 LIMIT $1
 OFFSET $2
 `
 
 type ListTransactionParams struct {
-	Limit    int32         `json:"limit"`
-	Offset   int32         `json:"offset"`
-	FromDate string        `json:"from_date"`
-	ToDate   string        `json:"to_date"`
-	IsStatus bool          `json:"is_status"`
-	Status   string        `json:"status"`
-	IsCat    bool          `json:"is_cat"`
-	CatID    sql.NullInt64 `json:"cat_id"`
+	Limit     int32         `json:"limit"`
+	Offset    int32         `json:"offset"`
+	FromDate  string        `json:"from_date"`
+	ToDate    string        `json:"to_date"`
+	IsStatus  bool          `json:"is_status"`
+	Status    string        `json:"status"`
+	IsCat     bool          `json:"is_cat"`
+	CatID     sql.NullInt64 `json:"cat_id"`
+	IsPartner bool          `json:"is_partner"`
+	PartnerID sql.NullInt64 `json:"partner_id"`
+	IsCreated bool          `json:"is_created"`
+	CreatedBy sql.NullInt64 `json:"created_by"`
 }
 
 func (q *Queries) ListTransaction(ctx context.Context, arg ListTransactionParams) ([]Transaction, error) {
@@ -405,6 +431,10 @@ func (q *Queries) ListTransaction(ctx context.Context, arg ListTransactionParams
 		arg.Status,
 		arg.IsCat,
 		arg.CatID,
+		arg.IsPartner,
+		arg.PartnerID,
+		arg.IsCreated,
+		arg.CreatedBy,
 	)
 	if err != nil {
 		return nil, err
@@ -418,6 +448,10 @@ func (q *Queries) ListTransaction(ctx context.Context, arg ListTransactionParams
 			&i.TxID,
 			&i.RefID,
 			&i.BillID,
+			&i.Sn,
+			&i.AddInfo1,
+			&i.AddInfo2,
+			&i.AddInfo3,
 			&i.CustName,
 			&i.Amount,
 			&i.Admin,
@@ -469,7 +503,7 @@ func (q *Queries) ListTransaction(ctx context.Context, arg ListTransactionParams
 
 const updateInactiveTransaction = `-- name: UpdateInactiveTransaction :one
 UPDATE "transactions" SET deleted_by = $2, deleted_at = now() WHERE id = $1
-RETURNING id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+RETURNING id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateInactiveTransactionParams struct {
@@ -485,6 +519,10 @@ func (q *Queries) UpdateInactiveTransaction(ctx context.Context, arg UpdateInact
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
@@ -582,11 +620,31 @@ SET
                     THEN $22
                    ELSE req_rev_params
         END,
-    updated_by = $23,
+    sn = CASE
+            WHEN $23::bool
+                THEN $24
+            ELSE sn
+        END,
+    add_info1 = CASE
+                         WHEN $25::bool
+                    THEN $26
+                         ELSE add_info1
+        END,
+    add_info2 = CASE
+                         WHEN $27::bool
+                    THEN $28
+                         ELSE add_info2
+        END,
+    add_info3 = CASE
+                         WHEN $29::bool
+                    THEN $30
+                         ELSE add_info3
+        END,
+    updated_by = $31,
     updated_at = now()
 WHERE
-    id = $24
-RETURNING id, tx_id, ref_id, bill_id, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
+    id = $32
+RETURNING id, tx_id, ref_id, bill_id, sn, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateTransactionParams struct {
@@ -612,6 +670,14 @@ type UpdateTransactionParams struct {
 	ResAdvParams    sql.NullString `json:"res_adv_params"`
 	SetReqRevParams bool           `json:"set_req_rev_params"`
 	ReqRevParams    sql.NullString `json:"req_rev_params"`
+	SetSn           bool           `json:"set_sn"`
+	Sn              sql.NullString `json:"sn"`
+	SetInfo1        bool           `json:"set_info1"`
+	AddInfo1        sql.NullString `json:"add_info1"`
+	SetInfo2        bool           `json:"set_info2"`
+	AddInfo2        sql.NullString `json:"add_info2"`
+	SetInfo3        bool           `json:"set_info3"`
+	AddInfo3        sql.NullString `json:"add_info3"`
 	UpdatedBy       sql.NullInt64  `json:"updated_by"`
 	ID              int64          `json:"id"`
 }
@@ -640,6 +706,14 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 		arg.ResAdvParams,
 		arg.SetReqRevParams,
 		arg.ReqRevParams,
+		arg.SetSn,
+		arg.Sn,
+		arg.SetInfo1,
+		arg.AddInfo1,
+		arg.SetInfo2,
+		arg.AddInfo2,
+		arg.SetInfo3,
+		arg.AddInfo3,
 		arg.UpdatedBy,
 		arg.ID,
 	)
@@ -649,6 +723,10 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 		&i.TxID,
 		&i.RefID,
 		&i.BillID,
+		&i.Sn,
+		&i.AddInfo1,
+		&i.AddInfo2,
+		&i.AddInfo3,
 		&i.CustName,
 		&i.Amount,
 		&i.Admin,
