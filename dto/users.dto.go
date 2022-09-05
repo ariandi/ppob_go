@@ -55,6 +55,7 @@ type GetUserRequest struct {
 type ListUserRequest struct {
 	PageID   int32 `form:"page_id" binding:"required,min=1"`
 	PageSize int32 `form:"page_size" binding:"required,min=5,max=200"`
+	RoleID   int64 `form:"role_id"`
 }
 
 type LoginUserRequest struct {

@@ -4,10 +4,10 @@ INSERT INTO "transactions" (
     cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name,
     status, req_inq_params, res_inq_params, req_pay_params, res_pay_params,
     req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params,
-    created_by, ref_id, created_at, first_balance, last_balance
+    created_by, ref_id, created_at, first_balance, last_balance, payment_type
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33
+            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33, $34
          ) RETURNING *;
 
 -- name: GetTransaction :one
@@ -44,6 +44,7 @@ AND (CASE WHEN @is_status::bool THEN status = @status ELSE TRUE END)
 AND (CASE WHEN @is_cat::bool THEN cat_id = @cat_id ELSE TRUE END)
 AND (CASE WHEN @is_partner::bool THEN partner_id = @partner_id ELSE TRUE END)
 AND (CASE WHEN @is_created::bool THEN created_by = @created_by ELSE TRUE END)
+AND (CASE WHEN @is_type::bool THEN payment_type = @payment_type ELSE TRUE END)
 ORDER BY created_at
 LIMIT $1
 OFFSET $2;

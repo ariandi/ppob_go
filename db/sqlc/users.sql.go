@@ -188,6 +188,7 @@ FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
 LEFT JOIN roles on roles.id = role_users.role_id
 WHERE users.deleted_at is null
+AND (CASE WHEN $3::bool THEN role_users.role_id = $4 ELSE TRUE END)
 ORDER BY users.name
 LIMIT $1
 OFFSET $2
@@ -196,6 +197,8 @@ OFFSET $2
 type ListUserParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
+	IsRole bool  `json:"is_role"`
+	RoleID int64 `json:"role_id"`
 }
 
 type ListUserRow struct {
@@ -220,7 +223,12 @@ type ListUserRow struct {
 }
 
 func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, listUser, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listUser,
+		arg.Limit,
+		arg.Offset,
+		arg.IsRole,
+		arg.RoleID,
+	)
 	if err != nil {
 		return nil, err
 	}

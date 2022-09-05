@@ -134,6 +134,7 @@ CREATE TABLE "transactions" (
                                 "ref_id" varchar(50) NOT NULL,
                                 "bill_id" varchar(50) NOT NULL,
                                 "sn" varchar(50),
+                                "payment_type" varchar(50) DEFAULT 'payment',
                                 "add_info1" varchar(150) DEFAULT NULL,
                                 "add_info2" varchar(150) DEFAULT NULL,
                                 "add_info3" varchar(150) DEFAULT NULL,

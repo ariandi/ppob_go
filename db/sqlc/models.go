@@ -125,6 +125,7 @@ type Transaction struct {
 	RefID        string         `json:"ref_id"`
 	BillID       string         `json:"bill_id"`
 	Sn           sql.NullString `json:"sn"`
+	PaymentType  sql.NullString `json:"payment_type"`
 	AddInfo1     sql.NullString `json:"add_info1"`
 	AddInfo2     sql.NullString `json:"add_info2"`
 	AddInfo3     sql.NullString `json:"add_info3"`

@@ -249,6 +249,11 @@ func (o *UserService) ListUserService(ctx *gin.Context, in dto.ListUserRequest) 
 	arg := db.ListUserParams{
 		Limit:  in.PageSize,
 		Offset: (in.PageID - 1) * in.PageSize,
+		RoleID: in.RoleID,
+	}
+
+	if in.RoleID > 0 {
+		arg.IsRole = true
 	}
 
 	users, err := o.Store.ListUser(ctx, arg)

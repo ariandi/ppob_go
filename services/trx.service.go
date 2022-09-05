@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"github.com/360EntSecGroup-Skylar/excelize"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
 	"github.com/ariandi/ppob_go/token"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -30,6 +32,8 @@ type TransactionInterface interface {
 	setTxID() string
 	validateTrx(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	TransactionRes(trx db.Transaction) dto.TransactionRes
+	ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) error
+	getTransactionList(ctx *gin.Context, in dto.ListTransactionRequest) ([]db.Transaction, error)
 	InqResult(in dto.InqSetResponse) dto.InqResponse
 	InqResultSet(in dto.InqRequest, resultCd string, resultMsg string) dto.InqResponse
 }
@@ -122,18 +126,7 @@ func (o *TransactionService) ListTransactionService(ctx *gin.Context, in dto.Lis
 		return out, errors.New("error in user validator")
 	}
 
-	arg := db.ListTransactionParams{
-		Limit:    in.PageSize,
-		Offset:   (in.PageID - 1) * in.PageSize,
-		FromDate: in.FromDate,
-		ToDate:   in.ToDate,
-		//IsStatus: false,
-		//Status:   "",
-		//IsCat:    false,
-		//CatID:    sql.NullInt64{},
-	}
-
-	trxList, err := o.store.ListTransaction(ctx, arg)
+	trxList, err := o.getTransactionList(ctx, in)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
 		return out, err
@@ -623,6 +616,101 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 		ReqRevParams: trx.ReqRevParams.String,
 		ResRevParams: trx.ResRevParams.String,
 	}
+}
+
+func (o *TransactionService) ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) error {
+	logrus.Println("[TransactionService ExportTransaction] start.")
+	var out []dto.TransactionRes
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
+	if err != nil {
+		return errors.New("error in user validator")
+	}
+
+	trxList, err := o.getTransactionList(ctx, in)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
+		return err
+	}
+
+	for _, trx := range trxList {
+		u := o.TransactionRes(trx)
+		out = append(out, u)
+	}
+
+	f := excelize.NewFile()
+	f.SetCellValue("Sheet1", "A1", 50)
+	f.SetCellValue("Sheet1", "B2", 100)
+
+	now := time.Now()
+
+	f.SetCellValue("Sheet1", "A4", now.Format(time.ANSIC))
+
+	if errSave := f.SaveAs("simple.xlsx"); err != nil {
+		logrus.Println("[TransactionService ExportTransaction] error export excel file : ", errSave)
+		log.Fatal(errSave)
+	}
+
+	return nil
+}
+
+func (o *TransactionService) getTransactionList(ctx *gin.Context, in dto.ListTransactionRequest) ([]db.Transaction, error) {
+	var out []db.Transaction
+	arg := db.ListTransactionParams{
+		Limit:    in.PageSize,
+		Offset:   (in.PageID - 1) * in.PageSize,
+		FromDate: in.FromDate,
+		ToDate:   in.ToDate,
+		Status:   in.Status,
+		PaymentType: sql.NullString{
+			String: in.PaymentType,
+			Valid:  true,
+		},
+		IsType: true,
+	}
+
+	if in.Status != "" {
+		arg.IsStatus = true
+	}
+
+	if in.CatID > 0 {
+		arg.CatID = sql.NullInt64{
+			Int64: in.CatID,
+			Valid: true,
+		}
+		arg.IsCat = true
+	}
+
+	if in.PartnerID > 0 {
+		arg.PartnerID = sql.NullInt64{
+			Int64: in.PartnerID,
+			Valid: true,
+		}
+		arg.IsPartner = true
+	}
+
+	if in.CreatedBy > 0 {
+		arg.CreatedBy = sql.NullInt64{
+			Int64: in.CreatedBy,
+			Valid: true,
+		}
+		arg.IsCreated = true
+	}
+
+	if in.PaymentType == "" {
+		arg.PaymentType = sql.NullString{
+			String: "payment",
+			Valid:  true,
+		}
+	}
+
+	trxList, err := o.store.ListTransaction(ctx, arg)
+	if err != nil {
+		return out, err
+	}
+
+	return trxList, nil
 }
 
 func (o *TransactionService) InqResult(in dto.InqSetResponse) dto.InqResponse {

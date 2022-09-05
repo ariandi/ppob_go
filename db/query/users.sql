@@ -23,6 +23,7 @@ FROM users
 LEFT JOIN role_users on role_users.user_id = users.id
 LEFT JOIN roles on roles.id = role_users.role_id
 WHERE users.deleted_at is null
+AND (CASE WHEN @is_role::bool THEN role_users.role_id = @role_id ELSE TRUE END)
 ORDER BY users.name
 LIMIT $1
 OFFSET $2;
