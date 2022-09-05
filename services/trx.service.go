@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -32,7 +31,7 @@ type TransactionInterface interface {
 	setTxID() string
 	validateTrx(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	TransactionRes(trx db.Transaction) dto.TransactionRes
-	ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) error
+	ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) (*excelize.File, error)
 	getTransactionList(ctx *gin.Context, in dto.ListTransactionRequest) ([]db.Transaction, error)
 	InqResult(in dto.InqSetResponse) dto.InqResponse
 	InqResultSet(in dto.InqRequest, resultCd string, resultMsg string) dto.InqResponse
@@ -618,41 +617,64 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 	}
 }
 
-func (o *TransactionService) ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) error {
+func (o *TransactionService) ExportTransaction(ctx *gin.Context, in dto.ListTransactionRequest) (*excelize.File, error) {
 	logrus.Println("[TransactionService ExportTransaction] start.")
-	var out []dto.TransactionRes
 
-	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-	_, err := userService.validator(ctx, authPayload)
-	if err != nil {
-		return errors.New("error in user validator")
-	}
+	//authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	//_, err := userService.validator(ctx, authPayload)
+	//if err != nil {
+	//	return errors.New("error in user validator")
+	//}
 
 	trxList, err := o.getTransactionList(ctx, in)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
-		return err
+		return nil, err
 	}
 
-	for _, trx := range trxList {
-		u := o.TransactionRes(trx)
-		out = append(out, u)
-	}
+	layoutFormat := "2006-01-02 15:04:05"
+	sheetName := "Sheet1"
 
 	f := excelize.NewFile()
-	f.SetCellValue("Sheet1", "A1", 50)
-	f.SetCellValue("Sheet1", "B2", 100)
+	f.SetCellValue(sheetName, "A1", "tx_id")
+	f.SetCellValue(sheetName, "B1", "locket")
+	f.SetCellValue(sheetName, "C1", "bill_id")
+	f.SetCellValue(sheetName, "D1", "category")
+	f.SetCellValue(sheetName, "E1", "product")
+	f.SetCellValue(sheetName, "F1", "partner")
+	f.SetCellValue(sheetName, "G1", "status")
+	f.SetCellValue(sheetName, "H1", "amount")
+	f.SetCellValue(sheetName, "I1", "fee_partner")
+	f.SetCellValue(sheetName, "J1", "fee_ppob")
+	f.SetCellValue(sheetName, "K1", "sn")
+	f.SetCellValue(sheetName, "L1", "date")
 
-	now := time.Now()
-
-	f.SetCellValue("Sheet1", "A4", now.Format(time.ANSIC))
-
-	if errSave := f.SaveAs("simple.xlsx"); err != nil {
-		logrus.Println("[TransactionService ExportTransaction] error export excel file : ", errSave)
-		log.Fatal(errSave)
+	for i, trx := range trxList {
+		columnNumber := i + 2
+		f.SetCellValue(sheetName, "A"+strconv.Itoa(columnNumber), trx.TxID)
+		f.SetCellValue(sheetName, "B"+strconv.Itoa(columnNumber), trx.CreatedBy)
+		f.SetCellValue(sheetName, "C"+strconv.Itoa(columnNumber), trx.BillID)
+		f.SetCellValue(sheetName, "D"+strconv.Itoa(columnNumber), trx.CatName)
+		f.SetCellValue(sheetName, "E"+strconv.Itoa(columnNumber), trx.ProdName)
+		f.SetCellValue(sheetName, "F"+strconv.Itoa(columnNumber), trx.PartnerName)
+		f.SetCellValue(sheetName, "G"+strconv.Itoa(columnNumber), trx.Status)
+		f.SetCellValue(sheetName, "H"+strconv.Itoa(columnNumber), trx.TotAmount)
+		f.SetCellValue(sheetName, "I"+strconv.Itoa(columnNumber), trx.FeePartner)
+		f.SetCellValue(sheetName, "J"+strconv.Itoa(columnNumber), trx.FeePpob)
+		f.SetCellValue(sheetName, "K"+strconv.Itoa(columnNumber), trx.Sn)
+		f.SetCellValue(sheetName, "L"+strconv.Itoa(columnNumber), trx.CreatedAt.Time.Format(layoutFormat))
 	}
 
-	return nil
+	//now := time.Now()
+	//
+	//f.SetCellValue("Sheet1", "A4", now.Format(time.ANSIC))
+
+	//if errSave := f.SaveAs("simple.xlsx"); err != nil {
+	//	logrus.Println("[TransactionService ExportTransaction] error export excel file : ", errSave)
+	//	log.Fatal(errSave)
+	//}
+
+	return f, nil
 }
 
 func (o *TransactionService) getTransactionList(ctx *gin.Context, in dto.ListTransactionRequest) ([]db.Transaction, error) {

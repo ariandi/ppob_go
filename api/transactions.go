@@ -72,6 +72,32 @@ func (server *Server) listTrx(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
+func (server *Server) paymentExport(ctx *gin.Context) {
+	logrus.Println("[Transactions paymentExport] start", ctx.Request.Body)
+
+	var req dto.ListTransactionRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+		return
+	}
+
+	f, err := transactionService.ExportTransaction(ctx, req)
+	if err != nil {
+		return
+	}
+
+	ctx.Header("Content-Type", "application/octet-stream")
+	ctx.Header("Content-Disposition", "attachment;filename=userInputData.xlsx")
+	ctx.Header("File-Name", "userInputData.xlsx")
+	ctx.Header("Content-Transfer-Encoding", "binary")
+	ctx.Header("Expires", "0")
+	errExport := f.Write(ctx.Writer)
+	if errExport != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(errExport))
+		return
+	}
+}
+
 func (server *Server) updateTrx(ctx *gin.Context) {
 	logrus.Println("[Transactions updateTrx] start.")
 	var req dto.UpdateTransactionRequest
