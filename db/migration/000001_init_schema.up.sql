@@ -175,6 +175,21 @@ CREATE TABLE "transactions" (
                                 "deleted_by" bigint DEFAULT (null)
 );
 
+CREATE TABLE "madiastorages" (
+                                 "id" bigserial PRIMARY KEY,
+                                 "sec_id" varchar(50) NOT NULL,
+                                 "tab_id" varchar(50) NOT NULL,
+                                 "name" varchar(50) NOT NULL,
+                                 "type" varchar(100) NOT NULL,
+                                 "content" text NOT NULL,
+                                 "created_at" timestamptz DEFAULT (now()),
+                                 "updated_at" timestamptz DEFAULT (null),
+                                 "deleted_at" timestamptz DEFAULT (null),
+                                 "created_by" bigint DEFAULT (null),
+                                 "updated_by" bigint DEFAULT (null),
+                                 "deleted_by" bigint DEFAULT (null)
+);
+
 CREATE INDEX ON "users" ("email");
 
 CREATE INDEX ON "users" ("username");
@@ -236,6 +251,10 @@ CREATE INDEX ON "transactions" ("status", "provider_id");
 CREATE INDEX ON "transactions" ("cat_id", "prod_id");
 
 CREATE INDEX ON "transactions" ("created_at", "status");
+
+CREATE INDEX ON "madiastorages" ("name");
+
+CREATE INDEX ON "madiastorages" ("type");
 
 ALTER TABLE "users" ADD FOREIGN KEY ("updated_by") REFERENCES "users" ("id");
 
@@ -308,3 +327,9 @@ ALTER TABLE "transactions" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("i
 ALTER TABLE "transactions" ADD FOREIGN KEY ("updated_by") REFERENCES "users" ("id");
 
 ALTER TABLE "transactions" ADD FOREIGN KEY ("deleted_by") REFERENCES "users" ("id");
+
+ALTER TABLE "madiastorages" ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
+
+ALTER TABLE "madiastorages" ADD FOREIGN KEY ("updated_by") REFERENCES "users" ("id");
+
+ALTER TABLE "madiastorages" ADD FOREIGN KEY ("deleted_by") REFERENCES "users" ("id");

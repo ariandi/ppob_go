@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateCategory(ctx context.Context, arg CreateCategoryParams) (Category, error)
+	CreateMediaStorage(ctx context.Context, arg CreateMediaStorageParams) (Madiastorage, error)
 	CreatePartner(ctx context.Context, arg CreatePartnerParams) (Partner, error)
 	CreateProduct(ctx context.Context, arg CreateProductParams) (Product, error)
 	CreateProvider(ctx context.Context, arg CreateProviderParams) (Provider, error)
@@ -19,6 +20,7 @@ type Querier interface {
 	CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCategories(ctx context.Context, id int64) error
+	DeleteMediaStorage(ctx context.Context, id int64) error
 	DeletePartner(ctx context.Context, id int64) error
 	DeleteProduct(ctx context.Context, id int64) error
 	DeleteProvider(ctx context.Context, id int64) error
@@ -28,6 +30,7 @@ type Querier interface {
 	DeleteTransaction(ctx context.Context, id int64) error
 	DeleteUser(ctx context.Context, id int64) error
 	GetCategory(ctx context.Context, id int64) (Category, error)
+	GetMediaStorage(ctx context.Context, arg GetMediaStorageParams) (Madiastorage, error)
 	GetPartner(ctx context.Context, id int64) (Partner, error)
 	GetPartnerByParams(ctx context.Context, arg GetPartnerByParamsParams) (Partner, error)
 	GetProduct(ctx context.Context, id int64) (Product, error)
@@ -44,6 +47,7 @@ type Querier interface {
 	GetUser(ctx context.Context, id int64) (GetUserRow, error)
 	GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error)
 	ListCategory(ctx context.Context, arg ListCategoryParams) ([]Category, error)
+	ListMediaStorage(ctx context.Context, arg ListMediaStorageParams) ([]Madiastorage, error)
 	ListPartner(ctx context.Context, arg ListPartnerParams) ([]Partner, error)
 	ListProduct(ctx context.Context, arg ListProductParams) ([]Product, error)
 	ListProductByCatID(ctx context.Context, arg ListProductByCatIDParams) ([]Product, error)
@@ -57,6 +61,7 @@ type Querier interface {
 	ListUser(ctx context.Context, arg ListUserParams) ([]ListUserRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdateInactiveCategory(ctx context.Context, arg UpdateInactiveCategoryParams) (Category, error)
+	UpdateInactiveMediaStorage(ctx context.Context, arg UpdateInactiveMediaStorageParams) (Madiastorage, error)
 	UpdateInactivePartner(ctx context.Context, arg UpdateInactivePartnerParams) (Partner, error)
 	UpdateInactiveProduct(ctx context.Context, arg UpdateInactiveProductParams) (Product, error)
 	UpdateInactiveProvider(ctx context.Context, arg UpdateInactiveProviderParams) (Provider, error)
@@ -65,6 +70,7 @@ type Querier interface {
 	UpdateInactiveSelling(ctx context.Context, arg UpdateInactiveSellingParams) (Selling, error)
 	UpdateInactiveTransaction(ctx context.Context, arg UpdateInactiveTransactionParams) (Transaction, error)
 	UpdateInactiveUser(ctx context.Context, arg UpdateInactiveUserParams) (User, error)
+	UpdateMediaStorage(ctx context.Context, arg UpdateMediaStorageParams) (Madiastorage, error)
 	UpdatePartner(ctx context.Context, arg UpdatePartnerParams) (Partner, error)
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
 	UpdateProvider(ctx context.Context, arg UpdateProviderParams) (Provider, error)

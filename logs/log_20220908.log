@@ -1,0 +1,518 @@
+{"level":"info","msg":"================================================","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[User loginUser] start login","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService LoginUserService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:06 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:07 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:08 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:09 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:10 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:11 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 09:26 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"08 Sep 22 09:26 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 09:26 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:36 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:37 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 09:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 10:25 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 12:15 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"08 Sep 22 12:15 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 12:15 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 12:33 WIB"}
+{"level":"info","msg":"Server running at port 0.0.0.0:8880","time":"08 Sep 22 12:33 WIB"}
+{"level":"info","msg":"================================================","time":"08 Sep 22 12:33 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:38 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:40 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:42 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[Transactions listTrx] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[TransactionService ListTransactionService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[Categories listCategory] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[Partners listPartner] start {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[CategoryService GetCategoryService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"start listUsers {}","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService ListUserService] start.","time":"08 Sep 22 12:48 WIB"}
+{"level":"info","msg":"[UserService validator] start.","time":"08 Sep 22 12:48 WIB"}

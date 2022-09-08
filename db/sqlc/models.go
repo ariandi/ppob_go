@@ -21,6 +21,21 @@ type Category struct {
 	DeletedBy sql.NullInt64  `json:"deleted_by"`
 }
 
+type Madiastorage struct {
+	ID        int64         `json:"id"`
+	SecID     string        `json:"sec_id"`
+	TabID     string        `json:"tab_id"`
+	Name      string        `json:"name"`
+	Type      string        `json:"type"`
+	Content   string        `json:"content"`
+	CreatedAt sql.NullTime  `json:"created_at"`
+	UpdatedAt sql.NullTime  `json:"updated_at"`
+	DeletedAt sql.NullTime  `json:"deleted_at"`
+	CreatedBy sql.NullInt64 `json:"created_by"`
+	UpdatedBy sql.NullInt64 `json:"updated_by"`
+	DeletedBy sql.NullInt64 `json:"deleted_by"`
+}
+
 type Partner struct {
 	ID          int64         `json:"id"`
 	Name        string        `json:"name"`

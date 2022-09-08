@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS mediastorages;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS sellings;
 DROP TABLE IF EXISTS products;

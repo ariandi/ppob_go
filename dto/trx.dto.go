@@ -20,6 +20,7 @@ type CreateTransactionReq struct {
 	ProviderID   int64  `json:"provider_id"`
 	ProviderName string `json:"provider_name"`
 	Status       string `json:"status"`
+	PaymentType  string `json:"payment_type"`
 	ReqInqParams string `json:"req_inq_params"`
 	ResInqParams string `json:"res_inq_params"`
 	ReqPayParams string `json:"req_pay_params"`
@@ -53,6 +54,7 @@ type TransactionRes struct {
 	ProviderID   int64  `json:"provider_id"`
 	ProviderName string `json:"provider_name"`
 	Status       string `json:"status"`
+	PaymentType  string `json:"payment_type"`
 	CreatedBy    string `json:"created_by"`
 	ReqInqParams string `json:"req_inq_params"`
 	ResInqParams string `json:"res_inq_params"`
@@ -114,11 +116,6 @@ type InqRequest struct {
 	Amount        int64  `json:"amount"`
 }
 
-type InqRequestConsume struct {
-	InqRequest  InqRequest
-	InqResponse InqResponse
-}
-
 type InqResponse struct {
 	TimeStamp     string `json:"time_stamp"`
 	UserID        string `json:"user_id"`
@@ -134,6 +131,31 @@ type InqResponse struct {
 	ResultCd      string `json:"result_cd"`
 	ResultMsg     string `json:"result_msg"`
 	TxID          string `json:"tx_id"`
+}
+
+type DepositRequest struct {
+	Content string `json:"content" binding:"required"`
+	Type    string `json:"type" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	AppName string `json:"app_name" binding:"required"`
+	Amount  int64  `json:"amount" binding:"required"`
+}
+
+type DepositResponse struct {
+	ResultCd  string `json:"result_cd"`
+	ResultMsg string `json:"result_msg"`
+	TxID      string `json:"tx_id"`
+}
+
+type InqRequestConsume struct {
+	InqRequest  InqRequest
+	InqResponse InqResponse
+}
+
+type DepositRequestConsume struct {
+	DepositRequest  DepositRequest
+	DepositResponse DepositResponse
+	UserRequest     UserResponse
 }
 
 type InqSetResponse struct {

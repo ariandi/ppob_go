@@ -28,6 +28,7 @@ type TransactionInterface interface {
 	setCreateParams(arg db.CreateTransactionParams, in dto.CreateTransactionReq) db.CreateTransactionParams
 	setUpdateParams(arg db.UpdateTransactionParams, in dto.UpdateTransactionRequest) db.UpdateTransactionParams
 	InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
+	DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error)
 	setTxID() string
 	validateTrx(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	TransactionRes(trx db.Transaction) dto.TransactionRes
@@ -420,6 +421,51 @@ func (o *TransactionService) InqService(ctx *gin.Context, in dto.InqRequest) (dt
 	return ret, nil
 }
 
+func (o *TransactionService) DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error) {
+	logrus.Println("[TransactionService InqService] start.")
+	var ret dto.DepositResponse
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userReq, err := userService.validator(ctx, authPayload)
+	if err != nil {
+		return ret, errors.New("error in user validator")
+	}
+
+	user := dto.UserResponse{
+		ID:       userReq.ID,
+		Name:     userReq.Name,
+		Email:    userReq.Email,
+		Username: userReq.Username,
+		Balance:  userReq.Balance,
+	}
+
+	txID := o.setTxID()
+	queueName := "deposit"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	ret = dto.DepositResponse{
+		ResultCd:  util.SuccessCd,
+		ResultMsg: util.SuccessMsg,
+		TxID:      txID,
+	}
+	depositInqConsume := dto.DepositRequestConsume{
+		DepositRequest:  in,
+		DepositResponse: ret,
+		UserRequest:     user,
+	}
+	byt, err := json.Marshal(depositInqConsume)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
+
+	return ret, nil
+}
+
 func (o *TransactionService) setTxID() string {
 
 	unique := util.RandomInt(1, 9999)
@@ -604,6 +650,7 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 		ProviderName: trx.ProviderName.String,
 		Status:       trx.Status,
 		CreatedBy:    strconv.Itoa(int(trx.CreatedBy.Int64)),
+		PaymentType:  trx.PaymentType.String,
 		ReqInqParams: trx.ReqInqParams.String,
 		ResInqParams: trx.ResInqParams.String,
 		ReqPayParams: trx.ReqPayParams.String,
@@ -722,7 +769,7 @@ func (o *TransactionService) getTransactionList(ctx *gin.Context, in dto.ListTra
 
 	if in.PaymentType == "" {
 		arg.PaymentType = sql.NullString{
-			String: "payment",
+			String: "Payment",
 			Valid:  true,
 		}
 	}
