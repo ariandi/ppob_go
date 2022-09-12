@@ -45,7 +45,7 @@ AND (CASE WHEN @is_cat::bool THEN cat_id = @cat_id ELSE TRUE END)
 AND (CASE WHEN @is_partner::bool THEN partner_id = @partner_id ELSE TRUE END)
 AND (CASE WHEN @is_created::bool THEN created_by = @created_by ELSE TRUE END)
 AND (CASE WHEN @is_type::bool THEN payment_type = @payment_type ELSE TRUE END)
-ORDER BY created_at
+ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2;
 

@@ -13,6 +13,7 @@ type Config struct {
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 	RedisUrl            string        `mapstructure:"REDIS_URL"`
 	RedisDB             string        `mapstructure:"REDIS_DB"`
+	AllowDeposit        string        `mapstructure:"ALLOW_DEPOSIT"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

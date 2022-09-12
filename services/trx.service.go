@@ -422,7 +422,7 @@ func (o *TransactionService) InqService(ctx *gin.Context, in dto.InqRequest) (dt
 }
 
 func (o *TransactionService) DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error) {
-	logrus.Println("[TransactionService InqService] start.")
+	logrus.Println("[TransactionService DepositService] start.")
 	var ret dto.DepositResponse
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
@@ -455,6 +455,57 @@ func (o *TransactionService) DepositService(ctx *gin.Context, in dto.DepositRequ
 		DepositRequest:  in,
 		DepositResponse: ret,
 		UserRequest:     user,
+		QueueName:       "deposit",
+	}
+	byt, err := json.Marshal(depositInqConsume)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
+
+	return ret, nil
+}
+
+func (o *TransactionService) DepositApproveService(ctx *gin.Context, in dto.DepositApproveRequest) (dto.DepositResponse, error) {
+	logrus.Println("[TransactionService DepositApproveService] start.")
+	var ret dto.DepositResponse
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	userReq, err := userService.validator(ctx, authPayload)
+	if err != nil {
+		return ret, errors.New("error in user validator")
+	}
+
+	if authPayload.Username != "dbduabelas" {
+		return ret, errors.New("you not allow to approve deposit")
+	}
+
+	user := dto.UserResponse{
+		ID:       userReq.ID,
+		Name:     userReq.Name,
+		Email:    userReq.Email,
+		Username: userReq.Username,
+		Balance:  userReq.Balance,
+	}
+
+	txID := o.setTxID()
+	queueName := "deposit"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	ret = dto.DepositResponse{
+		ResultCd:  util.SuccessCd,
+		ResultMsg: util.SuccessMsg,
+		TxID:      txID,
+	}
+	depositInqConsume := dto.DepositRequestConsume{
+		DepositApproveRequest: in,
+		DepositResponse:       ret,
+		UserRequest:           user,
+		QueueName:             "deposit_approve",
 	}
 	byt, err := json.Marshal(depositInqConsume)
 	if err != nil {

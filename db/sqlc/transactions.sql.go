@@ -409,7 +409,7 @@ AND (CASE WHEN $7::bool THEN cat_id = $8 ELSE TRUE END)
 AND (CASE WHEN $9::bool THEN partner_id = $10 ELSE TRUE END)
 AND (CASE WHEN $11::bool THEN created_by = $12 ELSE TRUE END)
 AND (CASE WHEN $13::bool THEN payment_type = $14 ELSE TRUE END)
-ORDER BY created_at
+ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2
 `

@@ -141,6 +141,10 @@ type DepositRequest struct {
 	Amount  int64  `json:"amount" binding:"required"`
 }
 
+type DepositApproveRequest struct {
+	TxID string `json:"tx_id" binding:"required"`
+}
+
 type DepositResponse struct {
 	ResultCd  string `json:"result_cd"`
 	ResultMsg string `json:"result_msg"`
@@ -153,9 +157,11 @@ type InqRequestConsume struct {
 }
 
 type DepositRequestConsume struct {
-	DepositRequest  DepositRequest
-	DepositResponse DepositResponse
-	UserRequest     UserResponse
+	DepositRequest        DepositRequest
+	DepositApproveRequest DepositApproveRequest
+	DepositResponse       DepositResponse
+	UserRequest           UserResponse
+	QueueName             string
 }
 
 type InqSetResponse struct {

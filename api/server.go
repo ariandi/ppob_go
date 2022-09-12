@@ -137,6 +137,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 	authRoutes.DELETE("/transactions/:id", server.softDeleteTrx)
 
 	authRoutes.POST("/inquiry", server.inquiry)
+	authRoutes.POST("/transactions/deposit", server.deposit)
 
 	server.Router = router
 }
