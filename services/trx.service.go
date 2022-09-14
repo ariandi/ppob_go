@@ -29,6 +29,7 @@ type TransactionInterface interface {
 	setUpdateParams(arg db.UpdateTransactionParams, in dto.UpdateTransactionRequest) db.UpdateTransactionParams
 	InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error)
+	DepositApproveService(ctx *gin.Context, in dto.DepositApproveRequest) (dto.DepositResponse, error)
 	setTxID() string
 	validateTrx(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	TransactionRes(trx db.Transaction) dto.TransactionRes
@@ -455,7 +456,7 @@ func (o *TransactionService) DepositService(ctx *gin.Context, in dto.DepositRequ
 		DepositRequest:  in,
 		DepositResponse: ret,
 		UserRequest:     user,
-		QueueName:       "deposit",
+		QueueName:       util.DEPOSIT_TYPE_REQUEST,
 	}
 	byt, err := json.Marshal(depositInqConsume)
 	if err != nil {

@@ -132,6 +132,12 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 	authRoutes.PUT("/selling-prices/:id", server.updateSelling)
 	authRoutes.DELETE("/selling-prices/:id", server.softDeleteSelling)
 
+	authRoutes.POST("/medias", server.createMedia)
+	authRoutes.GET("/medias/one", server.getMedia)
+	authRoutes.GET("/medias", server.listMedia)
+	authRoutes.PUT("/medias/:id", server.updateMedia)
+	authRoutes.DELETE("/medias/:id", server.softDeleteMedia)
+
 	authRoutes.POST("/transactions", server.createTrx)
 	authRoutes.GET("/transactions/:tx_id", server.getTrx)
 	authRoutes.GET("/transactions", server.listTrx)
@@ -140,6 +146,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 
 	authRoutes.POST("/inquiry", server.inquiry)
 	authRoutes.POST("/transactions/deposit", server.deposit)
+	authRoutes.POST("/transactions/deposit-approve", server.depositApprove)
 
 	server.Router = router
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	db "github.com/ariandi/ppob_go/db/sqlc"
 	"github.com/ariandi/ppob_go/dto"
@@ -84,22 +85,24 @@ func (o *MediaService) GetMediaService(ctx *gin.Context, in dto.GetMediaReq) (dt
 		return out, errors.New("error in user validator")
 	}
 
-	arg := db.GetMediaStorageParams{
-		ID:    in.ID,
-		SecID: in.SecID,
-		TabID: in.TabID,
-	}
+	arg := db.GetMediaStorageParams{}
 	if in.ID > 0 {
+		arg.ID = in.ID
 		arg.IsID = true
 	}
 
 	if in.SecID != "" {
+		arg.SecID = in.SecID
 		arg.IsSec = true
 	}
 
 	if in.TabID != "" {
+		arg.TabID = in.TabID
 		arg.IsTab = true
 	}
+
+	wew, _ := json.Marshal(in)
+	logrus.Println("[MediaService GetMediaService] start. : ", string(wew))
 
 	media, err := o.store.GetMediaStorage(ctx, arg)
 	if err != nil {
