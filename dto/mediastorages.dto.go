@@ -8,6 +8,8 @@ type CreateMediaReq struct {
 	Name    string `json:"name"`
 	Type    string `json:"type"`
 	Content string `json:"content"`
+	SecID   string `json:"sec_id"`
+	TabID   string `json:"tab_id"`
 }
 
 type MediaRes struct {
@@ -40,4 +42,8 @@ type ListMediaRequest struct {
 	PageSize int32  `form:"page_size" binding:"required,min=5,max=50"`
 	SecID    string `form:"sec_id"`
 	TabID    string `form:"tab_id"`
+}
+
+type UpdateInactiveMediaRequest struct {
+	ID int64 `uri:"id" binding:"required,min=1"`
 }

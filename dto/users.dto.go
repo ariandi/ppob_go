@@ -13,6 +13,7 @@ type CreateUserRequest struct {
 	Password       string `json:"password" binding:"min=6"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number" binding:"required"`
+	BankCode       int64  `json:"bank_code"`
 	RoleID         int64  `json:"role_id" binding:"required"`
 }
 
@@ -37,6 +38,7 @@ type UpdateUserRequest struct {
 	Balance        string `json:"balance"`
 	Phone          string `json:"phone"`
 	IdentityNumber string `json:"identity_number"`
+	BankCode       int64  `json:"bank_code"`
 	RoleID         int64  `json:"role_id" binding:"required"`
 }
 

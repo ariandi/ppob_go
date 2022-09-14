@@ -481,6 +481,17 @@ func (o *TransactionService) DepositApproveService(ctx *gin.Context, in dto.Depo
 		return ret, errors.New("you not allow to approve deposit")
 	}
 
+	_, err = o.store.GetTransactionByTxID(ctx, in.TxID)
+	if err != nil {
+		logrus.Info("[TransactionService DepositApproveService] select tx id not found : ", err)
+		ret = dto.DepositResponse{
+			ResultCd:  util.TransactionNotFoundCd,
+			ResultMsg: util.TransactionNotFoundMsg,
+			TxID:      in.TxID,
+		}
+		return ret, err
+	}
+
 	user := dto.UserResponse{
 		ID:       userReq.ID,
 		Name:     userReq.Name,
@@ -489,7 +500,6 @@ func (o *TransactionService) DepositApproveService(ctx *gin.Context, in dto.Depo
 		Balance:  userReq.Balance,
 	}
 
-	txID := o.setTxID()
 	queueName := "deposit"
 	redisQueue, err := redisConn.OpenQueue(queueName)
 	if err != nil {
@@ -499,13 +509,13 @@ func (o *TransactionService) DepositApproveService(ctx *gin.Context, in dto.Depo
 	ret = dto.DepositResponse{
 		ResultCd:  util.SuccessCd,
 		ResultMsg: util.SuccessMsg,
-		TxID:      txID,
+		TxID:      in.TxID,
 	}
 	depositInqConsume := dto.DepositRequestConsume{
 		DepositApproveRequest: in,
 		DepositResponse:       ret,
 		UserRequest:           user,
-		QueueName:             "deposit_approve",
+		QueueName:             util.DEPOSIT_TYPE_APPROVE,
 	}
 	byt, err := json.Marshal(depositInqConsume)
 	if err != nil {

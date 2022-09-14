@@ -110,12 +110,16 @@ func (o *UserService) CreateUserService(ctx *gin.Context, in dto.CreateUserReque
 	}
 
 	arg := db.CreateUserParams{
-		Name:           in.Name,
-		Email:          in.Email,
-		Username:       in.Username,
-		CreatedBy:      sql.NullInt64{Int64: user.ID, Valid: true},
-		Phone:          in.Phone,
-		Balance:        sql.NullString{String: "0.00", Valid: true},
+		Name:      in.Name,
+		Email:     in.Email,
+		Username:  in.Username,
+		CreatedBy: sql.NullInt64{Int64: user.ID, Valid: true},
+		Phone:     in.Phone,
+		Balance:   sql.NullString{String: "0.00", Valid: true},
+		BankCode: sql.NullInt64{
+			Int64: in.BankCode,
+			Valid: true,
+		},
 		IdentityNumber: in.IdentityNumber,
 	}
 
@@ -230,6 +234,7 @@ func (o *UserService) GetUserService(ctx *gin.Context, in dto.GetUserRequest) (d
 		Balance:        user.Balance,
 		Phone:          user.Phone,
 		IdentityNumber: user.IdentityNumber,
+		BankCode:       user.BankCode,
 	}
 	out := o.newUserResponse(userArg, roleUsers)
 
@@ -291,7 +296,7 @@ func (o *UserService) ListUserService(ctx *gin.Context, in dto.ListUserRequest) 
 }
 
 func (o *UserService) UpdateUserService(ctx *gin.Context, in dto.UpdateUserRequest) (dto.UserResponse, error) {
-	logrus.Println("[UserService UpdateUserService] start.")
+	logrus.Info("[UserService UpdateUserService] start.")
 	var result dto.UserResponse
 
 	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
@@ -306,8 +311,14 @@ func (o *UserService) UpdateUserService(ctx *gin.Context, in dto.UpdateUserReque
 		Name:           in.Name,
 		Phone:          in.Phone,
 		IdentityNumber: in.IdentityNumber,
-		UpdatedBy:      sql.NullInt64{Int64: user.ID, Valid: true},
+		BankCode: sql.NullInt64{
+			Int64: in.BankCode,
+			Valid: true,
+		},
+		UpdatedBy: sql.NullInt64{Int64: user.ID, Valid: true},
 	}
+
+	logrus.Info("[UserService UpdateUserService] arg params is ", arg)
 
 	if in.Password != "" {
 		password, errPasswd := util.HashPassword(in.Password)

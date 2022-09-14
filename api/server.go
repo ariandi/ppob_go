@@ -21,6 +21,7 @@ var productService services.ProductInterface
 var transactionService services.TransactionInterface
 var sellingService *services.SellingService
 var roleUserService services.RoleUserInterface
+var mediaService services.MediaInterface
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
@@ -65,6 +66,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	transactionService = services.GetTransactionService(store)
 	sellingService = services.GetSellingService(store)
 	roleUserService = services.GetRoleUserService(store)
+	mediaService = services.GetMediaService(store)
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)

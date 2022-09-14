@@ -36,6 +36,8 @@ const (
 	RefIDAlreadyUsedMsg        = "ref id already use"
 	StillPendingTransactionCd  = "8011"
 	StillPendingTransactionMsg = "transaction still pending"
+	TransactionNotFoundCd      = "8012"
+	TransactionNotFoundMsg     = "transaction not found"
 
 	GeneralErrorCd  = "9999"
 	GeneralErrorMsg = "general error"

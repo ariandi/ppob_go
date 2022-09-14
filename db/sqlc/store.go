@@ -61,6 +61,7 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, a
 			Balance:        sql.NullString{String: "0.00", Valid: true},
 			Phone:          req.Phone,
 			IdentityNumber: req.IdentityNumber,
+			BankCode:       req.BankCode,
 			CreatedBy:      sql.NullInt64{Int64: userPayload.ID, Valid: true},
 		})
 		if err != nil {
@@ -88,6 +89,7 @@ func (store *SQLStore) CreateUserTx(ctx context.Context, req CreateUserParams, a
 		result.Email = user.Email
 		result.Balance = user.Balance
 		result.IdentityNumber = user.IdentityNumber
+		result.BankCode = user.BankCode.Int64
 
 		resRoleUser := dto.RoleUser{
 			ID:        roleUser.ID,
@@ -124,6 +126,7 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 
 		req = store.setUpdateUserTxValid(req, authPayload)
 		req.UpdatedBy = sql.NullInt64{Int64: userPayload.ID, Valid: true}
+		logrus.Println("[Store UpdateUserTx] bank code is ", req.BankCode)
 		user, err := q.UpdateUser(ctx, req)
 		if err != nil {
 			logrus.Println("[Store UpdateUserTx] user is ", req.Email)
@@ -185,22 +188,6 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 			}
 		}
 
-		//roleUserParams := UpdateRoleUserParams{
-		//	ID:     defaultRoleID,
-		//	UserID: req.ID,
-		//	RoleID: roleId,
-		//	UpdatedBy: sql.NullInt64{
-		//		Int64: userPayload.ID,
-		//		Valid: true,
-		//	},
-		//}
-		//
-		//roleUser, err := q.UpdateRoleUser(ctx, roleUserParams)
-		//if err != nil {
-		//	logrus.Println("[Store UpdateUserTx] error update role is ", err)
-		//	return err
-		//}
-
 		result.Name = user.Name
 		result.ID = user.ID
 		result.Phone = user.Phone
@@ -208,6 +195,7 @@ func (store *SQLStore) UpdateUserTx(ctx context.Context, req UpdateUserParams, a
 		result.Email = user.Email
 		result.Balance = user.Balance
 		result.IdentityNumber = user.IdentityNumber
+		result.BankCode = user.BankCode.Int64
 
 		resRoleUser := dto.RoleUser{
 			ID:        roleUser.ID,
