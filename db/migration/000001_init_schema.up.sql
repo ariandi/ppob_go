@@ -142,6 +142,7 @@ CREATE TABLE "transactions" (
                                 "amount" decimal(16,2) DEFAULT 0,
                                 "admin" decimal(16,2) DEFAULT 0,
                                 "tot_amount" decimal(16,2) DEFAULT 0,
+                                "deducted_balance" decimal(16,2) DEFAULT 0,
                                 "fee_partner" decimal(16,2) DEFAULT 0,
                                 "fee_ppob" decimal(16,2) DEFAULT 0,
                                 "first_balance" decimal(16,2) DEFAULT 0,

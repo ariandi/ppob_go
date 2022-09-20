@@ -4,10 +4,10 @@ INSERT INTO "transactions" (
     cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name,
     status, req_inq_params, res_inq_params, req_pay_params, res_pay_params,
     req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params,
-    created_by, ref_id, created_at, first_balance, last_balance, payment_type
+    created_by, ref_id, created_at, first_balance, last_balance, payment_type, deducted_balance
 ) values (
              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
-            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33, $34
+            $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, now(), $32, $33, $34, $35
          ) RETURNING *;
 
 -- name: GetTransaction :one
@@ -20,11 +20,13 @@ WHERE tx_id = $1 AND deleted_at is null LIMIT 1;
 
 -- name: GetTransactionByRefID :one
 SELECT * FROM "transactions"
-WHERE ref_id = $1
-AND status = '0'
-AND partner_id = $2
+WHERE deleted_at is null
+AND (CASE WHEN @is_status::bool THEN status = @status ELSE TRUE END)
+AND (CASE WHEN @is_reff::bool THEN ref_id = @ref_id ELSE TRUE END)
+AND (CASE WHEN @is_partner::bool THEN partner_id = @partner_id ELSE TRUE END)
+AND (CASE WHEN @is_bill::bool THEN bill_id = @bill_id ELSE TRUE END)
 AND to_char(created_at,'YYYY-MM-DD') = to_char(now(),'YYYY-MM-DD')
-AND deleted_at is null
+ORDER BY id desc
 LIMIT 1;
 
 -- name: GetTransactionPending :one
@@ -66,6 +68,11 @@ SET
                    WHEN sqlc.arg(set_last_balance)::bool
                 THEN sqlc.arg(last_balance)
                    ELSE last_balance
+        END,
+    "deducted_balance" = CASE
+                         WHEN sqlc.arg(set_deducted_balance)::bool
+                THEN sqlc.arg(deducted_balance)
+                         ELSE deducted_balance
         END,
     res_inq_params = CASE
                WHEN sqlc.arg(set_res_inq_params)::bool

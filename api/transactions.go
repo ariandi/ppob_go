@@ -159,7 +159,38 @@ func (server *Server) inquiry(ctx *gin.Context) {
 		return
 	}
 
-	resp1, err := transactionService.InqService(ctx, req)
+	resp1, err := paymentService.InqService(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusOK, resp1)
+		return
+	}
+
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
+}
+
+func (server *Server) payment(ctx *gin.Context) {
+	logrus.Println("[Transactions payment] start.")
+	var req dto.PayRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		errs, _ := err.(validator.ValidationErrors)
+		logrus.Info("ok", errs)
+		for _, v := range errs {
+			field := v.Field()
+			tag := v.Tag()
+
+			errMsg := fmt.Sprintf("%v: %v", field, tag)
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponseString(errMsg))
+			break
+		}
+		return
+	}
+
+	resp1, err := paymentService.PayService(ctx, req)
 	if err != nil {
 		ctx.JSON(http.StatusOK, resp1)
 		return
@@ -191,7 +222,7 @@ func (server *Server) deposit(ctx *gin.Context) {
 		return
 	}
 
-	resp1, err := transactionService.DepositService(ctx, req)
+	resp1, err := paymentService.DepositService(ctx, req)
 	if err != nil {
 		logrus.Info("[Transactions deposit] error deposit service ", err)
 		ctx.JSON(http.StatusOK, resp1)
@@ -224,7 +255,7 @@ func (server *Server) depositApprove(ctx *gin.Context) {
 		return
 	}
 
-	resp1, err := transactionService.DepositApproveService(ctx, req)
+	resp1, err := paymentService.DepositApproveService(ctx, req)
 	if err != nil {
 		logrus.Info("[Transactions deposit] error deposit service ", err)
 		ctx.JSON(http.StatusOK, resp1)

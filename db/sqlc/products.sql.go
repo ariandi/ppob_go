@@ -102,7 +102,7 @@ SELECT id, cat_id, name, amount, provider_id, provider_code, status, parent, cre
 WHERE deleted_at is null
 AND (CASE WHEN $3::bool THEN cat_id = $4 ELSE TRUE END)
 AND (CASE WHEN $5::bool THEN provider_id = $6 ELSE TRUE END)
-ORDER BY name
+ORDER BY split_part(name, ' ', 1) desc, amount
 LIMIT $1
 OFFSET $2
 `

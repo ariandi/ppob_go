@@ -22,6 +22,7 @@ var transactionService services.TransactionInterface
 var sellingService *services.SellingService
 var roleUserService services.RoleUserInterface
 var mediaService services.MediaInterface
+var paymentService services.PaymentInterface
 
 // Server serves HTTP requests for ppob services.
 type Server struct {
@@ -67,6 +68,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	sellingService = services.GetSellingService(store)
 	roleUserService = services.GetRoleUserService(store)
 	mediaService = services.GetMediaService(store)
+	paymentService = services.GetPaymentService(store)
 	util.InitLogger()
 	logrus.Println("================================================")
 	logrus.Printf("Server running at port %s", config.ServerAddress)
@@ -145,6 +147,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 	authRoutes.DELETE("/transactions/:id", server.softDeleteTrx)
 
 	authRoutes.POST("/inquiry", server.inquiry)
+	authRoutes.POST("/payment", server.payment)
 	authRoutes.POST("/transactions/deposit", server.deposit)
 	authRoutes.POST("/transactions/deposit-approve", server.depositApprove)
 
