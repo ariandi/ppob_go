@@ -84,6 +84,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 	router.POST("/users/test-redis", server.testRedisMq)
 	router.POST("/users/test-create", server.createUsersFirst)
 	router.GET("/transactions/payment-export", server.paymentExport)
+	router.POST("/digi-webhook", server.digiWebHook)
 
 	authRoutes := router.Group("/").Use(AuthMiddleware(tokenMaker))
 	authRoutes.POST("/users", server.createUsers)

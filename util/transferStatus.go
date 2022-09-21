@@ -14,6 +14,7 @@ const (
 
 	TrxInq     = "Inq"
 	TrxPayment = "Pay"
+	TrxWebHook = "WebHook"
 
 	SuccessCd                  = "0000"
 	SuccessMsg                 = "Success"
@@ -59,6 +60,8 @@ const (
 	BillIdDifferentMsg         = "bill id is different"
 	TxNotInqCd                 = "8020"
 	TxNotInqMsg                = "trx is not inquiry"
+	DigiWebHookDeliverCd       = "8021"
+	DigiWebHookDeliverMsg      = "digi delivery id not same"
 
 	GeneralErrorCd  = "9999"
 	GeneralErrorMsg = "general error"

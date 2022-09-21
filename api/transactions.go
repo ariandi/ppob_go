@@ -204,6 +204,41 @@ func (server *Server) payment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
+func (server *Server) digiWebHook(ctx *gin.Context) {
+	logrus.Println("[Transactions digiWebHook] start.")
+	var req dto.DigiWebHook
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		errs, _ := err.(validator.ValidationErrors)
+		logrus.Info("ok", errs)
+		for _, v := range errs {
+			field := v.Field()
+			tag := v.Tag()
+
+			errMsg := fmt.Sprintf("%v: %v", field, tag)
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponseString(errMsg))
+			break
+		}
+		return
+	}
+
+	req.Header.XDigiflazzDelivery = ctx.GetHeader("X-Digiflazz-Delivery")
+	req.Header.XDigiflazzEvent = ctx.GetHeader("X-Digiflazz-Event")
+	req.Header.XHubSignature = ctx.GetHeader("X-Hub-Signature")
+
+	resp1, err := paymentService.DigiWebHookService(ctx, req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, resp1)
+		return
+	}
+
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
+}
+
 func (server *Server) deposit(ctx *gin.Context) {
 	logrus.Println("[Transactions deposit] start.")
 	var req dto.DepositRequest

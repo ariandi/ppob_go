@@ -43,6 +43,8 @@ type TransactionRes struct {
 	TotAmount    string `json:"tot_amount"`
 	FeePartner   string `json:"fee_partner"`
 	FeePpob      string `json:"fee_ppob"`
+	FirstBalance string `json:"first_balance"`
+	LastBalance  string `json:"last_balance"`
 	ValidFrom    string `json:"valid_from"`
 	ValidTo      string `json:"valid_to"`
 	CatID        int64  `json:"cat_id"`

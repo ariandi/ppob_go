@@ -20,6 +20,36 @@ type MockStore struct {
 	recorder *MockStoreMockRecorder
 }
 
+func (m *MockStore) CreateMediaStorage(ctx context.Context, arg db.CreateMediaStorageParams) (db.Madiastorage, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockStore) DeleteMediaStorage(ctx context.Context, id int64) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockStore) GetMediaStorage(ctx context.Context, arg db.GetMediaStorageParams) (db.Madiastorage, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockStore) ListMediaStorage(ctx context.Context, arg db.ListMediaStorageParams) ([]db.Madiastorage, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockStore) UpdateInactiveMediaStorage(ctx context.Context, arg db.UpdateInactiveMediaStorageParams) (db.Madiastorage, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MockStore) UpdateMediaStorage(ctx context.Context, arg db.UpdateMediaStorageParams) (db.Madiastorage, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 // MockStoreMockRecorder is the mock recorder for MockStore.
 type MockStoreMockRecorder struct {
 	mock *MockStore

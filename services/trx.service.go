@@ -338,6 +338,8 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 		TotAmount:    trx.TotAmount.String,
 		FeePartner:   trx.FeePartner.String,
 		FeePpob:      trx.FeePpob.String,
+		FirstBalance: trx.FirstBalance.String,
+		LastBalance:  trx.LastBalance.String,
 		CatID:        trx.CatID.Int64,
 		CatName:      trx.CatName.String,
 		ProdID:       trx.ProdID.Int64,

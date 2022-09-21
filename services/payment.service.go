@@ -13,12 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type PaymentInterface interface {
 	InqService(ctx *gin.Context, in dto.InqRequest) (dto.InqResponse, error)
 	PayService(ctx *gin.Context, in dto.PayRequest) (dto.PayResponse, error)
+	DigiWebHookService(ctx *gin.Context, in dto.DigiWebHook) (dto.DigiWebHookResult, error)
 	DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error)
 	DepositApproveService(ctx *gin.Context, in dto.DepositApproveRequest) (dto.DepositResponse, error)
 	setTxID() string
@@ -187,6 +189,49 @@ func (o *PaymentService) PayService(ctx *gin.Context, in dto.PayRequest) (dto.Pa
 	err = redisQueue.Publish(string(byt))
 
 	return inPayResponse, nil
+}
+
+func (o *PaymentService) DigiWebHookService(ctx *gin.Context, in dto.DigiWebHook) (dto.DigiWebHookResult, error) {
+	logrus.Println("[PaymentService DigiWebHookService] start.")
+	ret := dto.DigiWebHookResult{
+		ResultCd:  util.SuccessCd,
+		ResultMsg: util.SuccessMsg,
+	}
+
+	logrus.Println("[PaymentService DigiWebHookService] begin validate trx.")
+	trx, err := o.store.GetTransactionByTxID(ctx, in.Data.RefId)
+	if err != nil {
+		logrus.Info("[PaymentService DigiWebHookService] ", util.TxIdNotFoundMsg)
+		payRes := dto.DigiWebHookResult{
+			ResultCd:  util.TxIdNotFoundCd,
+			ResultMsg: util.TxIdNotFoundMsg,
+		}
+		return payRes, errors.New(util.TxIdNotFoundMsg)
+	}
+	logrus.Println("[PaymentService DigiWebHookService] tr id is : ", trx.ID)
+	respValidErr, err := o.validateDigiWebHook(in, trx)
+	if err != nil {
+		return respValidErr, err
+	}
+
+	reqInqConsume := dto.InqRequestConsume{
+		WebHookReq: in,
+		QueueName:  util.TrxWebHook,
+	}
+	queueName := "transactions"
+	redisQueue, err := redisConn.OpenQueue(queueName)
+	if err != nil {
+		return ret, err
+	}
+
+	byt, err := json.Marshal(reqInqConsume)
+	if err != nil {
+		return ret, err
+	}
+
+	err = redisQueue.Publish(string(byt))
+
+	return ret, nil
 }
 
 func (o *PaymentService) DepositService(ctx *gin.Context, in dto.DepositRequest) (dto.DepositResponse, error) {
@@ -701,6 +746,51 @@ func (o *PaymentService) validateTrxPay(ctx *gin.Context, in dto.PayRequest, trx
 		logrus.Info("[PaymentService validateTrxPay] total amount is different.")
 		err = errors.New(util.AlreadySuccessMsg)
 		payRes = o.PayResultErrorSet(in, util.AlreadySuccessCd, util.AlreadySuccessMsg)
+		return payRes, err
+	}
+
+	return payRes, nil
+}
+
+func (o *PaymentService) validateDigiWebHook(in dto.DigiWebHook, trx db.Transaction) (dto.DigiWebHookResult, error) {
+	logrus.Info("[PaymentService validateDigiWebHook] start.")
+	payRes := dto.DigiWebHookResult{}
+
+	checkCustNo := in.Data.CustomerNo[0:2]
+	if checkCustNo == "628" {
+		in.Data.CustomerNo = strings.Replace(in.Data.CustomerNo, "628", "0", 1)
+	}
+	in.Data.CustomerNo = strings.Replace(in.Data.CustomerNo, "+62 ", "0", 1)
+	in.Data.CustomerNo = strings.Replace(in.Data.CustomerNo, "+62", "0", 1)
+	in.Data.CustomerNo = strings.Replace(in.Data.CustomerNo, "-", "", 4)
+
+	if trx.Status == util.SUCCESS {
+		logrus.Info("[PaymentService validateDigiWebHook] ", util.AlreadySuccessMsg)
+		err := errors.New(util.AlreadySuccessMsg)
+		payRes = dto.DigiWebHookResult{
+			ResultCd:  util.AlreadySuccessCd,
+			ResultMsg: util.AlreadySuccessMsg,
+		}
+		return payRes, err
+	}
+
+	if in.Data.CustomerNo != trx.BillID {
+		logrus.Info("[PaymentService validateDigiWebHook] ", util.BillIdDifferentMsg)
+		err := errors.New(util.BillIdDifferentMsg)
+		payRes = dto.DigiWebHookResult{
+			ResultCd:  util.BillIdDifferentCd,
+			ResultMsg: util.BillIdDifferentMsg,
+		}
+		return payRes, err
+	}
+
+	if in.Header.XDigiflazzDelivery != "D8zbRg" {
+		logrus.Info("[PaymentService validateDigiWebHook] ", util.BillIdDifferentMsg)
+		err := errors.New(util.DigiWebHookDeliverMsg)
+		payRes = dto.DigiWebHookResult{
+			ResultCd:  util.DigiWebHookDeliverCd,
+			ResultMsg: util.DigiWebHookDeliverMsg,
+		}
 		return payRes, err
 	}
 

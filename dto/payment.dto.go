@@ -82,6 +82,7 @@ type InqRequestConsume struct {
 	InqResponse InqResponse
 	PayRequest  PayRequest
 	PayResponse PayResponse
+	WebHookReq  DigiWebHook
 	QueueName   string
 }
 
@@ -102,4 +103,31 @@ type InqSetResponse struct {
 	ResultCd    string `json:"result_cd"`
 	ResultMsg   string `json:"result_msg"`
 	TxID        string `json:"tx_id"`
+}
+
+type DigiWebHook struct {
+	Data struct {
+		TrxId          string `json:"trx_id"`
+		RefId          string `json:"ref_id"`
+		CustomerNo     string `json:"customer_no"`
+		BuyerSkuCode   string `json:"buyer_sku_code"`
+		Message        string `json:"message"`
+		Status         string `json:"status"`
+		Rc             string `json:"rc"`
+		BuyerLastSaldo int    `json:"buyer_last_saldo"`
+		Sn             string `json:"sn"`
+		Price          int    `json:"price"`
+		Tele           string `json:"tele"`
+		Wa             string `json:"wa"`
+	} `json:"data"`
+	Header struct {
+		XDigiflazzEvent    string
+		XDigiflazzDelivery string
+		XHubSignature      string
+	}
+}
+
+type DigiWebHookResult struct {
+	ResultCd  string `json:"result_cd"`
+	ResultMsg string `json:"result_msg"`
 }

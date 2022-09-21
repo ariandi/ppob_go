@@ -59,6 +59,21 @@ SET
                 THEN sqlc.arg(status)
             ELSE status
             END,
+    amount = CASE
+                 WHEN sqlc.arg(set_amount)::bool
+                THEN sqlc.arg(amount)
+                 ELSE amount
+        END,
+    "admin" = CASE
+                 WHEN sqlc.arg(set_admin)::bool
+                THEN sqlc.arg(admin)
+                 ELSE admin
+        END,
+    "tot_amount" = CASE
+                  WHEN sqlc.arg(set_tot)::bool
+                THEN sqlc.arg(tot_amount)
+                  ELSE tot_amount
+        END,
     "first_balance" = CASE
                    WHEN sqlc.arg(set_first_balance)::bool
                 THEN sqlc.arg(first_balance)

@@ -610,91 +610,112 @@ SET
                 THEN $2
             ELSE status
             END,
-    "first_balance" = CASE
-                   WHEN $3::bool
+    amount = CASE
+                 WHEN $3::bool
                 THEN $4
+                 ELSE amount
+        END,
+    "admin" = CASE
+                 WHEN $5::bool
+                THEN $6
+                 ELSE admin
+        END,
+    "tot_amount" = CASE
+                  WHEN $7::bool
+                THEN $8
+                  ELSE tot_amount
+        END,
+    "first_balance" = CASE
+                   WHEN $9::bool
+                THEN $10
                    ELSE first_balance
         END,
     "last_balance" = CASE
-                   WHEN $5::bool
-                THEN $6
+                   WHEN $11::bool
+                THEN $12
                    ELSE last_balance
         END,
     "deducted_balance" = CASE
-                         WHEN $7::bool
-                THEN $8
+                         WHEN $13::bool
+                THEN $14
                          ELSE deducted_balance
         END,
     res_inq_params = CASE
-               WHEN $9::bool
-                THEN $10
+               WHEN $15::bool
+                THEN $16
                ELSE res_inq_params
         END,
     req_pay_params = CASE
-                 WHEN $11::bool
-                    THEN $12
+                 WHEN $17::bool
+                    THEN $18
                  ELSE req_pay_params
         END,
     res_pay_params = CASE
-                 WHEN $13::bool
-                    THEN $14
+                 WHEN $19::bool
+                    THEN $20
                  ELSE res_pay_params
         END,
     req_cmt_params = CASE
-                    WHEN $15::bool
-                    THEN $16
+                    WHEN $21::bool
+                    THEN $22
                     ELSE req_cmt_params
         END,
     res_cmt_params = CASE
-                    WHEN $17::bool
-                    THEN $18
+                    WHEN $23::bool
+                    THEN $24
                     ELSE res_cmt_params
         END,
     req_adv_params = CASE
-                     WHEN $19::bool
-                    THEN $20
+                     WHEN $25::bool
+                    THEN $26
                      ELSE req_adv_params
         END,
     res_adv_params = CASE
-                   WHEN $21::bool
-                    THEN $22
+                   WHEN $27::bool
+                    THEN $28
                    ELSE res_adv_params
         END,
     req_rev_params = CASE
-                   WHEN $23::bool
-                    THEN $24
+                   WHEN $29::bool
+                    THEN $30
                    ELSE req_rev_params
         END,
     sn = CASE
-            WHEN $25::bool
-                THEN $26
+            WHEN $31::bool
+                THEN $32
             ELSE sn
         END,
     add_info1 = CASE
-                         WHEN $27::bool
-                    THEN $28
+                         WHEN $33::bool
+                    THEN $34
                          ELSE add_info1
         END,
     add_info2 = CASE
-                         WHEN $29::bool
-                    THEN $30
+                         WHEN $35::bool
+                    THEN $36
                          ELSE add_info2
         END,
     add_info3 = CASE
-                         WHEN $31::bool
-                    THEN $32
+                         WHEN $37::bool
+                    THEN $38
                          ELSE add_info3
         END,
-    updated_by = $33,
+    updated_by = $39,
     updated_at = now()
 WHERE
-    id = $34
+    id = $40
 RETURNING id, tx_id, ref_id, bill_id, sn, payment_type, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, deducted_balance, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
 `
 
 type UpdateTransactionParams struct {
 	SetStatus          bool           `json:"set_status"`
 	Status             string         `json:"status"`
+	SetAmount          bool           `json:"set_amount"`
+	Amount             sql.NullString `json:"amount"`
+	SetAdmin           bool           `json:"set_admin"`
+	Admin              sql.NullString `json:"admin"`
+	SetTot             bool           `json:"set_tot"`
+	TotAmount          sql.NullString `json:"tot_amount"`
 	SetFirstBalance    bool           `json:"set_first_balance"`
 	FirstBalance       sql.NullString `json:"first_balance"`
 	SetLastBalance     bool           `json:"set_last_balance"`
@@ -733,6 +754,12 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 	row := q.db.QueryRowContext(ctx, updateTransaction,
 		arg.SetStatus,
 		arg.Status,
+		arg.SetAmount,
+		arg.Amount,
+		arg.SetAdmin,
+		arg.Admin,
+		arg.SetTot,
+		arg.TotAmount,
 		arg.SetFirstBalance,
 		arg.FirstBalance,
 		arg.SetLastBalance,
