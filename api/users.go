@@ -59,8 +59,21 @@ func (server *Server) getUser(ctx *gin.Context) {
 		return
 	}
 
-	//authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
 	resp1, err := userService.GetUserService(ctx, req)
+	if err != nil {
+		return
+	}
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
+}
+
+func (server *Server) getUserCount(ctx *gin.Context) {
+	logrus.Println("[Users getUserCount] start.")
+	resp1, err := userService.GetUserCountService(ctx)
 	if err != nil {
 		return
 	}

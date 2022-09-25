@@ -14,6 +14,15 @@ INSERT INTO "transactions" (
 SELECT * FROM "transactions"
 WHERE id = $1 AND deleted_at is null LIMIT 1;
 
+-- name: GetTransactionCount :one
+SELECT COUNT(id),
+CASE WHEN COUNT(id) > 0 THEN SUM(deducted_balance) ELSE 0 END AS sum
+FROM "transactions"
+WHERE deleted_at is null
+AND (CASE WHEN @is_status::bool THEN status = @status ELSE TRUE END)
+AND to_char(created_at,'YYYY-MM-DD') >= @fromDt
+AND to_char(created_at,'YYYY-MM-DD') <= @toDt;
+
 -- name: GetTransactionByTxID :one
 SELECT * FROM "transactions"
 WHERE tx_id = $1 AND deleted_at is null LIMIT 1;

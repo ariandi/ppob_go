@@ -88,6 +88,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 
 	authRoutes := router.Group("/").Use(AuthMiddleware(tokenMaker))
 	authRoutes.POST("/users", server.createUsers)
+	authRoutes.GET("/users/count", server.getUserCount)
 	authRoutes.GET("/users/:id", server.getUser)
 	authRoutes.GET("/users", server.listUsers)
 	authRoutes.PUT("/users/:id", server.updateUsers)
@@ -144,6 +145,7 @@ func (server *Server) setupRouter(tokenMaker token.Maker) {
 	authRoutes.POST("/transactions", server.createTrx)
 	authRoutes.GET("/transactions/:tx_id", server.getTrx)
 	authRoutes.GET("/transactions", server.listTrx)
+	authRoutes.GET("/transactions-count", server.listTrxCount)
 	authRoutes.PUT("/transactions/:tx_id", server.updateTrx)
 	authRoutes.DELETE("/transactions/:id", server.softDeleteTrx)
 

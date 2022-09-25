@@ -72,6 +72,28 @@ func (server *Server) listTrx(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, resp2)
 }
 
+func (server *Server) listTrxCount(ctx *gin.Context) {
+	logrus.Println("[Transactions listTrxCount] start", ctx.Request.Body)
+
+	var req dto.GetTransactionCountReq
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse(err))
+		return
+	}
+
+	resp1, err := transactionService.GetTransactionCountService(ctx, req)
+	if err != nil {
+		return
+	}
+
+	resp2 := dto.ResponseDefault{
+		Status:  http.StatusOK,
+		Message: "Success",
+		Data:    resp1,
+	}
+	ctx.JSON(http.StatusOK, resp2)
+}
+
 func (server *Server) paymentExport(ctx *gin.Context) {
 	logrus.Println("[Transactions paymentExport] start", ctx.Request.Body)
 

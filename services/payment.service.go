@@ -92,13 +92,12 @@ func (o *PaymentService) InqService(ctx *gin.Context, in dto.InqRequest) (dto.In
 	prodAmount, _ := strconv.ParseFloat(prod.Amount, 64)
 	amountF, _ := strconv.ParseFloat(selling.Amount.String, 64)
 	upSellingF, _ := strconv.ParseFloat(category.UpSelling.String, 64)
-	amount := int(amountF)
 	upSelling := int(upSellingF)
-	totAmount := int(prodAmount) + amount + upSelling
+	totAmount := int(prodAmount) + upSelling
 	inInqSetResponse := dto.InqSetResponse{
 		InqData:     in,
 		ProductName: prod.Name,
-		Amount:      int64(prodAmount + upSellingF),
+		Amount:      int64(prodAmount),
 		Admin:       int64(amountF),
 		TotalAmount: int64(totAmount),
 		ResultCd:    util.SuccessCd,

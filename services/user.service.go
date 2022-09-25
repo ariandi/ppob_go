@@ -23,6 +23,7 @@ type UserInterface interface {
 	CreateUserFirstService(ctx *gin.Context, in dto.CreateUserRequest) (dto.UserResponse, error)
 	GetUserService(ctx *gin.Context, in dto.GetUserRequest) (dto.UserResponse, error)
 	ListUserService(ctx *gin.Context, in dto.ListUserRequest) ([]dto.UserResponse, error)
+	GetUserCountService(ctx *gin.Context) (db.ListUserCountRow, error)
 	UpdateUserService(ctx *gin.Context, in dto.UpdateUserRequest) (dto.UserResponse, error)
 	SoftDeleteUserService(ctx *gin.Context, in dto.UpdateInactiveUserRequest) error
 	LoginUserService(ctx *gin.Context, in dto.LoginUserRequest) (dto.LoginUserResponse, error)
@@ -237,6 +238,30 @@ func (o *UserService) GetUserService(ctx *gin.Context, in dto.GetUserRequest) (d
 		BankCode:       user.BankCode,
 	}
 	out := o.newUserResponse(userArg, roleUsers)
+
+	return out, nil
+}
+
+func (o *UserService) GetUserCountService(ctx *gin.Context) (db.ListUserCountRow, error) {
+	logrus.Println("[UserService GetUserCountService] start.")
+	var result db.ListUserCountRow
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := o.validator(ctx, authPayload)
+	if err != nil {
+		return result, errors.New("error in user validator")
+	}
+
+	out, err := o.Store.ListUserCount(ctx)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
+			return result, err
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
+		return result, err
+	}
 
 	return out, nil
 }

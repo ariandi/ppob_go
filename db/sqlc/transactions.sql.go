@@ -361,6 +361,40 @@ func (q *Queries) GetTransactionByTxID(ctx context.Context, txID string) (Transa
 	return i, err
 }
 
+const getTransactionCount = `-- name: GetTransactionCount :one
+SELECT COUNT(id),
+CASE WHEN COUNT(id) > 0 THEN SUM(deducted_balance) ELSE 0 END AS sum
+FROM "transactions"
+WHERE deleted_at is null
+AND (CASE WHEN $1::bool THEN status = $2 ELSE TRUE END)
+AND to_char(created_at,'YYYY-MM-DD') >= $3
+AND to_char(created_at,'YYYY-MM-DD') <= $4
+`
+
+type GetTransactionCountParams struct {
+	IsStatus bool         `json:"is_status"`
+	Status   string       `json:"status"`
+	Fromdt   sql.NullTime `json:"fromdt"`
+	Todt     sql.NullTime `json:"todt"`
+}
+
+type GetTransactionCountRow struct {
+	Count int64       `json:"count"`
+	Sum   interface{} `json:"sum"`
+}
+
+func (q *Queries) GetTransactionCount(ctx context.Context, arg GetTransactionCountParams) (GetTransactionCountRow, error) {
+	row := q.db.QueryRowContext(ctx, getTransactionCount,
+		arg.IsStatus,
+		arg.Status,
+		arg.Fromdt,
+		arg.Todt,
+	)
+	var i GetTransactionCountRow
+	err := row.Scan(&i.Count, &i.Sum)
+	return i, err
+}
+
 const getTransactionPending = `-- name: GetTransactionPending :one
 SELECT id, tx_id, ref_id, bill_id, sn, payment_type, add_info1, add_info2, add_info3, cust_name, amount, admin, tot_amount, deducted_balance, fee_partner, fee_ppob, first_balance, last_balance, valid_from, valid_to, cat_id, cat_name, prod_id, prod_name, partner_id, partner_name, provider_id, provider_name, status, req_inq_params, res_inq_params, req_pay_params, res_pay_params, req_cmt_params, res_cmt_params, req_adv_params, res_adv_params, req_rev_params, res_rev_params, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by FROM "transactions"
 WHERE bill_id = $1

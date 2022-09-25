@@ -12,12 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type TransactionInterface interface {
 	CreateTransactionService(ctx *gin.Context, in dto.CreateTransactionReq) (dto.TransactionRes, error)
 	GetTransactionService(ctx *gin.Context, in dto.GetTransactionByTxIDReq) (dto.TransactionRes, error)
 	ListTransactionService(ctx *gin.Context, in dto.ListTransactionRequest) ([]dto.TransactionRes, error)
+	GetTransactionCountService(ctx *gin.Context, in dto.GetTransactionCountReq) (db.GetTransactionCountRow, error)
 	UpdateTransactionService(ctx *gin.Context, in dto.UpdateTransactionRequest) (dto.TransactionRes, error)
 	SoftDeleteTransactionService(ctx *gin.Context, in dto.UpdateInactiveTransactionRequest) error
 	setCreateParams(arg db.CreateTransactionParams, in dto.CreateTransactionReq) db.CreateTransactionParams
@@ -102,6 +104,51 @@ func (o *TransactionService) GetTransactionService(ctx *gin.Context, in dto.GetT
 	}
 
 	out = o.TransactionRes(trx)
+	return out, nil
+}
+
+func (o *TransactionService) GetTransactionCountService(ctx *gin.Context, in dto.GetTransactionCountReq) (db.GetTransactionCountRow, error) {
+	logrus.Println("[TransactionService GetTransactionCountService] start.")
+	var out db.GetTransactionCountRow
+
+	authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
+	_, err := userService.validator(ctx, authPayload)
+	if err != nil {
+		return out, errors.New("error in user validator")
+	}
+
+	fromDt, err := time.Parse("2006-01-02", in.FromDate)
+	if err != nil {
+		return out, errors.New("from date format error")
+	}
+
+	toDt, err := time.Parse("2006-01-02", in.ToDate)
+	if err != nil {
+		return out, errors.New("to date format error")
+	}
+	args := db.GetTransactionCountParams{
+		IsStatus: true,
+		Status:   in.Status,
+		Fromdt: sql.NullTime{
+			Time:  fromDt,
+			Valid: true,
+		},
+		Todt: sql.NullTime{
+			Time:  toDt,
+			Valid: true,
+		},
+	}
+	out, err = o.store.GetTransactionCount(ctx, args)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, dto.ErrorResponse(err))
+			return out, err
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse(err))
+		return out, err
+	}
+
 	return out, nil
 }
 
@@ -340,6 +387,7 @@ func (o *TransactionService) TransactionRes(trx db.Transaction) dto.TransactionR
 		FeePpob:      trx.FeePpob.String,
 		FirstBalance: trx.FirstBalance.String,
 		LastBalance:  trx.LastBalance.String,
+		Sn:           trx.Sn.String,
 		CatID:        trx.CatID.Int64,
 		CatName:      trx.CatName.String,
 		ProdID:       trx.ProdID.Int64,
@@ -393,8 +441,10 @@ func (o *TransactionService) ExportTransaction(ctx *gin.Context, in dto.ListTran
 	f.SetCellValue(sheetName, "H1", "amount")
 	f.SetCellValue(sheetName, "I1", "fee_partner")
 	f.SetCellValue(sheetName, "J1", "fee_ppob")
-	f.SetCellValue(sheetName, "K1", "sn")
-	f.SetCellValue(sheetName, "L1", "date")
+	f.SetCellValue(sheetName, "K1", "first_balance")
+	f.SetCellValue(sheetName, "L1", "last_balance")
+	f.SetCellValue(sheetName, "M1", "sn")
+	f.SetCellValue(sheetName, "N1", "date")
 
 	for i, trx := range trxList {
 		columnNumber := i + 2
@@ -408,8 +458,10 @@ func (o *TransactionService) ExportTransaction(ctx *gin.Context, in dto.ListTran
 		f.SetCellValue(sheetName, "H"+strconv.Itoa(columnNumber), trx.TotAmount)
 		f.SetCellValue(sheetName, "I"+strconv.Itoa(columnNumber), trx.FeePartner)
 		f.SetCellValue(sheetName, "J"+strconv.Itoa(columnNumber), trx.FeePpob)
-		f.SetCellValue(sheetName, "K"+strconv.Itoa(columnNumber), trx.Sn)
-		f.SetCellValue(sheetName, "L"+strconv.Itoa(columnNumber), trx.CreatedAt.Time.Format(layoutFormat))
+		f.SetCellValue(sheetName, "K"+strconv.Itoa(columnNumber), trx.FirstBalance)
+		f.SetCellValue(sheetName, "L"+strconv.Itoa(columnNumber), trx.LastBalance)
+		f.SetCellValue(sheetName, "M"+strconv.Itoa(columnNumber), trx.Sn)
+		f.SetCellValue(sheetName, "N"+strconv.Itoa(columnNumber), trx.CreatedAt.Time.Format(layoutFormat))
 	}
 
 	//now := time.Now()

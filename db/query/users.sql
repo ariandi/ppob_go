@@ -28,6 +28,12 @@ ORDER BY users.name
 LIMIT $1
 OFFSET $2;
 
+-- name: ListUserCount :one
+SELECT COUNT(id),
+CASE WHEN COUNT(id) > 0 THEN SUM(balance) ELSE 0 END AS sum
+FROM users
+WHERE deleted_at is null;
+
 -- name: UpdateUser :one
 UPDATE
     users

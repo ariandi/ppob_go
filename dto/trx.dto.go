@@ -45,6 +45,7 @@ type TransactionRes struct {
 	FeePpob      string `json:"fee_ppob"`
 	FirstBalance string `json:"first_balance"`
 	LastBalance  string `json:"last_balance"`
+	Sn           string `json:"sn"`
 	ValidFrom    string `json:"valid_from"`
 	ValidTo      string `json:"valid_to"`
 	CatID        int64  `json:"cat_id"`
@@ -76,6 +77,12 @@ type GetTransactionReq struct {
 
 type GetTransactionByTxIDReq struct {
 	ID string `uri:"tx_id" binding:"required,min=1"`
+}
+
+type GetTransactionCountReq struct {
+	Status   string `form:"status" binding:"required"`
+	FromDate string `form:"from_date" binding:"required"`
+	ToDate   string `form:"to_date" binding:"required"`
 }
 
 type ListTransactionRequest struct {

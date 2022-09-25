@@ -269,6 +269,25 @@ func (q *Queries) ListUser(ctx context.Context, arg ListUserParams) ([]ListUserR
 	return items, nil
 }
 
+const listUserCount = `-- name: ListUserCount :one
+SELECT COUNT(id),
+CASE WHEN COUNT(id) > 0 THEN SUM(balance) ELSE 0 END AS sum
+FROM users
+WHERE deleted_at is null
+`
+
+type ListUserCountRow struct {
+	Count int64  `json:"count"`
+	Sum   string `json:"sum"`
+}
+
+func (q *Queries) ListUserCount(ctx context.Context) (ListUserCountRow, error) {
+	row := q.db.QueryRowContext(ctx, listUserCount)
+	var i ListUserCountRow
+	err := row.Scan(&i.Count, &i.Sum)
+	return i, err
+}
+
 const updateInactiveUser = `-- name: UpdateInactiveUser :one
 UPDATE users SET deleted_by = $2, deleted_at = now() WHERE id = $1
 RETURNING id, name, email, username, bank_code, password, balance, phone, identity_number, verified_at, created_at, updated_at, deleted_at, created_by, updated_by, deleted_by
